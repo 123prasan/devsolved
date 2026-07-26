@@ -12,6 +12,7 @@ import { embed } from '../config/embeddings.js';
 
 const router = express.Router();
 
+
 // ── GET /api/feed ─────────────────────────────────────────────────────────────
 router.get('/feed', optionalAuth, async (req, res) => {
   try {
@@ -185,7 +186,7 @@ router.post('/posts', requireApiAuth, async (req, res) => {
                 actionText: 'View Incident',
                 interactiveType: 'reply',
                 targetUser: req.user.username
-              }).catch(() => {});
+              }).catch(() => { });
             }
           }
         }

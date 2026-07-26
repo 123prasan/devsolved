@@ -49,121 +49,47 @@ const seedRealIncidents = async () => {
     const actionItems = (items) => ({ type: 'action-items', items });
 
     const incidents = [
-      {
-        title: 'CrowdStrike Falcon 2024: The Global BSOD Outage',
-        excerpt: 'A parameter count mismatch within Channel File 291 triggered an out-of-bounds memory read in the Falcon sensor kernel driver, causing 8.5 million Windows devices to BSOD globally.',
-        status: 'resolved',
-        severity: 'critical',
-        investigationHours: 72,
-        coverImage: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=1200',
-        content: [
-          alert('MTTR (Mean Time To Recovery): 4 days (for full global ecosystem recovery)', 'clock'),
-          symptom('At 04:09 UTC on July 19, 2024, millions of Windows devices globally began crashing with a "Blue Screen of Death" (BSOD). The crashes were isolated to systems running the CrowdStrike Falcon sensor and were trapped in a continuous boot-loop. Airlines, hospitals, and financial institutions were severely impacted.'),
-          img('https://images.unsplash.com/photo-1563206767-5b18f218e8de?auto=format&fit=crop&q=80&w=1200', 'Impacted critical infrastructure worldwide'),
 
-          heading('The Technical Architecture', 'cpu'),
-          p('The CrowdStrike Falcon sensor operates as a boot-start driver at the kernel level (Ring 0) in Windows. It uses "Channel Files" to receive rapid configuration updates without requiring a full sensor update.'),
+      {
+        title: 'AWS Cost Optimization: The $40,000 S3 Bandwidth Bill',
+        excerpt: 'Serving static assets directly from a public Amazon S3 bucket instead of using a Content Delivery Network (CDN) resulted in astronomical bandwidth costs and high global latency.',
+        status: 'resolved',
+        severity: 'high',
+        investigationHours: 8,
+        coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
+        content: [
+          alert('Financial Impact: $42,500 in unexpected AWS Data Transfer charges over 7 days.', 'alert-triangle'),
+          symptom('The engineering team deployed a new marketing campaign featuring heavy 4K video assets and high-res images. The assets were uploaded to an AWS S3 bucket and linked directly in the frontend HTML. Within a week, the AWS billing dashboard triggered a critical billing alert.'),
+
+          heading('The Architecture Flaw', 'server'),
+          p('Amazon S3 is incredibly durable for object storage, but it is **not** a Content Delivery Network. When users request assets directly from S3, two major problems occur:'),
+          list([
+            'High Latency: The data must travel from the specific AWS Region (e.g., us-east-1) to the user, regardless of their global location.',
+            'Massive Costs: AWS charges premium rates (up to $0.09 per GB) for Data Transfer Out to the Internet directly from S3.'
+          ]),
 
           heading('The Root Cause', 'terminal'),
-          rootCause('The outage was caused by a specific logic error in the parsing of Channel File 291. A new IPC Template Type was deployed that expected 21 input parameters. However, the Content Interpreter integration only supplied 20 parameters.'),
-          p('When the Falcon sensor attempted to evaluate the 21st parameter, it attempted an out-of-bounds memory read. Because the driver runs in kernel space, Windows instantly panicked to protect the system, resulting in a Stop Code (BSOD).'),
-          code(`// Conceptual Representation of the Fault\nvoid evaluate_template(int* params, int count) {\n  // Expected count = 21, Actual provided count = 20\n  for(int i=0; i<21; i++) {\n    // Crash occurs at i=20 (Out of bounds read)\n    process_param(params[i]); \n  }\n}`, 'c'),
+          rootCause('The frontend team bypassed the infrastructure team and made the S3 bucket public, linking the raw S3 URLs in the source code. Because the marketing campaign went viral in Asia, petabytes of data were pulled directly from the US-East-1 region.'),
+          img('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=1200', 'AWS Billing Dashboard spike'),
+          quote('We assumed S3 was cheap storage. We didn\'t realize we were paying for the network transit every single time a user loaded the page.'),
 
-          heading('Timeline of Events', 'clock'),
-          timeline([
-            { time: '04:09 UTC', status: 'critical', actor: 'System', content: 'Channel File 291 update deployed globally.' },
-            { time: '04:15 UTC', status: 'investigating', actor: 'SRE Team', content: 'Massive spike in customer reports of BSODs worldwide.' },
-            { time: '05:27 UTC', status: 'resolved', actor: 'SRE Team', content: 'Faulty Channel File 291 reverted on the backend.' },
-            { time: '06:00 UTC', status: 'monitoring', actor: 'IT Admins', content: 'Manual remediation (Safe Mode boots) begins globally.' }
-          ]),
-
-          heading('Resolution & Remediation', 'check-circle'),
-          resolution('CrowdStrike immediately reverted the update. However, because affected machines were stuck in a boot-loop, they could not receive the reverted file over the network.'),
-          p('IT administrators globally had to perform manual remediation:'),
-          list([
-            'Boot Windows into Safe Mode or the Windows Recovery Environment',
-            'Navigate to C:\\Windows\\System32\\drivers\\CrowdStrike',
-            'Delete the file matching C-00000291*.sys',
-            'Reboot the machine normally'
-          ]),
+          heading('The Resolution: CloudFront + OAC', 'check-circle'),
+          resolution('The infrastructure team immediately placed Amazon CloudFront (AWS\'s CDN) in front of the S3 bucket. CloudFront caches the heavy assets at edge locations worldwide, drastically reducing latency and reducing Data Transfer Out costs to almost zero (since data transfer from S3 to CloudFront is free).'),
+          p('To secure the bucket and prevent direct access, the team implemented Origin Access Control (OAC):'),
+          code('{\n  "Version": "2012-10-17",\n  "Statement": {\n    "Effect": "Allow",\n    "Principal": {\n      "Service": "cloudfront.amazonaws.com"\n    },\n    "Action": "s3:GetObject",\n    "Resource": "arn:aws:s3:::production-assets/*",\n    "Condition": {\n      "StringEquals": {\n        "AWS:SourceArn": "arn:aws:cloudfront::123456789012:distribution/EDFDVBD632BHDS5"\n      }\n    }\n  }\n}', 'json'),
 
           heading('Post-Incident Action Items', 'clipboard-list'),
           actionItems([
-            { completed: true, priority: 'critical', task: 'Implement robust compiler-level bounds checking in Content Interpreter', owner: 'Sensor Engineering' },
-            { completed: true, priority: 'high', task: 'Stagger Channel File deployments (Canary rollouts) instead of global pushes', owner: 'Release Engineering' },
-            { completed: false, priority: 'medium', task: 'Enhance automated fuzz-testing for all IPC Templates', owner: 'QA Team' }
+            { completed: true, priority: 'critical', task: 'Deploy CloudFront distributions for all static asset buckets', owner: 'DevOps Team' },
+            { completed: true, priority: 'high', task: 'Block public access at the account level for S3 (Block Public Access)', owner: 'Security Team' },
+            { completed: true, priority: 'medium', task: 'Implement aggressive Cache-Control headers (max-age=31536000) for immutable assets', owner: 'Frontend Team' }
           ])
         ],
-        tags: getTags(['windows', 'cybersecurity']),
+        tags: getTags(['aws', 'infrastructure', 'frontend']),
         isDraft: false,
-        upvotes: 4520,
-        views: 89000,
-        createdAt: new Date('2024-07-21T10:00:00Z')
-      },
-      {
-        title: 'Cloudflare 2025: The Bot Management Feature File Crash',
-        excerpt: 'A database permission change caused a duplicate-row query, doubling the size of an ML feature file. The oversized file caused memory exhaustion and crashed edge nodes globally, taking down sites across the internet.',
-        status: 'resolved',
-        severity: 'critical',
-        investigationHours: 12,
-        coverImage: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=1200',
-        content: [
-          alert('MTTR (Mean Time To Recovery): 3 hours 15 minutes', 'clock'),
-          symptom('At roughly 15:45 UTC, traffic passing through Cloudflare began dropping severely. Millions of users attempting to visit Cloudflare-protected websites encountered 502/503 HTTP errors. The system entered a global "fail-closed" state.'),
-
-          heading('Architecture Context', 'server'),
-          p('Cloudflare utilizes a sophisticated Bot Management system powered by Machine Learning. Every 5 minutes, an internal pipeline queries a ClickHouse database to generate a "feature file" which is then propagated to every edge node globally.'),
-
-          heading('The Root Cause', 'terminal'),
-          rootCause('An infrastructure engineer performed a routine permission update on the ClickHouse database. This inadvertently triggered a bug in the query logic, causing it to return duplicate rows.'),
-          quote('Because of the duplicate rows, the generated Machine Learning feature file doubled in size from 50MB to 100MB.'),
-          p('When this oversized file was pushed to the edge network, the service responsible for parsing it (which had strict memory allocation limits) crashed due to Out-Of-Memory (OOM) errors. Because the Bot Management system is designed to "fail-closed" (block traffic when unsure), it began blocking legitimate internet traffic globally.'),
-
-          heading('5 Whys Analysis', 'help-circle'),
-          fiveWhys([
-            { question: 'Why did internet traffic drop globally?', answer: 'The edge proxy crashed and defaulted to a fail-closed state.' },
-            { question: 'Why did the edge proxy crash?', answer: 'It ran out of memory while parsing the Bot Management ML feature file.' },
-            { question: 'Why did it run out of memory?', answer: 'The feature file was exactly twice its normal size.' },
-            { question: 'Why was the file twice its normal size?', answer: 'The internal pipeline query returned duplicate rows.' },
-            { question: 'Why did the query return duplicate rows?', answer: 'A routine permission update on the ClickHouse database altered the query execution plan.' }
-          ]),
-
-          heading('Resolution', 'check-circle'),
-          resolution('Engineers identified the oversized feature file and disabled its distribution. They reverted the ClickHouse database permission change and restarted the Bot Management services across the edge fleet.')
-        ],
-        tags: getTags(['cloudflare', 'machine-learning', 'database']),
-        isDraft: false,
-        upvotes: 3105,
-        views: 65400,
-        createdAt: new Date('2025-11-20T14:30:00Z')
-      },
-      {
-        title: 'AWS Kinesis 2020: US-EAST-1 Cascading Failure',
-        excerpt: 'Adding new capacity to the Kinesis front-end fleet pushed the servers over the operating system maximum thread limit, breaking internal communication and taking down Cognito, CloudWatch, and Lambda.',
-        status: 'resolved',
-        severity: 'critical',
-        investigationHours: 48,
-        coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1200',
-        content: [
-          alert('MTTR (Mean Time To Recovery): 14 hours', 'clock'),
-          symptom('At 5:15 AM PST, error rates spiked for Amazon Kinesis Data Streams in the US-EAST-1 region. Because Kinesis is a foundational service, this triggered a massive cascading failure across AWS. Cognito, CloudWatch, EventBridge, and Lambda all experienced severe degradation. Even the AWS Service Health Dashboard was unable to update because it relied on Cognito.'),
-
-          heading('The Root Cause', 'terminal'),
-          rootCause('The Kinesis front-end fleet uses a microservices mesh where every server must maintain communication with every other server to share "shard-map" data. The system was designed to use exactly one OS thread per connection.'),
-          p('To handle increased holiday traffic, AWS engineers added new servers to the fleet. As the new servers came online, they attempted to build connections to the existing fleet.'),
-          quote('This addition pushed the total number of inter-node connections past the operating system\'s maximum allowed thread limit per process.'),
-          p('Unable to spawn new threads, the servers could no longer update their shard-maps, rendering them unable to route requests to the backend data clusters. The front-end fleet completely locked up.'),
-          code('java.lang.OutOfMemoryError: unable to create new native thread\n  at java.lang.Thread.start0(Native Method)\n  at java.lang.Thread.start(Thread.java:717)', 'java'),
-
-          heading('Resolution Strategy', 'check-circle'),
-          resolution('Because the front-end servers were locked, AWS engineers had to slowly and manually remove the newly added capacity, and then carefully restart the front-end fleet in small batches to ensure the thread limits were not breached again during the cold-start phase.'),
-          p('To prevent this in the future, AWS migrated the Kinesis front-end to larger EC2 instance types. By using larger (but fewer) servers, the total node count in the fleet decreased, drastically reducing the number of OS threads required for the mesh communication.')
-        ],
-        tags: getTags(['aws', 'infrastructure', 'networking']),
-        isDraft: false,
-        upvotes: 5930,
-        views: 120000,
-        createdAt: new Date('2020-11-28T09:00:00Z')
+        upvotes: 2150,
+        views: 45000,
+        createdAt: new Date('2023-04-12T14:00:00Z')
       }
     ];
 
