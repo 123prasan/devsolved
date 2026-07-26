@@ -9,7 +9,7 @@ const generateUniqueUsername = async (baseName) => {
     .toLowerCase()
     .replace(/[^a-z0-9_-]/g, '')
     .substring(0, 20); // Keep it under max length constraints
-  
+
   if (username.length < 3) {
     username = 'user' + username;
   }
@@ -37,7 +37,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/auth/google/callback',
+        callbackURL: 'https://www.devsolved.com/auth/google/callback',
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -96,7 +96,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
       {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: '/auth/github/callback',
+        callbackURL: 'https://www.devsolved.com/auth/github/callback',
         scope: ['user:email'],
       },
       async (accessToken, refreshToken, profile, done) => {
