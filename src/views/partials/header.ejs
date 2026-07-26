@@ -892,16 +892,24 @@
             font-size: 13px;
         }
 
-        .search-pill {
-            display: inline-flex !important;
-            padding: 6px 12px;
-            gap: 6px;
-            background: var(--bg-surface);
-            border-radius: 20px;
-        }
-
+        .search-text,
         .search-kbd {
             display: none !important;
+        }
+
+        .search-pill {
+            display: inline-flex !important;
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            justify-content: center;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .search-pill:hover {
+            background: var(--bg-hover);
         }
 
         .mobile-menu-toggle {
@@ -909,7 +917,7 @@
         }
 
         .search-overlay {
-            padding-top: 0;
+            padding: 0; /* Fully remove all 20px padding to snap to edges */
             background: var(--bg-base, #000000);
             backdrop-filter: none;
         }
@@ -973,14 +981,13 @@
     }
 
     @media (max-width: 370px) {
-        .search-text {
+        .btn-write span {
             display: none;
         }
-        .search-pill {
+        .btn-write {
             padding: 8px;
             width: 36px;
             height: 36px;
-            justify-content: center;
             border-radius: 50%;
         }
     }
