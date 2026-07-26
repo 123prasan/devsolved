@@ -402,6 +402,37 @@ router.get('/drafts', protect, async (req, res, next) => {
     next(err);
   }
 });
+// ── GET /embed/incidents/:slug — Embed widget ──────────────────────────────
+router.get('/embed/incidents/:slug', async (req, res, next) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug, isDraft: false })
+      .populate('author', 'username displayName avatarUrl')
+      .populate('tags', 'name displayName color')
+      .lean();
+
+    if (!post) return next();
+
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Content-Security-Policy', "frame-ancestors *");
+
+    let snippet = post.excerpt || '';
+    if (!snippet && post.content && Array.isArray(post.content)) {
+      const textBlock = post.content.find(b => b.type === 'paragraph' || b.type === 'symptom' || b.type === 'rootCause');
+      if (textBlock && textBlock.content) {
+        snippet = textBlock.content.replace(/<[^>]*>?/gm, '').substring(0, 160) + '...';
+      }
+    }
+
+    res.render('pages/embed-incident', {
+      post,
+      snippet,
+      devsolvedUrl: `${req.protocol}://${req.get('host')}`
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 // ── GET /incidents/:slug — Single incident page ───────────────────────────────
 router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {

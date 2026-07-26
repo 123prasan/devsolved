@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= post.title %> - DevSolved
+    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: transparent;
+            /* Allow iframe to blend if possible */
+            --surface: #0A0A0C;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            --fg: #FFFFFF;
+            --muted: #A1A1AA;
+            --primary: #3B82F6;
+            --resolved: #10B981;
+            --investigating: #F59E0B;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: var(--font);
+            color: var(--fg);
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .embed-card {
+            background: linear-gradient(180deg, #121214 0%, #0A0A0C 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            text-decoration: none;
+        }
+
+        .embed-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Subtle top glow */
+        .embed-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
+            opacity: 0.5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--fg);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: -0.3px;
+        }
+
+        .brand img {
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .status-resolved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--resolved);
+            box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.25);
+        }
+
+        .status-investigating {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--investigating);
+            box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.25);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--fg);
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .snippet {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        .tag {
+            font-size: 12px;
+            font-weight: 500;
+            color: #D4D4D8;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.2s;
+        }
+
+        .tag:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .author img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .author-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .author-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--fg);
+            line-height: 1;
+        }
+
+        .author-date {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1;
+        }
+
+        .cta-btn {
+            background: var(--fg);
+            color: #000;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .embed-card:hover .cta-btn {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="<%= devsolvedUrl %>/incidents/<%= post.slug %>" target="_blank" class="embed-card">
+        <div class="header">
+            <div class="brand">
+                <img src="<%= devsolvedUrl %>/images/devsolved.svg" alt="DevSolved Logo">
+                DevSolved
+            </div>
+            <div class="status-badge <%= post.status === 'resolved' ? 'status-resolved' : 'status-investigating' %>">
+                <% if(post.status==='resolved' ) { %>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Resolved
+                    <% } else { %>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Investigating
+                        <% } %>
+            </div>
+        </div>
+
+        <div class="content">
+            <h3 class="title">
+                <%= post.title %>
+            </h3>
+
+            <% if (snippet) { %>
+                <p class="snippet">
+                    <%= snippet %>
+                </p>
+                <% } %>
+
+                    <div class="tags">
+                        <% if (post.tags && Array.isArray(post.tags)) { %>
+                            <% post.tags.slice(0, 3).forEach(tag=> { %>
+                                <span class="tag">
+                                    <%= tag.name || tag %>
+                                </span>
+                                <% }) %>
+                                    <% if(post.tags.length> 3) { %>
+                                        <span class="tag">+<%= post.tags.length - 3 %></span>
+                                        <% } %>
+                                            <% } %>
+                    </div>
+        </div>
+
+        <div class="footer">
+            <div class="author">
+                <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>"
+                    alt="Avatar">
+                <div class="author-meta">
+                    <span class="author-name">
+                        <%= post.author?.displayName || post.author?.username || 'Engineer' %>
+                    </span>
+                    <span class="author-date">
+                        <% if(post.createdAt) { %>
+                            <%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' ,
+                                year: 'numeric' }) %>
+                                <% } else { %>
+                                    Just now
+                                    <% } %>
+                    </span>
+                </div>
+            </div>
+            <div class="cta-btn">
+                Read Postmortem
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                </svg>
+            </div>
+        </div>
+    </a>
+</body>
+
+</html>

@@ -1798,6 +1798,13 @@
                             </div>
 
                             <div class="actions-row">
+                                <button class="btn" onclick="openEmbedModal()" aria-label="Embed Widget">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="16 18 22 12 16 6"></polyline>
+                                        <polyline points="8 6 2 12 8 18"></polyline>
+                                    </svg>
+                                    <span id="embed-label">Embed</span>
+                                </button>
                                 <button class="btn btn-upvote <%= hasUpvoted ? 'active-upvote' : '' %>" id="upvoteBtn"
                                     data-post-id="<%= post._id %>" aria-label="Upvote">
                                     <svg width="16" height="16" viewBox="0 0 24 24"
@@ -2717,6 +2724,49 @@
                                                 alert("Error communicating with telemetry server.");
                                                 if (btn) btn.innerHTML = "➕ Link GitHub PR (+25 Rep 🔥)";
                                             });
+                                    }
+                                </script>
+
+                                <!-- 🔗 Embed Widget Modal -->
+                                <div id="embedModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+                                    <div style="background: #121214; border: 1px solid #27272A; border-radius: 20px; width: 100%; max-width: 500px; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.95); overflow: hidden;">
+                                        <div style="padding: 20px 24px; border-bottom: 1px solid #27272A; display: flex; align-items: center; justify-content: space-between; background: #0A0A0C;">
+                                            <h3 style="font-size: 16px; font-weight: 600; color: #FFF; margin: 0;">Embed Incident</h3>
+                                            <button onclick="closeEmbedModal()" style="background: transparent; border: none; color: #A1A1AA; font-size: 26px; cursor: pointer; padding: 0 8px; line-height: 1;">&times;</button>
+                                        </div>
+                                        <div style="padding: 24px;">
+                                            <p style="color: #A1A1AA; font-size: 14px; margin-bottom: 16px; line-height: 1.5;">Copy the HTML below to embed this postmortem on your company blog, Notion, or internal docs.</p>
+                                            <textarea id="embedCode" readonly style="width: 100%; height: 100px; background: #09090B; border: 1px solid #27272A; border-radius: 8px; color: #3B82F6; font-family: monospace; font-size: 13px; padding: 12px; resize: none; margin-bottom: 16px;"><iframe src="<%= canonicalUrl.replace('/incidents/' + post.slug, '') %>/embed/incidents/<%= post.slug %>" width="100%" height="220" frameborder="0" style="border: 1px solid #27272a; border-radius: 12px;"></iframe></textarea>
+                                            <button onclick="copyEmbedCode()" style="width: 100%; background: #FAFAFA; color: #09090B; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                                Copy Embed Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <script>
+                                    function openEmbedModal() {
+                                        const modal = document.getElementById('embedModal');
+                                        modal.style.display = 'flex';
+                                    }
+                                    function closeEmbedModal() {
+                                        const modal = document.getElementById('embedModal');
+                                        modal.style.display = 'none';
+                                    }
+                                    function copyEmbedCode() {
+                                        const code = document.getElementById('embedCode');
+                                        code.select();
+                                        document.execCommand('copy');
+                                        const btn = event.currentTarget;
+                                        const oldHtml = btn.innerHTML;
+                                        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
+                                        btn.style.background = '#10B981';
+                                        btn.style.color = '#fff';
+                                        setTimeout(() => {
+                                            btn.innerHTML = oldHtml;
+                                            btn.style.background = '#FAFAFA';
+                                            btn.style.color = '#09090B';
+                                        }, 2000);
                                     }
                                 </script>
 

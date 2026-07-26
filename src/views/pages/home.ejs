@@ -662,7 +662,8 @@
                 gap: 14px;
                 font-family: var(--font-mono);
                 font-weight: 600;
-                color: var(--text-muted);
+                font-weight: 600;
+                color: var(--text-secondary);
                 font-size: 12px;
             }
 
@@ -675,7 +676,7 @@
             .metric-item i {
                 width: 14px;
                 height: 14px;
-                color: var(--text-muted);
+                color: var(--text-secondary);
                 transition: color 0.2s;
             }
 
@@ -875,7 +876,8 @@
                 <img src="/images/homeanime.svg"
                     onerror="this.src='https://illustrations.pika.style/api/v1/illustration/3d/cloud-data?color=3B82F6'"
                     alt="Developer Ecosystem"
-                    style="width: 100%; max-width: 420px; filter: drop-shadow(0 16px 36px rgba(0,0,0,0.6));">
+                    width="420" height="420"
+                    style="width: 100%; max-width: 420px; height: auto; filter: drop-shadow(0 16px 36px rgba(0,0,0,0.6));">
             </div>
         </header>
 
@@ -1177,7 +1179,7 @@
                                                         style="width: 15px; color: #3B82F6; flex-shrink: 0;"></i>
                                                     <% } %>
                                             </div>
-                                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">@
+                                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">@
                                                 <%= solver.username %>
                                             </div>
                                         </div>
