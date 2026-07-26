@@ -9,6 +9,7 @@ import User from '../models/User.js';
 import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
 import { embed } from '../config/embeddings.js';
+import { Resvg } from '@resvg/resvg-js';
 
 const router = express.Router();
 
@@ -743,6 +744,94 @@ router.post('/users/:username/follow', requireApiAuth, async (req, res) => {
     res.json({ success: true, isFollowing: !isFollowing, followersCount: targetUser.followers.length });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ── GET /api/og/incidents/:slug ───────────────────────────────────────────────
+router.get('/og/incidents/:slug', async (req, res) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug, isDraft: false })
+      .populate('author', 'username displayName')
+      .lean();
+
+    if (!post) {
+      return res.status(404).send('Not Found');
+    }
+
+    const wrapText = (text, maxChars) => {
+      const words = text.split(' ');
+      const lines = [];
+      let currentLine = '';
+      for (const word of words) {
+        if ((currentLine + word).length > maxChars) {
+          if (currentLine) lines.push(currentLine.trim());
+          currentLine = word + ' ';
+        } else {
+          currentLine += word + ' ';
+        }
+      }
+      if (currentLine) lines.push(currentLine.trim());
+      return lines;
+    };
+
+    let badgeBg = '#1E293B';
+    let badgeColor = '#94A3B8';
+    const sev = (post.severity || 'low').toLowerCase();
+    if (sev === 'critical') { badgeBg = '#450a0a'; badgeColor = '#f87171'; }
+    else if (sev === 'high') { badgeBg = '#422006'; badgeColor = '#fb923c'; }
+    else if (sev === 'medium') { badgeBg = '#422006'; badgeColor = '#facc15'; }
+    else if (sev === 'low') { badgeBg = '#064e3b'; badgeColor = '#34d399'; }
+
+    const titleLines = wrapText(post.title, 40);
+    let titleY = 280;
+    let titleSvg = '';
+    titleLines.forEach(line => {
+      titleSvg += `<text x="80" y="${titleY}" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="900" fill="#F8FAFC">${line}</text>`;
+      titleY += 84;
+    });
+
+    const authorName = post.author ? (post.author.displayName || post.author.username) : 'DevSolved Engineer';
+    const initial = authorName.charAt(0).toUpperCase();
+    const dateStr = new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const svg = `
+    <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0F172A" />
+          <stop offset="100%" stop-color="#1E293B" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grad)" />
+      
+      <text x="80" y="100" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" fill="#94A3B8" letter-spacing="2">DEVSOLVED / POSTMORTEM</text>
+      
+      <rect x="80" y="150" width="180" height="48" rx="8" fill="${badgeBg}" />
+      <text x="170" y="182" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" fill="${badgeColor}" text-anchor="middle" letter-spacing="1">${sev.toUpperCase()}</text>
+      
+      ${titleSvg}
+      
+      <circle cx="110" cy="530" r="32" fill="#3B82F6" />
+      <text x="110" y="542" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#FFFFFF" text-anchor="middle">${initial}</text>
+      
+      <text x="164" y="522" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" fill="#CBD5E1">${authorName}</text>
+      <text x="164" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="500" fill="#64748B">${dateStr} • devsolved.com</text>
+    </svg>`;
+
+    const resvg = new Resvg(svg, {
+      fitTo: { mode: 'width', value: 1200 },
+      font: { loadSystemFonts: true }
+    });
+    
+    const pngData = resvg.render();
+    const pngBuffer = pngData.asPng();
+
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(pngBuffer);
+  } catch (err) {
+    console.error('OG Image Generation Error:', err);
+    res.status(500).send('Error generating image');
   }
 });
 

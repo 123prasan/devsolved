@@ -31,8 +31,8 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://unpkg.com',
-          'https://cdnjs.cloudflare.com'
-
+          'https://cdnjs.cloudflare.com',
+          'https://cdn.jsdelivr.net'
         ],
         scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com'],

@@ -617,6 +617,7 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
       relatedPosts,
       comments: rootComments,
       currentPath: `/incidents/${post.slug}`,
+      ogImage: `https://${req.get('host')}/api/og/incidents/${post.slug}`,
       isOwner: req.user && post.author && req.user._id && String(req.user._id) === String(post.author._id),
       hasUpvoted: req.user && post.upvotedBy
         ? post.upvotedBy?.some((id) => String(id) === String(req.user._id))
