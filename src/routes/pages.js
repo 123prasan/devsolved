@@ -913,10 +913,14 @@ router.get('/sitemap-topics.xml', async (req, res) => {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
     const tags = await Tag.find({}).lean();
-    for (const tag of tags) {
-      // Tags don't have a strict lastmod, we can use updatedAt or a default
-      const lastMod = tag.updatedAt ? new Date(tag.updatedAt).toISOString() : new Date().toISOString();
-      xml += `  <url>\n    <loc>${baseUrl}/t/${encodeURIComponent(tag.name)}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    if (tags.length === 0) {
+      xml += `  <url>\n    <loc>${baseUrl}/tags</loc>\n    <lastmod>${new Date().toISOString()}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    } else {
+      for (const tag of tags) {
+        // Tags don't have a strict lastmod, we can use updatedAt or a default
+        const lastMod = tag.updatedAt ? new Date(tag.updatedAt).toISOString() : new Date().toISOString();
+        xml += `  <url>\n    <loc>${baseUrl}/t/${encodeURIComponent(tag.name)}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+      }
     }
 
     xml += '</urlset>';
@@ -945,13 +949,17 @@ router.get('/sitemap-incidents.xml', async (req, res) => {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
 
-    for (const post of posts) {
-      const lastMod = post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date().toISOString();
-      xml += `  <url>\n    <loc>${baseUrl}/incidents/${post.slug}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n`;
-      if (post.coverImage && post.coverImage.startsWith('http')) {
-        xml += `    <image:image>\n      <image:loc><![CDATA[${post.coverImage}]]></image:loc>\n    </image:image>\n`;
+    if (posts.length === 0) {
+      xml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${new Date().toISOString()}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+    } else {
+      for (const post of posts) {
+        const lastMod = post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date().toISOString();
+        xml += `  <url>\n    <loc>${baseUrl}/incidents/${post.slug}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n`;
+        if (post.coverImage && post.coverImage.startsWith('http')) {
+          xml += `    <image:image>\n      <image:loc><![CDATA[${post.coverImage}]]></image:loc>\n    </image:image>\n`;
+        }
+        xml += `  </url>\n`;
       }
-      xml += `  </url>\n`;
     }
 
     xml += '</urlset>';
@@ -980,8 +988,12 @@ router.get('/sitemap-users.xml', async (req, res) => {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-    for (const user of users) {
-      xml += `  <url>\n    <loc>${baseUrl}/u/${encodeURIComponent(user.username.toLowerCase())}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+    if (users.length === 0) {
+      xml += `  <url>\n    <loc>${baseUrl}/leaderboard</loc>\n    <lastmod>${new Date().toISOString()}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+    } else {
+      for (const user of users) {
+        xml += `  <url>\n    <loc>${baseUrl}/u/${encodeURIComponent(user.username.toLowerCase())}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+      }
     }
 
     xml += '</urlset>';
