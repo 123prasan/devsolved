@@ -849,7 +849,7 @@ router.get('/security', optionalAuth, renderStaticDoc('pages/legal/security', 'S
 const CACHE_TTL = 3600; // 1 hour
 
 router.get('/sitemap.xml', async (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const baseUrl = `https://${req.get('host')}`;
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
@@ -874,7 +874,7 @@ router.get('/sitemap-static.xml', async (req, res) => {
       }
     }
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
@@ -908,7 +908,7 @@ router.get('/sitemap-topics.xml', async (req, res) => {
       }
     }
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
@@ -945,7 +945,7 @@ router.get('/sitemap-incidents.xml', async (req, res) => {
     }
 
     const posts = await Post.find({ isDraft: false }).select('slug updatedAt coverImage').lean();
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
 
@@ -984,7 +984,7 @@ router.get('/sitemap-users.xml', async (req, res) => {
     }
 
     const users = await User.find({}).select('username').lean();
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
@@ -1018,7 +1018,7 @@ router.get('/feed.xml', async (req, res) => {
       }
     }
 
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `https://${req.get('host')}`;
     const posts = await Post.find({ isDraft: false })
       .populate('author', 'username displayName')
       .sort({ createdAt: -1 })
