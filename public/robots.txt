@@ -8,4 +8,4 @@ Disallow: /settings/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://devsolved.com/sitemap.xml
+Sitemap: https://www.devsolved.com/sitemap.xml

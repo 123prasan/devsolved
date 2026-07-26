@@ -44,17 +44,28 @@ router.get('/', optionalAuth, async (req, res) => {
     ]);
 
     const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`;
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "DevSolved",
-      "url": `${req.protocol}://${req.get('host')}`,
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": `${req.protocol}://${req.get('host')}/search?q={search_term_string}`,
-        "query-input": "required name=search_term_string"
+    const structuredData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DevSolved",
+        "url": `${req.protocol}://${req.get('host')}`,
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": `${req.protocol}://${req.get('host')}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": (posts || []).map((post, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${req.protocol}://${req.get('host')}/incidents/${post.slug}`
+        }))
       }
-    };
+    ];
 
     res.render('pages/home', {
       title: 'DevSolved | Developer War Stories & Outage Solutions',
@@ -141,6 +152,25 @@ router.get('/search', optionalAuth, async (req, res) => {
       Post.countDocuments({ isDraft: false }),
     ]);
 
+    const canonicalUrl = `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`;
+    const structuredData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": q ? `Search Results for "${q}"` : "Incidents",
+        "url": canonicalUrl
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": (posts || []).map((post, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${req.protocol}://${req.get('host')}/incidents/${post.slug}`
+        }))
+      }
+    ];
+
     res.render('pages/search', {
       title: q ? `"${q}" — Search | DevSolved` : 'Search & Discover | DevSolved',
       description: 'Search and filter across thousands of documented engineering incidents and postmortems.',
@@ -155,7 +185,10 @@ router.get('/search', optionalAuth, async (req, res) => {
       activeStatus: status || null,
       activeSeverity: severity || null,
       activeTag: tag || null,
+      activeTag: tag || null,
       activeSort: sort,
+      canonicalUrl,
+      structuredData
     });
   } catch (err) {
     console.error('Search page error:', err);
@@ -430,9 +463,26 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
         },
         "publisher": {
           "@type": "Organization",
-          "name": "DevSolved"
+          "name": "DevSolved",
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${req.protocol}://${req.get('host')}/images/android-chrome-512x512.png`
+          }
         },
-        "image": post.coverImage || undefined
+        "image": post.coverImage || undefined,
+        "keywords": post.tags ? post.tags.map(t => t.name).join(', ') : undefined,
+        "interactionStatistic": [
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/LikeAction",
+            "userInteractionCount": post.upvotes || 0
+          },
+          {
+            "@type": "InteractionCounter",
+            "interactionType": "https://schema.org/CommentAction",
+            "userInteractionCount": allComments.length || 0
+          }
+        ]
       },
       {
         "@context": "https://schema.org",
@@ -462,7 +512,10 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
         : false,
       canonicalUrl,
       structuredData,
-      ogImage: post.coverImage || undefined
+      ogImage: post.coverImage || undefined,
+      ogType: 'article',
+      publishedTime: post.createdAt ? post.createdAt.toISOString() : undefined,
+      authorUrl: post.author ? `${req.protocol}://${req.get('host')}/u/${post.author.username}` : undefined
     });
   } catch (err) {
     next(err);

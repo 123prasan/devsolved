@@ -19,6 +19,14 @@
 <% if (typeof canonicalUrl !== 'undefined') { %>
 <meta property="og:url" content="<%= canonicalUrl %>">
 <% } %>
+<% if (typeof ogType !== 'undefined' && ogType === 'article') { %>
+<% if (typeof publishedTime !== 'undefined') { %>
+<meta property="article:published_time" content="<%= publishedTime %>">
+<% } %>
+<% if (typeof authorUrl !== 'undefined') { %>
+<meta property="article:author" content="<%= authorUrl %>">
+<% } %>
+<% } %>
 <meta property="og:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' %>">
 
 <!-- Twitter Cards -->

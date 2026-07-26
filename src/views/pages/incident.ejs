@@ -1708,9 +1708,9 @@
                             <div class="tags-row">
                                 <% if (post.tags && Array.isArray(post.tags)) { %>
                                 <% post.tags.forEach(tag=> { %>
-                                    <span class="tag">
+                                    <a href="/search?tag=<%= encodeURIComponent((tag.name || tag).toLowerCase()) %>" class="tag" style="text-decoration:none;">
                                         <%= tag.name || tag %>
-                                    </span>
+                                    </a>
                                     <% }) %>
                                 <% } %>
                             </div>
@@ -1886,7 +1886,7 @@
                                 </nav>
                             </aside>
 
-                            <main class="content-area">
+                            <article class="content-area">
                                 <% if (Array.isArray(post.content)) { %>
                                     <% post.content.forEach((block, idx)=> { %>
                                         <% if (block.type==='paragraph' ) { %>
@@ -2408,7 +2408,7 @@
                                                                                                                                         </div>
                                                                                                                                         <% }
                                                                                                                                             %>
-                            </main>
+                            </article>
 
                             <aside class="related-col sticky-col">
                                 <div class="related-label">Related Incidents</div>

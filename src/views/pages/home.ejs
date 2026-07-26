@@ -921,7 +921,7 @@
                                 <% if (post.coverImage) { %>
                                     <div class="card-cover-wrapper">
                                         <img src="<%= post.coverImage %>" alt="<%= post.title %>" class="card-cover"
-                                            loading="lazy">
+                                            loading="lazy" onerror="this.style.display='none'">
                                     </div>
                                     <% } %>
                                         <div class="card-body">
@@ -961,7 +961,7 @@
                                                 <div class="card-footer">
                                                     <div class="author-wrap">
                                                         <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>"
-                                                            alt="Avatar" class="avatar-sm">
+                                                            alt="Avatar" class="avatar-sm" loading="lazy">
                                                         <span>
                                                             <%= post.author?.displayName || post.author?.username
                                                                 || 'Engineer' %>
@@ -1105,7 +1105,7 @@
                                                             <div class="card-footer">
                                                                 <div class="author-wrap">
                                                                     <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>"
-                                                                        alt="Avatar" class="avatar-sm">
+                                                                        alt="Avatar" class="avatar-sm" loading="lazy">
                                                                     <span
                                                                         style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                                         <%= post.author?.displayName ||
