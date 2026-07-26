@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #0B0B0E;
+            --bg-surface-elevated: #131318;
+            --bg-card: linear-gradient(145deg, rgba(20, 20, 26, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%);
+            --bg-card-hover: linear-gradient(145deg, rgba(28, 28, 36, 0.95) 0%, rgba(14, 14, 20, 1) 100%);
+            --border-faint: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.25);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #62626C;
+            --accent-primary: #3B82F6;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 40% 0%, rgba(59, 130, 246, 0.12), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.07), transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── SEO Hero Section ─────────────────────────────────────────────── */
+        .seo-hero {
+            padding: 60px 24px;
+            max-width: 1240px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .seo-hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .seo-hero-description {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 760px;
+            margin: 0 auto 30px;
+            line-height: 1.6;
+        }
+
+        .seo-meta-stats {
+            display: inline-flex;
+            align-items: center;
+            gap: 24px;
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-faint);
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+        }
+        .meta-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-stat i { color: #3B82F6; }
+
+        /* ── Main Content & Grid ─────────────────────────────────────────── */
+        .search-main {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+
+        .incident-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-faint);
+            border-radius: 18px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+        .incident-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 44px rgba(0, 0, 0, 0.8), 0 0 20px rgba(59, 130, 246, 0.08);
+        }
+        .incident-card:hover .card-title { color: #3B82F6; }
+
+        .card-inner {
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .card-author-meta {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 0;
+        }
+        .avatar-xs { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-hover); object-fit: cover; flex-shrink: 0; }
+        .author-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; color: #E4E4E7; }
+        .time-dot { color: var(--text-muted); font-weight: 400; }
+        .post-time { color: var(--text-muted); font-size: 12px; font-weight: 500; font-family: var(--font-mono); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+        .status-pill.resolved { background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 0 10px rgba(16, 185, 129, 0.15); }
+        .status-pill.investigating { background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); box-shadow: 0 0 10px rgba(245, 158, 11, 0.15); }
+
+        .card-main-content { display: flex; flex-direction: column; gap: 12px; }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1.38;
+            letter-spacing: -0.4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.2s;
+        }
+
+        .diagnostic-capsule {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .capsule-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .capsule-header-left { display: flex; align-items: center; gap: 6px; color: #3B82F6; }
+        .severity-badge-mini {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-faint);
+        }
+        .severity-badge-mini.critical { color: #EF4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+        .severity-badge-mini.high { color: #F97316; border-color: rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); }
+
+        .capsule-text {
+            font-size: 13px;
+            color: #D4D4D8;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-faint);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .stack-tags { display: flex; gap: 6px; flex-wrap: wrap; max-width: 60%; }
+        .stack-chip {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-faint);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .incident-card:hover .stack-chip { border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.07); color: #FFF; }
+
+        .card-stats { display: flex; align-items: center; gap: 14px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .stat-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stat-item i { width: 14px; height: 14px; color: var(--text-muted); transition: color 0.2s; }
+        .incident-card:hover .stat-item.upvotes i { color: #10B981; }
+        .incident-card:hover .stat-item.comments i { color: #3B82F6; }
+
+        .empty-state-card {
+            text-align: center;
+            padding: 80px 24px;
+            background: var(--bg-surface);
+            border: 1px dashed var(--border-faint);
+            border-radius: 18px;
+            color: var(--text-secondary);
+            width: 100%;
+        }
+        .empty-state-card h3 { font-size: 20px; color: #FFF; margin: 16px 0 8px; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            .seo-hero { padding: 40px 16px 20px; }
+            .seo-hero-title { font-size: 32px; }
+            .search-main { padding: 0 16px 80px; gap: 16px; }
+            .results-grid { grid-template-columns: 1fr; gap: 16px; }
+            .card-inner { padding: 16px 18px; gap: 14px; }
+            .card-footer-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .stack-tags { max-width: 100%; }
+            .card-stats { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <!-- SEO Hero Section -->
+    <section class="seo-hero">
+        <h1 class="seo-hero-title">
+            <% if(tag.iconSvg) { %>
+                <i data-lucide="<%= tag.iconSvg %>" style="width: 36px; height: 36px; margin-right: 8px; display: inline-block; vertical-align: middle; color: <%= tag.color || '#3B82F6' %>"></i>
+            <% } %>
+            <%= tag.displayName || tag.name %> Incidents & Architecture Postmortems
+        </h1>
+        <p class="seo-hero-description">
+            <%= tag.description || `Explore real-world production outages, root cause analyses, and solutions related to ${tag.displayName || tag.name}. Learn from the engineering community to prevent these bugs in your own systems.` %>
+        </p>
+        
+        <div class="seo-meta-stats">
+            <div class="meta-stat">
+                <i data-lucide="file-text"></i>
+                <span><%= totalIncidents %> Reports</span>
+            </div>
+            <div class="meta-stat">
+                <i data-lucide="users"></i>
+                <span><%= tag.followersCount || 0 %> Followers</span>
+            </div>
+            <div class="meta-stat">
+                <i data-lucide="trending-up"></i>
+                <span style="color: #10B981">Trending <%= tag.category %></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <main class="search-main">
+        <% if (posts && posts.length > 0) { %>
+            <div class="results-grid">
+                <% posts.forEach(post => { %>
+                    <a href="/incidents/<%= post.slug %>" class="incident-card">
+                        <% if (post.coverImage) { %>
+                            <div style="width:100%; height:150px; overflow:hidden; border-bottom:1px solid var(--border-faint);">
+                                <img src="<%= post.coverImage %>" alt="<%= post.title %>" style="width:100%; height:100%; object-fit:cover;" loading="lazy" decoding="async">
+                            </div>
+                        <% } %>
+                        <div class="card-inner">
+                            
+                            <div class="card-top-row">
+                                <div class="card-author-meta">
+                                    <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>" alt="Avatar" class="avatar-xs" loading="lazy" decoding="async">
+                                    <span class="author-name-text"><%= post.author?.displayName || post.author?.username || 'Engineer' %></span>
+                                    <span class="time-dot">•</span>
+                                    <span class="post-time"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+                                </div>
+
+                                <span class="status-pill <%= post.status %>">
+                                    <i data-lucide="<%= post.status === 'resolved' ? 'check-circle-2' : 'alert-circle' %>" style="width:12px; height:12px;"></i>
+                                    <%= post.status === 'resolved' ? 'Resolved' : 'Active' %>
+                                </span>
+                            </div>
+
+                            <div class="card-main-content">
+                                <h2 class="card-title"><%= post.title %></h2>
+
+                                <div class="diagnostic-capsule">
+                                    <div class="capsule-header">
+                                        <div class="capsule-header-left">
+                                            <i data-lucide="terminal" style="width:13px; height:13px;"></i>
+                                            <span>DIAGNOSTIC TRACE</span>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:6px;">
+                                            <% if (post.investigationHours > 0) { %>
+                                                <span style="color:var(--text-muted);"><i data-lucide="clock" style="width:11px; display:inline-block; vertical-align:middle;"></i> <%= post.investigationHours %>h spent</span>
+                                            <% } %>
+                                            <% if (post.severity) { %>
+                                                <span class="severity-badge-mini <%= post.severity %>"><%= post.severity %></span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="capsule-text">
+                                        <%= post.excerpt || 'Technical root-cause and remediation steps documented...' %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer-row">
+                                <div class="stack-tags">
+                                    <% (post.tags || []).slice(0, 4).forEach(t => { 
+                                        const tagVal = typeof t === 'string' ? t : (t.name || t.displayName || t.slug || (t._id && String(t._id).length < 20 ? t._id : null));
+                                        if (tagVal) {
+                                    %>
+                                        <span class="stack-chip">#<%= tagVal %></span>
+                                    <% } }) %>
+                                </div>
+
+                                <div class="card-stats">
+                                    <span class="stat-item upvotes" title="Upvotes">
+                                        <i data-lucide="arrow-up"></i>
+                                        <span><%= post.upvotes || 0 %></span>
+                                    </span>
+                                    <span class="stat-item comments" title="Responses">
+                                        <i data-lucide="message-square"></i>
+                                        <span><%= post.comments || 0 %></span>
+                                    </span>
+                                    <span class="stat-item" title="Views">
+                                        <i data-lucide="eye"></i>
+                                        <span><%= post.views || 0 %></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state-card">
+                <i data-lucide="database" style="width: 56px; height: 56px; color: var(--text-muted); margin: 0 auto 16px; display: block;"></i>
+                <h3>No postmortems yet</h3>
+                <p style="max-width: 440px; margin: 0 auto 24px;">Be the first to document an incident for <%= tag.displayName || tag.name %>.</p>
+                <a href="/write" class="search-submit-btn" style="background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid var(--border-faint); padding: 10px 16px; display: inline-flex; border-radius: 8px; text-decoration: none;">
+                    Write Incident
+                </a>
+            </div>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    </script>
+</body>
+</html>

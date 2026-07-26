@@ -211,6 +211,84 @@ router.get('/search', optionalAuth, async (req, res) => {
   }
 });
 
+// ── GET /t/:slug — Programmatic SEO Technology Pages ──
+router.get('/t/:slug', optionalAuth, async (req, res) => {
+  try {
+    const slug = req.params.slug.toLowerCase().trim();
+    const tag = await Tag.findOne({ name: slug }).lean();
+
+    if (!tag) {
+      return res.redirect('/search?q=' + encodeURIComponent(slug));
+    }
+
+    // Fetch posts associated with this tag
+    const posts = await Post.find({ tags: tag._id, isDraft: false })
+      .populate('author', 'username displayName avatarUrl reputation isPro')
+      .populate('tags')
+      .sort({ upvotes: -1, createdAt: -1 })
+      .lean();
+
+    const canonicalUrl = `${req.protocol}://${req.get('host')}/t/${slug}`;
+    const structuredData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": `${tag.displayName || tag.name} Incidents & Architecture Postmortems`,
+        "description": tag.description || `Explore real-world production outages, root cause analyses, and solutions related to ${tag.displayName || tag.name}.`,
+        "url": canonicalUrl
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "itemListElement": (posts || []).map((post, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "url": `${req.protocol}://${req.get('host')}/incidents/${post.slug}`
+        }))
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": `${req.protocol}://${req.get('host')}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Topics",
+            "item": `${req.protocol}://${req.get('host')}/tags`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": tag.displayName || tag.name,
+            "item": canonicalUrl
+          }
+        ]
+      }
+    ];
+
+    res.render('pages/topic', {
+      title: `${tag.displayName || tag.name} Incidents & Postmortems | DevSolved`,
+      description: tag.description || `Explore real-world production outages, root cause analyses, and solutions related to ${tag.displayName || tag.name}. Learn from the engineering community to prevent these bugs in your own systems.`,
+      user: req.user || null,
+      tag,
+      posts,
+      totalIncidents: posts.length,
+      currentPath: `/t/${slug}`,
+      canonicalUrl,
+      structuredData
+    });
+  } catch (err) {
+    console.error('Topic page error:', err);
+    res.redirect('/search');
+  }
+});
+
 // ── GET /leaderboard — Global Developer Leaderboard (Real Telemetry & Resolution Rate) ──
 router.get('/leaderboard', optionalAuth, async (req, res) => {
   try {
@@ -222,10 +300,10 @@ router.get('/leaderboard', optionalAuth, async (req, res) => {
     // 2. Real Telemetry Calculations for each engineer
     let unrankedList = await Promise.all(users.map(async (u) => {
       const totalIncidents = await Post.countDocuments({ author: u._id, isDraft: false });
-      const resolvedIncidents = await Post.countDocuments({ 
-        author: u._id, 
-        isDraft: false, 
-        $or: [{ status: 'resolved' }, { githubPrUrl: { $ne: '' } }, { githubPrUrl: { $exists: true, $ne: '' } }] 
+      const resolvedIncidents = await Post.countDocuments({
+        author: u._id,
+        isDraft: false,
+        $or: [{ status: 'resolved' }, { githubPrUrl: { $ne: '' } }, { githubPrUrl: { $exists: true, $ne: '' } }]
       });
       const topStory = await Post.findOne({ author: u._id, isDraft: false }).sort({ upvotes: -1, views: -1 }).lean();
 
@@ -340,7 +418,7 @@ router.get('/write', protect, async (req, res, next) => {
 router.post('/write/preview', optionalAuth, async (req, res, next) => {
   try {
     const { title, excerpt, tags, content, coverImage, status, severity, investigationHours } = req.body;
-    const formattedTags = Array.isArray(tags) 
+    const formattedTags = Array.isArray(tags)
       ? tags.map(t => typeof t === 'string' ? { name: t } : (t && t.name ? t : { name: 'general' }))
       : [{ name: 'general' }];
 
@@ -520,7 +598,12 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
         "@type": "BreadcrumbList",
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "DevSolved", "item": `${req.protocol}://${req.get('host')}/` },
-          { "@type": "ListItem", "position": 2, "name": "Incidents", "item": `${req.protocol}://${req.get('host')}/search` },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": (post.tags && post.tags.length > 0) ? (post.tags[0].displayName || post.tags[0].name) : "Incidents",
+            "item": (post.tags && post.tags.length > 0) ? `${req.protocol}://${req.get('host')}/t/${encodeURIComponent(post.tags[0].name)}` : `${req.protocol}://${req.get('host')}/search`
+          },
           { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl }
         ]
       }
@@ -769,12 +852,12 @@ router.get('/sitemap.xml', async (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-  
-  const sitemaps = ['/sitemap-static.xml', '/sitemap-incidents.xml', '/sitemap-users.xml'];
+
+  const sitemaps = ['/sitemap-static.xml', '/sitemap-incidents.xml', '/sitemap-users.xml', '/sitemap-topics.xml'];
   for (const sm of sitemaps) {
     xml += `  <sitemap>\n    <loc>${baseUrl}${sm}</loc>\n    <lastmod>${new Date().toISOString()}</lastmod>\n  </sitemap>\n`;
   }
-  
+
   xml += '</sitemapindex>';
   res.header('Content-Type', 'application/xml');
   res.send(xml);
@@ -794,7 +877,7 @@ router.get('/sitemap-static.xml', async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-    
+
     const platformRoutes = ['', '/search', '/leaderboard', '/tags'];
     for (const route of platformRoutes) {
       xml += `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
@@ -804,9 +887,40 @@ router.get('/sitemap-static.xml', async (req, res) => {
     for (const route of staticRoutes) {
       xml += `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.5</priority>\n  </url>\n`;
     }
-    
+
     xml += '</urlset>';
-    
+
+    if (isRedisAvailable()) await getRedis().set(cacheKey, xml, 'EX', CACHE_TTL);
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).end();
+  }
+});
+router.get('/sitemap-topics.xml', async (req, res) => {
+  try {
+    const cacheKey = 'sitemap:topics';
+    if (isRedisAvailable()) {
+      const cached = await getRedis().get(cacheKey);
+      if (cached) {
+        res.header('Content-Type', 'application/xml');
+        return res.send(cached);
+      }
+    }
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    const tags = await Tag.find({}).lean();
+    for (const tag of tags) {
+      // Tags don't have a strict lastmod, we can use updatedAt or a default
+      const lastMod = tag.updatedAt ? new Date(tag.updatedAt).toISOString() : new Date().toISOString();
+      xml += `  <url>\n    <loc>${baseUrl}/t/${encodeURIComponent(tag.name)}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+    }
+
+    xml += '</urlset>';
+
     if (isRedisAvailable()) await getRedis().set(cacheKey, xml, 'EX', CACHE_TTL);
     res.header('Content-Type', 'application/xml');
     res.send(xml);
@@ -830,7 +944,7 @@ router.get('/sitemap-incidents.xml', async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
-    
+
     for (const post of posts) {
       const lastMod = post.updatedAt ? new Date(post.updatedAt).toISOString() : new Date().toISOString();
       xml += `  <url>\n    <loc>${baseUrl}/incidents/${post.slug}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n`;
@@ -839,9 +953,9 @@ router.get('/sitemap-incidents.xml', async (req, res) => {
       }
       xml += `  </url>\n`;
     }
-    
+
     xml += '</urlset>';
-    
+
     if (isRedisAvailable()) await getRedis().set(cacheKey, xml, 'EX', CACHE_TTL);
     res.header('Content-Type', 'application/xml');
     res.send(xml);
@@ -865,17 +979,72 @@ router.get('/sitemap-users.xml', async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-    
+
     for (const user of users) {
       xml += `  <url>\n    <loc>${baseUrl}/u/${encodeURIComponent(user.username.toLowerCase())}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
     }
-    
+
     xml += '</urlset>';
-    
+
     if (isRedisAvailable()) await getRedis().set(cacheKey, xml, 'EX', CACHE_TTL);
     res.header('Content-Type', 'application/xml');
     res.send(xml);
   } catch (err) {
+    res.status(500).end();
+  }
+});
+
+// ── RSS / Atom Feed (SEO Syndication) ────────────────────────────────────────
+router.get('/feed.xml', async (req, res) => {
+  try {
+    const cacheKey = 'seo:rssfeed';
+    if (isRedisAvailable()) {
+      const cached = await getRedis().get(cacheKey);
+      if (cached) {
+        res.header('Content-Type', 'application/rss+xml');
+        return res.send(cached);
+      }
+    }
+
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const posts = await Post.find({ isDraft: false })
+      .populate('author', 'username displayName')
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    let rss = `<?xml version="1.0" encoding="UTF-8" ?>\n`;
+    rss += `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
+    rss += `<channel>\n`;
+    rss += `  <title>DevSolved Incidents & Postmortems</title>\n`;
+    rss += `  <description>Explore real-world production outages, root cause analyses, and solutions documented by the engineering community.</description>\n`;
+    rss += `  <link>${baseUrl}</link>\n`;
+    rss += `  <atom:link href="${baseUrl}/feed.xml" rel="self" type="application/rss+xml" />\n`;
+
+    posts.forEach(post => {
+      const postUrl = `${baseUrl}/incidents/${post.slug}`;
+      const pubDate = new Date(post.createdAt).toUTCString();
+      const authorName = post.author ? (post.author.displayName || post.author.username) : 'DevSolved Engineer';
+
+      rss += `  <item>\n`;
+      rss += `    <title><![CDATA[${post.title}]]></title>\n`;
+      rss += `    <link>${postUrl}</link>\n`;
+      rss += `    <guid>${postUrl}</guid>\n`;
+      rss += `    <pubDate>${pubDate}</pubDate>\n`;
+      rss += `    <description><![CDATA[${post.excerpt || 'Technical root-cause and remediation steps.'}]]></description>\n`;
+      rss += `    <author>contact@devsolved.com (${authorName})</author>\n`;
+      rss += `  </item>\n`;
+    });
+
+    rss += `</channel>\n`;
+    rss += `</rss>`;
+
+    if (isRedisAvailable()) await getRedis().set(cacheKey, rss, 'EX', 3600); // 1 hour cache
+
+    res.header('Content-Type', 'application/rss+xml');
+    res.send(rss);
+  } catch (err) {
+    console.error('RSS Feed error:', err);
     res.status(500).end();
   }
 });

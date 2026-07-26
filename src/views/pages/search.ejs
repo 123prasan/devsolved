@@ -520,7 +520,7 @@
                     <i data-lucide="layers"></i> All Stacks
                 </a>
                 <% (typeof trendingTags !== 'undefined' ? trendingTags.slice(0, 8) : []).forEach(t => { %>
-                    <a href="/search?tag=<%= encodeURIComponent(t.name) %>" class="topic-pill <%= activeTag && activeTag.toLowerCase() === t.name.toLowerCase() ? 'active' : '' %>">
+                    <a href="/t/<%= encodeURIComponent(t.name) %>" class="topic-pill <%= activeTag && activeTag.toLowerCase() === t.name.toLowerCase() ? 'active' : '' %>">
                         <i data-lucide="hash"></i> <%= t.name %>
                     </a>
                 <% }) %>

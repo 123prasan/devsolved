@@ -1708,7 +1708,7 @@
                             <div class="tags-row">
                                 <% if (post.tags && Array.isArray(post.tags)) { %>
                                 <% post.tags.forEach(tag=> { %>
-                                    <a href="/search?tag=<%= encodeURIComponent((tag.name || tag).toLowerCase()) %>" class="tag" style="text-decoration:none;">
+                                    <a href="/t/<%= encodeURIComponent((tag.name || tag).toLowerCase()) %>" class="tag" style="text-decoration:none;">
                                         <%= tag.name || tag %>
                                     </a>
                                     <% }) %>
