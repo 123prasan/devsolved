@@ -1,7 +1,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title><%= typeof title !== 'undefined' ? title : 'DevSolved' %></title>
-<link rel="icon" href="/images/devsolved.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<link rel="manifest" href="/images/site.webmanifest">
 <meta name="description" content="<%= typeof description !== 'undefined' ? description : 'DevSolved – Developer war stories, documented.' %>">
 
 <% if (typeof canonicalUrl !== 'undefined') { %>
@@ -43,6 +46,20 @@
     "target": "https://devsolved.com/search?q={search_term_string}",
     "query-input": "required name=search_term_string"
   }
+}
+</script>
+
+<!-- Google Organization Schema for Logo -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "DevSolved",
+  "url": "https://devsolved.com/",
+  "logo": "https://devsolved.com/images/android-chrome-512x512.png",
+  "sameAs": [
+    "https://github.com/123prasan/devsolved"
+  ]
 }
 </script>
 

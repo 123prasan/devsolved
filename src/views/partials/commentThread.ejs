@@ -28,11 +28,25 @@
   html = html.replace(/\*([^\*]+)\*/g, `<em>$1</em>`);
   html = html.replace(/__([^_]+)__/g, `<u>$1</u>`);
   html = html.replace(/@([a-zA-Z0-9_-]+)/g, `<a href="/u/$1" class="ds-mention-pill">@$1</a>`);
-  html = html.replace(/\[Status: Investigating\]/gi, `<span class="ds-status-pill ds-status-investigating"><i data-lucide="alert-circle" style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Status: Investigating</span>`);
-  html = html.replace(/\[Status: Resolved\]/gi, `<span class="ds-status-pill ds-status-resolved"><i data-lucide="check-circle" style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Status: Resolved</span>`);
-  html = html.replace(/\[Root Cause Verified\]/gi, `<span class="ds-status-pill ds-status-verified"><i data-lucide="shield-check" style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Root Cause Verified</span>`);
-  html = html.replace(/\[High Severity\]/gi, `<span class="ds-status-pill ds-status-severity"><i data-lucide="alert-triangle" style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>High Severity</span>`);
-  html = html.replace(/\[Fix Deployed\]/gi, `<span class="ds-status-pill ds-status-deployed"><i data-lucide="zap" style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Fix Deployed</span>`);
+  html = html.replace(/\[Status: Investigating\]/gi, `<span class="ds-status-pill ds-status-investigating"><i
+      data-lucide="alert-circle"
+      style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Status:
+    Investigating</span>`);
+  html = html.replace(/\[Status: Resolved\]/gi, `<span class="ds-status-pill ds-status-resolved"><i
+      data-lucide="check-circle"
+      style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Status:
+    Resolved</span>`);
+  html = html.replace(/\[Root Cause Verified\]/gi, `<span class="ds-status-pill ds-status-verified"><i
+      data-lucide="shield-check"
+      style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Root Cause
+    Verified</span>`);
+  html = html.replace(/\[High Severity\]/gi, `<span class="ds-status-pill ds-status-severity"><i
+      data-lucide="alert-triangle"
+      style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>High
+    Severity</span>`);
+  html = html.replace(/\[Fix Deployed\]/gi, `<span class="ds-status-pill ds-status-deployed"><i data-lucide="zap"
+      style="width:13px;height:13px;display:inline-block;margin-right:4px;vertical-align:-2px;"></i>Fix
+    Deployed</span>`);
   return html.trim();
   };
   %>
@@ -99,6 +113,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
         position: relative;
       }
 
@@ -204,11 +220,36 @@
         margin: 2px 4px 2px 0;
         border: 1px solid rgba(255, 255, 255, 0.15);
       }
-      .ds-status-investigating { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border-color: rgba(245, 158, 11, 0.3); }
-      .ds-status-resolved { background: rgba(16, 185, 129, 0.15); color: #10B981; border-color: rgba(16, 185, 129, 0.3); }
-      .ds-status-verified { background: rgba(96, 165, 250, 0.15); color: #60A5FA; border-color: rgba(96, 165, 250, 0.3); }
-      .ds-status-severity { background: rgba(239, 68, 68, 0.15); color: #EF4444; border-color: rgba(239, 68, 68, 0.3); }
-      .ds-status-deployed { background: rgba(168, 85, 247, 0.15); color: #C084FC; border-color: rgba(168, 85, 247, 0.3); }
+
+      .ds-status-investigating {
+        background: rgba(245, 158, 11, 0.15);
+        color: #F59E0B;
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+
+      .ds-status-resolved {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10B981;
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+
+      .ds-status-verified {
+        background: rgba(96, 165, 250, 0.15);
+        color: #60A5FA;
+        border-color: rgba(96, 165, 250, 0.3);
+      }
+
+      .ds-status-severity {
+        background: rgba(239, 68, 68, 0.15);
+        color: #EF4444;
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      .ds-status-deployed {
+        background: rgba(168, 85, 247, 0.15);
+        color: #C084FC;
+        border-color: rgba(168, 85, 247, 0.3);
+      }
 
       /* --- Interactive Popovers (Emoji Picker & Mention Suggestion Boxes) --- */
       .ds-popover-menu {
@@ -279,7 +320,9 @@
 
       .ds-toolbar-icons {
         display: flex;
-        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
         color: var(--ds-text-muted);
       }
 
@@ -360,7 +403,8 @@
         position: relative;
         margin-top: 22px;
       }
-      .ds-comments-tree > .ds-comment-thread:first-child {
+
+      .ds-comments-tree>.ds-comment-thread:first-child {
         margin-top: 10px;
       }
 
