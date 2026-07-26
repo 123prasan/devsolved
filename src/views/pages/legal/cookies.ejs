@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        .doc-content ul { margin-bottom: 20px; padding-left: 24px; }
+        .doc-content li { margin-bottom: 8px; font-size: 16px; color: #D4D4D8; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Cookie Policy</h1>
+        <div class="doc-meta">Last Updated: August 2026</div>
+        <div class="doc-content">
+            <p>We believe in transparent engineering. This policy explains precisely how we use cookies and similar technologies.</p>
+            
+            <h2>1. Essential Cookies Only</h2>
+            <p>DevSolved <strong>does not use third-party tracking cookies or advertising pixels</strong>. We only use strictly necessary cookies required for the platform to function.</p>
+
+            <h2>2. How We Use Cookies</h2>
+            <ul>
+                <li><strong>Authentication:</strong> We use secure, HTTP-only session cookies (via JSON Web Tokens) to keep you logged in.</li>
+                <li><strong>Security:</strong> We use CSRF tokens to protect your account from cross-site request forgery attacks.</li>
+                <li><strong>Preferences:</strong> We may store minimal local storage flags to remember your UI theme preferences.</li>
+            </ul>
+
+            <h2>3. Managing Cookies</h2>
+            <p>Because our cookies are strictly necessary for authentication, disabling them in your browser will prevent you from logging into your DevSolved account. However, you can browse the public feeds without any cookies being set.</p>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

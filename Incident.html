@@ -1,0 +1,2820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INC-4821 — Payment Service Outage — Checkout Failures Across EU Region</title>
+    <style>
+        /* ── MD3 Dark Theme Tokens ── */
+        :root {
+            --bg: #141218;
+            --fg: #E6E1E5;
+            --surface: #1C1B1F;
+            --surface-container: #211F26;
+            --surface-container-high: #2B2930;
+            --surface-container-highest: #36343B;
+            --primary: #D0BCFF;
+            --primary-container: #4F378B;
+            --on-primary: #381E72;
+            --on-primary-container: #EADDFF;
+            --secondary: #CCC2DC;
+            --tertiary: #EFB8C8;
+            --error: #F2B8B5;
+            --error-container: #8C1D18;
+            --warning: #FFB951;
+            --success: #6DD58C;
+            --outline: #938F99;
+            --outline-variant: #49454F;
+            --muted: #938F99;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --font-sans: 'Google Sans', 'Segoe UI', system-ui, sans-serif;
+            --font-mono: 'Roboto Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-sans);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        ::selection {
+            background: rgba(208, 188, 255, .25);
+            color: #E8DEF8;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--outline);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            opacity: .8;
+        }
+
+        code,
+        pre,
+        kbd {
+            font-family: var(--font-mono);
+        }
+
+        /* ── Layout ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(20, 18, 24, .92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--outline-variant);
+            padding: 0 24px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-logo {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -.01em;
+        }
+
+        .topbar-sep {
+            color: var(--outline);
+            font-size: 18px;
+        }
+
+        .topbar-title {
+            font-size: 13px;
+            color: var(--muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 400px;
+        }
+
+        .page-wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 220px 1fr 280px;
+            gap: 40px;
+            align-items: start;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .layout-grid {
+                grid-template-columns: 200px 1fr;
+            }
+
+            .related-col {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-col {
+                display: none;
+            }
+        }
+
+        /* ── Sticky sidebar ── */
+        .sticky-col {
+            position: sticky;
+            top: 72px;
+        }
+
+        /* ── Breadcrumb ── */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb span {
+            cursor: pointer;
+            transition: color .2s;
+        }
+
+        .breadcrumb span:hover {
+            color: var(--fg);
+        }
+
+        .breadcrumb .sep {
+            opacity: .5;
+        }
+
+        /* ── Header ── */
+        .incident-header {
+            animation: fadeInUp .4s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chips-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 4px 10px;
+            letter-spacing: .02em;
+        }
+
+        .chip-p1 {
+            background: rgba(242, 184, 181, .15);
+            color: #F2B8B5;
+            border: 1px solid rgba(242, 184, 181, .3);
+        }
+
+        .chip-p2 {
+            background: rgba(255, 185, 81, .12);
+            color: #FFB951;
+            border: 1px solid rgba(255, 185, 81, .3);
+        }
+
+        .chip-p3 {
+            background: rgba(208, 188, 255, .12);
+            color: #D0BCFF;
+            border: 1px solid rgba(208, 188, 255, .3);
+        }
+
+        .chip-p4 {
+            background: rgba(109, 213, 140, .12);
+            color: #6DD58C;
+            border: 1px solid rgba(109, 213, 140, .3);
+        }
+
+        .chip-resolved {
+            background: rgba(109, 213, 140, .12);
+            color: #6DD58C;
+            border: 1px solid rgba(109, 213, 140, .3);
+        }
+
+        .chip-investigating {
+            background: rgba(255, 185, 81, .12);
+            color: #FFB951;
+            border: 1px solid rgba(255, 185, 81, .3);
+        }
+
+        .chip-identified {
+            background: rgba(208, 188, 255, .12);
+            color: #D0BCFF;
+            border: 1px solid rgba(208, 188, 255, .3);
+        }
+
+        .chip-monitoring {
+            background: rgba(204, 194, 220, .12);
+            color: #CCC2DC;
+            border: 1px solid rgba(204, 194, 220, .3);
+        }
+
+        .incident-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--fg);
+            line-height: 1.3;
+            letter-spacing: -.02em;
+            margin-bottom: 12px;
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tag:hover {
+            color: var(--fg);
+            border-color: var(--outline);
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            align-items: center;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-item strong {
+            color: var(--fg);
+            font-weight: 600;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--outline-variant);
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn:hover {
+            border-color: var(--outline);
+            color: var(--fg);
+        }
+
+        .btn.active-upvote {
+            color: var(--primary);
+            border-color: rgba(208, 188, 255, .4);
+            background: rgba(208, 188, 255, .08);
+        }
+
+        .btn.active-bookmark {
+            color: var(--tertiary);
+            border-color: rgba(239, 184, 200, .4);
+            background: rgba(239, 184, 200, .08);
+        }
+
+        .btn-ml {
+            margin-left: auto;
+        }
+
+        .exec-summary {
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius);
+            padding: 20px 20px 20px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exec-summary::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+            border-radius: var(--radius) 0 0 var(--radius);
+        }
+
+        .exec-summary-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .exec-summary p {
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--fg);
+        }
+
+        /* ── Jump Nav ── */
+        .jump-nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 10px;
+            padding: 0 12px;
+        }
+
+        .jump-nav ul {
+            list-style: none;
+        }
+
+        .jump-nav li button {
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 13px;
+            font-weight: 500;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .2s;
+            border-left: 2px solid transparent;
+        }
+
+        .jump-nav li button:hover {
+            color: var(--fg);
+            background: var(--surface-container);
+        }
+
+        .jump-nav li button.active {
+            color: var(--primary);
+            background: rgba(208, 188, 255, .08);
+            border-left-color: var(--primary);
+        }
+
+        .nav-progress {
+            margin-top: 20px;
+            padding: 0 12px;
+        }
+
+        .nav-progress-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .nav-progress-bar {
+            height: 4px;
+            background: var(--surface-container-high);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .nav-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 999px;
+            transition: width .3s;
+        }
+
+        /* ── Content Blocks ── */
+        .content-area {
+            min-width: 0;
+        }
+
+        .section-block {
+            margin-bottom: 24px;
+        }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .block-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .block-icon svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .block-icon-warning {
+            background: rgba(255, 185, 81, .15);
+        }
+
+        .block-icon-warning svg {
+            stroke: #FFB951;
+        }
+
+        .block-icon-primary {
+            background: rgba(208, 188, 255, .15);
+        }
+
+        .block-icon-primary svg {
+            stroke: #D0BCFF;
+        }
+
+        .block-icon-error {
+            background: rgba(242, 184, 181, .15);
+        }
+
+        .block-icon-error svg {
+            stroke: #F2B8B5;
+        }
+
+        .block-icon-success {
+            background: rgba(109, 213, 140, .15);
+        }
+
+        .block-icon-success svg {
+            stroke: #6DD58C;
+        }
+
+        .block-icon-secondary {
+            background: rgba(204, 194, 220, .15);
+        }
+
+        .block-icon-secondary svg {
+            stroke: #CCC2DC;
+        }
+
+        .block-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .block-card {
+            background: var(--surface-container);
+            border-radius: var(--radius);
+            padding: 16px;
+            border: 1px solid var(--outline-variant);
+        }
+
+        .block-card-warning {
+            border-color: rgba(255, 185, 81, .25);
+        }
+
+        .block-card-error {
+            border-color: rgba(242, 184, 181, .25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .block-card-error::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(242, 184, 181, .7), rgba(242, 184, 181, .2), transparent);
+        }
+
+        .block-card-success {
+            border-color: rgba(109, 213, 140, .25);
+        }
+
+        .block-card p {
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--fg);
+            margin-bottom: 12px;
+        }
+
+        .block-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .block-card .technical-detail {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        /* Symptom list */
+        .symptom-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .symptom-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.6;
+        }
+
+        .symptom-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--warning);
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+
+        /* Investigation list */
+        .investigation-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .investigation-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.6;
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(208, 188, 255, .15);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        /* Resolution list */
+        .resolution-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .resolution-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.6;
+        }
+
+        .resolution-list li svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+            stroke: #6DD58C;
+            width: 15px;
+            height: 15px;
+        }
+
+        .action-items-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .action-items-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--success);
+            margin-bottom: 8px;
+        }
+
+        .action-items-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .action-items-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .action-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(109, 213, 140, .6);
+            flex-shrink: 0;
+            margin-top: 7px;
+        }
+
+        /* Paragraph */
+        .para {
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--fg);
+            margin-bottom: 16px;
+        }
+
+        .para code {
+            background: var(--surface-container-high);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--primary);
+        }
+
+        /* Heading */
+        .heading-2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--fg);
+            margin: 32px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        /* List block */
+        .list-block {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .list-block li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.6;
+        }
+
+        .list-block li svg {
+            flex-shrink: 0;
+            margin-top: 3px;
+            stroke: var(--muted);
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--outline-variant);
+            margin: 24px 0;
+        }
+
+        /* Terminal */
+        .terminal-block {
+            background: #0D0D0D;
+            border: 1px solid #2A2A2A;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .terminal-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid #2A2A2A;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .terminal-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red {
+            background: #FF5F57;
+        }
+
+        .dot-yellow {
+            background: #FEBC2E;
+        }
+
+        .dot-green {
+            background: #28C840;
+        }
+
+        .terminal-title-text {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #666;
+            font-family: var(--font-mono);
+            margin-left: 8px;
+        }
+
+        .terminal-title-text svg {
+            width: 12px;
+            height: 12px;
+            stroke: #666;
+        }
+
+        .terminal-copy-btn {
+            font-size: 12px;
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color .2s;
+        }
+
+        .terminal-copy-btn:hover {
+            color: #AAA;
+        }
+
+        .terminal-copy-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .terminal-body {
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        .terminal-line {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre;
+        }
+
+        .terminal-command {
+            color: #E8E8E8;
+        }
+
+        .terminal-command::before {
+            content: '$ ';
+            color: #6DD58C;
+            user-select: none;
+        }
+
+        .terminal-error {
+            color: #F2B8B5;
+        }
+
+        .terminal-success {
+            color: #6DD58C;
+        }
+
+        .terminal-output {
+            color: #A8A8A8;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #0F0F14;
+            border: 1px solid var(--outline-variant);
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--outline-variant);
+            background: var(--surface-container);
+        }
+
+        .code-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .code-header-left svg {
+            width: 13px;
+            height: 13px;
+            stroke: var(--muted);
+        }
+
+        .code-filename {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            color: var(--muted);
+        }
+
+        .code-lang {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--surface-container-high);
+            color: var(--muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .code-copy-btn {
+            font-size: 12px;
+            color: var(--muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color .2s;
+        }
+
+        .code-copy-btn:hover {
+            color: var(--fg);
+        }
+
+        .code-copy-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .code-body {
+            overflow-x: auto;
+        }
+
+        pre.code-pre {
+            margin: 0;
+            padding: 16px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.6;
+            color: #CDD6F4;
+            background: #0F0F14;
+            counter-reset: line;
+        }
+
+        pre.code-pre .line {
+            display: flex;
+        }
+
+        pre.code-pre .line-num {
+            color: #4A4A5A;
+            font-size: 11px;
+            min-width: 32px;
+            padding-right: 16px;
+            user-select: none;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* INI syntax colors */
+        .ini-section {
+            color: #89DCEB;
+        }
+
+        .ini-key {
+            color: #89B4FA;
+        }
+
+        .ini-value {
+            color: #A6E3A1;
+        }
+
+        .ini-comment {
+            color: #6C7086;
+            font-style: italic;
+        }
+
+        .ini-eq {
+            color: #CDD6F4;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin-bottom: 24px;
+        }
+
+        .timeline-list {
+            list-style: none;
+            position: relative;
+            padding-left: 16px;
+        }
+
+        .timeline-list::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 16px;
+            bottom: 16px;
+            width: 1px;
+            background: var(--outline-variant);
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding-bottom: 16px;
+        }
+
+        .timeline-dot {
+            position: relative;
+            z-index: 1;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+
+        .timeline-dot-inner {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .tl-detection .timeline-dot {
+            background: rgba(255, 185, 81, .15);
+        }
+
+        .tl-detection .timeline-dot-inner {
+            background: #FFB951;
+        }
+
+        .tl-detection .tl-time {
+            color: #FFB951;
+        }
+
+        .tl-detection .tl-badge {
+            background: rgba(255, 185, 81, .15);
+            color: #FFB951;
+        }
+
+        .tl-escalation .timeline-dot {
+            background: rgba(242, 184, 181, .15);
+        }
+
+        .tl-escalation .timeline-dot-inner {
+            background: #F2B8B5;
+        }
+
+        .tl-escalation .tl-time {
+            color: #F2B8B5;
+        }
+
+        .tl-escalation .tl-badge {
+            background: rgba(242, 184, 181, .15);
+            color: #F2B8B5;
+        }
+
+        .tl-investigation .timeline-dot {
+            background: rgba(208, 188, 255, .15);
+        }
+
+        .tl-investigation .timeline-dot-inner {
+            background: #D0BCFF;
+        }
+
+        .tl-investigation .tl-time {
+            color: #D0BCFF;
+        }
+
+        .tl-investigation .tl-badge {
+            background: rgba(208, 188, 255, .15);
+            color: #D0BCFF;
+        }
+
+        .tl-mitigation .timeline-dot {
+            background: rgba(239, 184, 200, .15);
+        }
+
+        .tl-mitigation .timeline-dot-inner {
+            background: #EFB8C8;
+        }
+
+        .tl-mitigation .tl-time {
+            color: #EFB8C8;
+        }
+
+        .tl-mitigation .tl-badge {
+            background: rgba(239, 184, 200, .15);
+            color: #EFB8C8;
+        }
+
+        .tl-resolution .timeline-dot {
+            background: rgba(109, 213, 140, .15);
+        }
+
+        .tl-resolution .timeline-dot-inner {
+            background: #6DD58C;
+        }
+
+        .tl-resolution .tl-time {
+            color: #6DD58C;
+        }
+
+        .tl-resolution .tl-badge {
+            background: rgba(109, 213, 140, .15);
+            color: #6DD58C;
+        }
+
+        .tl-update .timeline-dot {
+            background: var(--surface-container-high);
+        }
+
+        .tl-update .timeline-dot-inner {
+            background: var(--muted);
+        }
+
+        .tl-update .tl-time {
+            color: var(--muted);
+        }
+
+        .tl-update .tl-badge {
+            background: var(--surface-container-high);
+            color: var(--muted);
+        }
+
+        .tl-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tl-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .tl-time {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .tl-badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tl-desc {
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.5;
+        }
+
+        .tl-actor {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* Comments */
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid var(--outline-variant);
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .comments-header svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--muted);
+        }
+
+        .comments-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .comments-count {
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--surface-container-high);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .comment-input-wrap {
+            flex: 1;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            color: var(--fg);
+            font-size: 14px;
+            font-family: var(--font-sans);
+            resize: none;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .comment-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .comment-textarea::placeholder {
+            color: var(--muted);
+        }
+
+        .post-btn {
+            margin-top: 8px;
+            float: right;
+            padding: 7px 18px;
+            border-radius: 999px;
+            background: var(--primary);
+            color: var(--on-primary);
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+        .post-btn:hover {
+            opacity: .9;
+        }
+
+        .comments-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+        }
+
+        .comment-item.reply {
+            padding-left: 32px;
+            border-left: 1px solid var(--outline-variant);
+            margin-top: 16px;
+        }
+
+        .comment-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .comment-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .comment-author {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .comment-role {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .comment-time {
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: auto;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: var(--fg);
+            line-height: 1.65;
+        }
+
+        .comment-text code {
+            background: var(--surface-container-high);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        .comment-text strong {
+            font-weight: 700;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .comment-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color .2s;
+        }
+
+        .comment-action-btn:hover {
+            color: var(--fg);
+        }
+
+        .comment-action-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .replies-list {
+            list-style: none;
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Related Incidents */
+        .related-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .related-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .related-card {
+            display: block;
+            padding: 14px;
+            border-radius: var(--radius);
+            background: var(--surface-container);
+            border: 1px solid var(--outline-variant);
+            transition: all .2s;
+            text-decoration: none;
+        }
+
+        .related-card:hover {
+            border-color: var(--outline);
+            background: var(--surface-container-high);
+        }
+
+        .related-chips {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .related-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--fg);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            transition: color .2s;
+        }
+
+        .related-card:hover .related-title {
+            color: var(--primary);
+        }
+
+        .related-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .related-meta svg {
+            width: 10px;
+            height: 10px;
+            stroke: var(--muted);
+        }
+
+        .related-meta .ml-auto {
+            margin-left: auto;
+            font-family: var(--font-mono);
+        }
+
+        .view-all {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px;
+            transition: opacity .2s;
+        }
+
+        .view-all:hover {
+            opacity: .8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+        <span class="topbar-logo">IncidentVi</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-title">INC-4821 — Payment Service Outage — Checkout Failures Across EU Region</span>
+    </header>
+
+    <div class="page-wrap">
+
+        <!-- Incident Header -->
+        <div class="incident-header">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <span>Incidents</span>
+                <span class="sep">›</span>
+                <span>Payments</span>
+                <span class="sep">›</span>
+                <span style="color:var(--fg);font-weight:600">INC-4821</span>
+            </nav>
+
+            <!-- Chips -->
+            <div class="chips-row">
+                <span class="chip chip-p1">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    P1 — Critical
+                </span>
+                <span class="chip chip-resolved">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                    Resolved
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="incident-title">Payment Service Outage — Checkout Failures Across EU Region (100% Error Rate)
+            </h1>
+
+            <!-- Tags -->
+            <div class="tags-row">
+                <span class="tag">postgres</span>
+                <span class="tag">connection-pool</span>
+                <span class="tag">eu-west-1</span>
+                <span class="tag">checkout</span>
+                <span class="tag">pgbouncer</span>
+            </div>
+
+            <!-- Meta -->
+            <div class="meta-row">
+                <span class="meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <strong>Priya Raghavan</strong>
+                </span>
+                <span class="meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    Jul 18, 2026 — 14:32 UTC
+                </span>
+                <span class="meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    MTTR: <strong>2h 39m</strong>
+                </span>
+                <span class="meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    3,847 views
+                </span>
+                <span class="meta-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                    </svg>
+                    142 upvotes
+                </span>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions-row">
+                <button class="btn" id="upvote-btn" onclick="toggleUpvote()" aria-label="Upvote">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        id="upvote-icon">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                    </svg>
+                    <span id="upvote-label">Upvote</span>
+                    <span id="upvote-count" style="font-weight:700">142</span>
+                </button>
+                <button class="btn" id="bookmark-btn" onclick="toggleBookmark()" aria-label="Bookmark">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        id="bookmark-icon">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span id="bookmark-label">Save</span>
+                </button>
+                <button class="btn" aria-label="Share">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                    </svg>
+                    Share
+                </button>
+                <button class="btn btn-ml" aria-label="Open in Jira">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    JIRA-4821
+                </button>
+            </div>
+
+            <!-- Executive Summary -->
+            <div class="exec-summary">
+                <div class="exec-summary-label">Executive Summary</div>
+                <p>On July 18, 2026, the EU-West-1 payment service experienced a complete checkout outage lasting 2
+                    hours 39 minutes. The root cause was a misconfigured PgBouncer connection pool limit
+                    (max_client_conn: 50) that was not updated after a 3× traffic scaling event the previous week.
+                    Connection exhaustion caused all new database queries to time out. Approximately 14,200 checkout
+                    attempts failed, resulting in an estimated €420K in deferred revenue. The incident was resolved by
+                    hot-patching PgBouncer configuration and restarting the pool manager without a full service restart.
+                </p>
+            </div>
+        </div>
+
+        <!-- 3-column layout -->
+        <div class="layout-grid">
+
+            <!-- Jump Nav Sidebar -->
+            <aside class="nav-col sticky-col">
+                <nav class="jump-nav" aria-label="Jump to section">
+                    <div class="jump-nav-label">On this page</div>
+                    <ul id="jump-nav-list">
+                        <li><button onclick="scrollTo('symptom')" id="nav-symptom" class="active">Symptom</button></li>
+                        <li><button onclick="scrollTo('investigation')" id="nav-investigation">Investigation</button>
+                        </li>
+                        <li><button onclick="scrollTo('root-cause')" id="nav-root-cause">Root Cause</button></li>
+                        <li><button onclick="scrollTo('resolution-steps')" id="nav-resolution-steps">Resolution
+                                Steps</button></li>
+                        <li><button onclick="scrollTo('resolution')" id="nav-resolution">Resolution</button></li>
+                        <li><button onclick="scrollTo('timeline')" id="nav-timeline">Timeline</button></li>
+                        <li><button onclick="scrollTo('lessons-learned')" id="nav-lessons-learned">Lessons
+                                Learned</button></li>
+                        <li><button onclick="scrollTo('discussion')" id="nav-discussion">Discussion</button></li>
+                    </ul>
+                    <div class="nav-progress">
+                        <div class="nav-progress-label" id="nav-progress-label">Section 1 of 8</div>
+                        <div class="nav-progress-bar">
+                            <div class="nav-progress-fill" id="nav-progress-fill" style="width:12.5%"></div>
+                        </div>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="content-area">
+
+                <!-- Paragraph intro -->
+                <div class="section-block">
+                    <p class="para">At 14:08 UTC on July 18, the EU payments service began returning HTTP 503 errors on
+                        all <code>/api/v2/checkout/confirm</code> endpoints. Within 4 minutes, the error rate reached
+                        100% and the PagerDuty alert triggered for the on-call SRE. This report documents the full
+                        investigation, root cause, and resolution, along with follow-up action items to prevent
+                        recurrence.</p>
+                </div>
+
+                <!-- Symptom -->
+                <section id="symptom" class="section-block">
+                    <div class="block-header">
+                        <div class="block-icon block-icon-warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </div>
+                        <h2 class="block-title">Symptom</h2>
+                    </div>
+                    <div class="block-card block-card-warning">
+                        <p>All checkout confirmation requests in EU-West-1 began failing with 503 responses. No errors
+                            were observed in US or APAC regions.</p>
+                        <ul class="symptom-list">
+                            <li><span class="symptom-dot"></span>HTTP 503 error rate: 100% on /api/v2/checkout/confirm
+                                (EU-West-1)</li>
+                            <li><span class="symptom-dot"></span>PagerDuty alert: "payments-eu: checkout_error_rate &gt;
+                                5% for 3m" fired at 14:11 UTC</li>
+                            <li><span class="symptom-dot"></span>Grafana: p99 latency on payments-db-eu spiked from 12ms
+                                to 30,000ms (timeout)</li>
+                            <li><span class="symptom-dot"></span>Sentry: "connection pool exhausted" errors flooding in
+                                at ~200/s</li>
+                            <li><span class="symptom-dot"></span>Customer support: 47 tickets opened within first 30
+                                minutes reporting failed payments</li>
+                            <li><span class="symptom-dot"></span>No anomalies in US-East-1 or APAC-Southeast-1 clusters
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Initial Triage heading -->
+                <h2 class="heading-2">Initial Triage</h2>
+
+                <!-- Paragraph -->
+                <div class="section-block">
+                    <p class="para">On-call SRE <strong>Tomasz Wierzbicki</strong> acknowledged the alert at 14:13 UTC
+                        and immediately began triage. The first hypothesis was a database host failure. Checking RDS
+                        status confirmed the primary instance was healthy with CPU at 22% and no active alarms.</p>
+                </div>
+
+                <!-- Terminal 1 -->
+                <div class="terminal-block">
+                    <div class="terminal-titlebar">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="terminal-dots">
+                                <span class="dot-red"></span>
+                                <span class="dot-yellow"></span>
+                                <span class="dot-green"></span>
+                            </div>
+                            <div class="terminal-title-text">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="4 17 10 11 4 5" />
+                                    <line x1="12" y1="19" x2="20" y2="19" />
+                                </svg>
+                                ssh payments-eu-app-01
+                            </div>
+                        </div>
+                        <button class="terminal-copy-btn" onclick="copyTerminal(this, 'term1')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="terminal-body" id="term1">
+                        <div class="terminal-line terminal-command">kubectl logs -n payments deploy/checkout-service
+                            --tail=50 | grep ERROR</div>
+                        <div class="terminal-line terminal-error">ERROR [db-pool] connection pool exhausted: all 50
+                            connections in use (max_client_conn=50)</div>
+                        <div class="terminal-line terminal-error">ERROR [db-pool] connection pool exhausted: all 50
+                            connections in use (max_client_conn=50)</div>
+                        <div class="terminal-line terminal-error">ERROR [db-pool] connection pool exhausted: all 50
+                            connections in use (max_client_conn=50)</div>
+                        <div class="terminal-line terminal-output">...(47 more identical lines)</div>
+                        <div class="terminal-line terminal-command">kubectl exec -n payments deploy/pgbouncer-eu -- psql
+                            -p 6432 pgbouncer -c "SHOW POOLS;"</div>
+                        <div class="terminal-line terminal-output"> database | user | cl_active | cl_waiting | sv_active
+                            | sv_idle | maxwait</div>
+                        <div class="terminal-line terminal-output">
+                            ----------+------+-----------+------------+-----------+---------+---------</div>
+                        <div class="terminal-line terminal-output"> payments | app | 50 | 412 | 10 | 0 | 28.41</div>
+                        <div class="terminal-line terminal-success">-- 412 clients waiting, max wait 28.4s — pool fully
+                            saturated</div>
+                    </div>
+                </div>
+
+                <!-- Investigation -->
+                <section id="investigation" class="section-block">
+                    <div class="block-header">
+                        <div class="block-icon block-icon-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                        </div>
+                        <h2 class="block-title">Investigation</h2>
+                    </div>
+                    <div class="block-card">
+                        <p>Investigation focused on the PgBouncer connection pool after log evidence pointed to pool
+                            exhaustion as the immediate cause.</p>
+                        <ol class="investigation-list">
+                            <li><span class="step-num">1</span>Confirmed RDS primary (payments-db-eu-primary) was
+                                healthy — CPU 22%, no active alarms, no replication lag</li>
+                            <li><span class="step-num">2</span>Pulled checkout-service logs — all errors were
+                                "connection pool exhausted" from PgBouncer, not database errors</li>
+                            <li><span class="step-num">3</span>Ran SHOW POOLS on PgBouncer: 50 active connections, 412
+                                clients waiting, max wait 28.4s — confirmed saturation</li>
+                            <li><span class="step-num">4</span>Checked PgBouncer config: max_client_conn=50,
+                                pool_size=10 — last modified 2026-07-09</li>
+                            <li><span class="step-num">5</span>Cross-referenced traffic data: EU checkout RPS increased
+                                from ~180 to ~540 after the Black Friday preview campaign launched July 11</li>
+                            <li><span class="step-num">6</span>Confirmed config was set for pre-campaign traffic levels
+                                — never updated after 3× traffic increase</li>
+                            <li><span class="step-num">7</span>Checked if a recent deploy had changed pool settings: no
+                                deploys to pgbouncer-eu in 9 days</li>
+                            <li><span class="step-num">8</span>Identified that the traffic scaling runbook did not
+                                include a PgBouncer config update step</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- Code block 1 -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-header-left">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6" />
+                                <polyline points="8 6 2 12 8 18" />
+                            </svg>
+                            <span class="code-filename">/etc/pgbouncer/pgbouncer.ini (before fix)</span>
+                            <span class="code-lang">ini</span>
+                        </div>
+                        <button class="code-copy-btn" onclick="copyCode(this, 'code1')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="code-body">
+                        <pre class="code-pre"
+                            id="code1"><span class="line"><span class="line-num">1</span><span class="ini-section">[databases]</span></span>
+<span class="line"><span class="line-num">2</span><span class="ini-key">payments</span><span class="ini-eq"> = </span><span class="ini-value">host=payments-db-eu-primary.rds.amazonaws.com port=5432 dbname=payments</span></span>
+<span class="line"><span class="line-num">3</span></span>
+<span class="line"><span class="line-num">4</span><span class="ini-section">[pgbouncer]</span></span>
+<span class="line"><span class="line-num">5</span><span class="ini-key">listen_port</span><span class="ini-eq"> = </span><span class="ini-value">6432</span></span>
+<span class="line"><span class="line-num">6</span><span class="ini-key">listen_addr</span><span class="ini-eq"> = </span><span class="ini-value">*</span></span>
+<span class="line"><span class="line-num">7</span><span class="ini-key">auth_type</span><span class="ini-eq"> = </span><span class="ini-value">md5</span></span>
+<span class="line"><span class="line-num">8</span><span class="ini-key">auth_file</span><span class="ini-eq"> = </span><span class="ini-value">/etc/pgbouncer/userlist.txt</span></span>
+<span class="line"><span class="line-num">9</span></span>
+<span class="line"><span class="line-num">10</span><span class="ini-comment">; Connection pool settings — SET FOR OLD TRAFFIC LEVELS</span></span>
+<span class="line"><span class="line-num">11</span><span class="ini-key">pool_mode</span><span class="ini-eq"> = </span><span class="ini-value">transaction</span></span>
+<span class="line"><span class="line-num">12</span><span class="ini-key">max_client_conn</span><span class="ini-eq"> = </span><span class="ini-value">50</span>       <span class="ini-comment">; &lt;-- CRITICAL: was not updated after 3x traffic scaling</span></span>
+<span class="line"><span class="line-num">13</span><span class="ini-key">default_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">10</span>     <span class="ini-comment">; &lt;-- max server connections per pool</span></span>
+<span class="line"><span class="line-num">14</span><span class="ini-key">min_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">2</span></span>
+<span class="line"><span class="line-num">15</span><span class="ini-key">reserve_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">5</span></span>
+<span class="line"><span class="line-num">16</span><span class="ini-key">reserve_pool_timeout</span><span class="ini-eq"> = </span><span class="ini-value">3</span></span>
+<span class="line"><span class="line-num">17</span></span>
+<span class="line"><span class="line-num">18</span><span class="ini-key">server_idle_timeout</span><span class="ini-eq"> = </span><span class="ini-value">600</span></span>
+<span class="line"><span class="line-num">19</span><span class="ini-key">client_idle_timeout</span><span class="ini-eq"> = </span><span class="ini-value">0</span></span>
+<span class="line"><span class="line-num">20</span><span class="ini-key">log_connections</span><span class="ini-eq"> = </span><span class="ini-value">0</span></span>
+<span class="line"><span class="line-num">21</span><span class="ini-key">log_disconnections</span><span class="ini-eq"> = </span><span class="ini-value">0</span></span></pre>
+                    </div>
+                </div>
+
+                <!-- Root Cause -->
+                <section id="root-cause" class="section-block">
+                    <div class="block-header">
+                        <div class="block-icon block-icon-error">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
+                        </div>
+                        <h2 class="block-title">Root Cause</h2>
+                    </div>
+                    <div class="block-card block-card-error">
+                        <p>The PgBouncer connection pool max_client_conn limit of 50 was not updated when EU checkout
+                            traffic tripled following the Black Friday preview campaign launch on July 11.</p>
+                        <p class="technical-detail">At 540 RPS with an average query duration of ~12ms, the checkout
+                            service requires approximately 6–7 concurrent database connections per app replica × 8
+                            replicas = ~56 concurrent connections at baseline. The existing max_client_conn=50 was
+                            adequate at 180 RPS but became a hard ceiling at 3× load. Once all 50 slots were occupied,
+                            new requests queued and eventually timed out at the application layer (30s timeout),
+                            producing 503 responses. The RDS instance itself had capacity for 200+ connections but
+                            PgBouncer never forwarded the traffic to it.</p>
+                    </div>
+                </section>
+
+                <!-- Resolution Steps heading -->
+                <h2 class="heading-2" id="resolution-steps">Resolution Steps</h2>
+
+                <!-- Paragraph -->
+                <div class="section-block">
+                    <p class="para">The fix was applied as a hot-patch to PgBouncer configuration without requiring a
+                        full service restart. PgBouncer supports live config reload via <code>RELOAD</code> command,
+                        which allowed the fix to be applied in under 90 seconds.</p>
+                </div>
+
+                <!-- Code block 2 -->
+                <div class="code-block">
+                    <div class="code-header">
+                        <div class="code-header-left">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6" />
+                                <polyline points="8 6 2 12 8 18" />
+                            </svg>
+                            <span class="code-filename">/etc/pgbouncer/pgbouncer.ini (after fix)</span>
+                            <span class="code-lang">ini</span>
+                        </div>
+                        <button class="code-copy-btn" onclick="copyCode(this, 'code2')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="code-body">
+                        <pre class="code-pre"
+                            id="code2"><span class="line"><span class="line-num">1</span><span class="ini-section">[pgbouncer]</span></span>
+<span class="line"><span class="line-num">2</span><span class="ini-comment">; Updated values — sized for 4x expected peak traffic</span></span>
+<span class="line"><span class="line-num">3</span><span class="ini-key">max_client_conn</span><span class="ini-eq"> = </span><span class="ini-value">500</span>      <span class="ini-comment">; was 50 — increased 10x</span></span>
+<span class="line"><span class="line-num">4</span><span class="ini-key">default_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">40</span>     <span class="ini-comment">; was 10 — sized for RDS max_connections=200</span></span>
+<span class="line"><span class="line-num">5</span><span class="ini-key">min_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">10</span>         <span class="ini-comment">; was 2</span></span>
+<span class="line"><span class="line-num">6</span><span class="ini-key">reserve_pool_size</span><span class="ini-eq"> = </span><span class="ini-value">20</span>     <span class="ini-comment">; was 5</span></span>
+<span class="line"><span class="line-num">7</span><span class="ini-key">reserve_pool_timeout</span><span class="ini-eq"> = </span><span class="ini-value">3</span></span></pre>
+                    </div>
+                </div>
+
+                <!-- Terminal 2 -->
+                <div class="terminal-block">
+                    <div class="terminal-titlebar">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="terminal-dots">
+                                <span class="dot-red"></span>
+                                <span class="dot-yellow"></span>
+                                <span class="dot-green"></span>
+                            </div>
+                            <div class="terminal-title-text">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="4 17 10 11 4 5" />
+                                    <line x1="12" y1="19" x2="20" y2="19" />
+                                </svg>
+                                pgbouncer-eu — apply fix
+                            </div>
+                        </div>
+                        <button class="terminal-copy-btn" onclick="copyTerminal(this, 'term2')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="terminal-body" id="term2">
+                        <div class="terminal-line terminal-command">kubectl cp pgbouncer.ini
+                            payments/pgbouncer-eu-0:/etc/pgbouncer/pgbouncer.ini</div>
+                        <div class="terminal-line terminal-success">pgbouncer.ini copied successfully</div>
+                        <div class="terminal-line terminal-command">kubectl exec -n payments pgbouncer-eu-0 -- psql -p
+                            6432 pgbouncer -c "RELOAD;"</div>
+                        <div class="terminal-line terminal-success">RELOAD</div>
+                        <div class="terminal-line terminal-command">kubectl exec -n payments deploy/pgbouncer-eu -- psql
+                            -p 6432 pgbouncer -c "SHOW POOLS;"</div>
+                        <div class="terminal-line terminal-output"> database | user | cl_active | cl_waiting | sv_active
+                            | sv_idle | maxwait</div>
+                        <div class="terminal-line terminal-output">
+                            ----------+------+-----------+------------+-----------+---------+---------</div>
+                        <div class="terminal-line terminal-output"> payments | app | 87 | 0 | 40 | 0 | 0.00</div>
+                        <div class="terminal-line terminal-success">-- cl_waiting dropped to 0 — pool accepting
+                            connections normally</div>
+                        <div class="terminal-line terminal-command">watch -n2 "kubectl logs -n payments
+                            deploy/checkout-service --tail=5 | grep -c ERROR"</div>
+                        <div class="terminal-line terminal-output">0</div>
+                        <div class="terminal-line terminal-success">-- Error rate: 0 — checkout service recovering</div>
+                    </div>
+                </div>
+
+                <!-- Resolution -->
+                <section id="resolution" class="section-block">
+                    <div class="block-header">
+                        <div class="block-icon block-icon-success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <h2 class="block-title">Resolution</h2>
+                    </div>
+                    <div class="block-card block-card-success">
+                        <p>PgBouncer config was hot-reloaded at 16:44 UTC. Error rate dropped to 0 within 45 seconds.
+                            Full checkout functionality restored by 16:46 UTC. Monitoring confirmed stable operation for
+                            25 minutes before incident was marked resolved at 17:11 UTC.</p>
+                        <ul class="resolution-list">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Updated max_client_conn from 50 to 500 (10× headroom for current traffic)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Updated default_pool_size from 10 to 40 (sized for RDS max_connections=200)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Hot-reloaded PgBouncer config via RELOAD command — no service restart required
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Confirmed cl_waiting dropped to 0 within 30 seconds of reload
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Verified checkout error rate reached 0 within 45 seconds
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                                Monitored for 25 minutes before marking incident resolved
+                            </li>
+                        </ul>
+                        <div class="action-items-section">
+                            <div class="action-items-label">Follow-up Action Items</div>
+                            <ul class="action-items-list">
+                                <li><span class="action-dot"></span>Add PgBouncer config review to traffic scaling
+                                    runbook (owner: Tomasz W., due Jul 25)</li>
+                                <li><span class="action-dot"></span>Create Terraform variable for max_client_conn tied
+                                    to expected_rps — prevent manual drift (owner: Infra team, due Aug 1)</li>
+                                <li><span class="action-dot"></span>Add Grafana alert: "pgbouncer cl_waiting &gt; 10 for
+                                    2m" — catch pool pressure before exhaustion (owner: Priya R., due Jul 22)</li>
+                                <li><span class="action-dot"></span>Conduct PgBouncer config audit across all regions —
+                                    US and APAC may have same misconfiguration (owner: SRE team, due Jul 25)</li>
+                                <li><span class="action-dot"></span>Add load test to CI/CD pipeline for payment service
+                                    at 5× baseline traffic (owner: Platform team, due Aug 15)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Divider -->
+                <hr class="divider" />
+
+                <!-- Timeline -->
+                <section id="timeline" class="section-block timeline-section">
+                    <div class="block-header">
+                        <div class="block-icon block-icon-secondary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </div>
+                        <h2 class="block-title">Timeline</h2>
+                    </div>
+                    <ul class="timeline-list">
+                        <li class="timeline-item tl-detection">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:08 UTC</span><span
+                                        class="tl-badge">detection</span></div>
+                                <p class="tl-desc">First 503 errors appear on /api/v2/checkout/confirm. Sentry begins
+                                    receiving "connection pool exhausted" errors.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-detection">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:11 UTC</span><span
+                                        class="tl-badge">detection</span></div>
+                                <p class="tl-desc">PagerDuty alert fires: "payments-eu: checkout_error_rate &gt; 5% for
+                                    3m". Error rate already at 100%.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-investigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:13 UTC</span><span
+                                        class="tl-badge">investigation</span></div>
+                                <p class="tl-desc">On-call SRE Tomasz Wierzbicki acknowledges alert and begins triage.
+                                    Initial hypothesis: RDS failure.</p>
+                                <p class="tl-actor">— Tomasz Wierzbicki (On-call SRE)</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-investigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:18 UTC</span><span
+                                        class="tl-badge">investigation</span></div>
+                                <p class="tl-desc">RDS primary confirmed healthy. Logs show pool exhaustion errors, not
+                                    database errors. Focus shifts to PgBouncer.</p>
+                                <p class="tl-actor">— Tomasz Wierzbicki</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-escalation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:25 UTC</span><span
+                                        class="tl-badge">escalation</span></div>
+                                <p class="tl-desc">Incident escalated to P1. Priya Raghavan (Staff SRE) joins. Eng
+                                    Manager and VP Engineering notified. Status page updated.</p>
+                                <p class="tl-actor">— Priya Raghavan (Staff SRE)</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-investigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:31 UTC</span><span
+                                        class="tl-badge">investigation</span></div>
+                                <p class="tl-desc">PgBouncer config reviewed. max_client_conn=50 identified as hard
+                                    ceiling. Last modified Jul 9 — before campaign traffic increase.</p>
+                                <p class="tl-actor">— Priya Raghavan</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-update">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">14:45 UTC</span><span
+                                        class="tl-badge">update</span></div>
+                                <p class="tl-desc">Customer support team briefed. Comms template prepared for affected
+                                    customers. 47 support tickets triaged.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-investigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">15:10 UTC</span><span
+                                        class="tl-badge">investigation</span></div>
+                                <p class="tl-desc">Root cause confirmed: traffic tripled after Jul 11 campaign launch
+                                    but PgBouncer limits not updated. Fix plan approved.</p>
+                                <p class="tl-actor">— Priya Raghavan + Tomasz Wierzbicki</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-mitigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">16:30 UTC</span><span
+                                        class="tl-badge">mitigation</span></div>
+                                <p class="tl-desc">New PgBouncer config prepared and reviewed. max_client_conn=500,
+                                    default_pool_size=40. Staging validation passed.</p>
+                                <p class="tl-actor">— Tomasz Wierzbicki</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-mitigation">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">16:44 UTC</span><span
+                                        class="tl-badge">mitigation</span></div>
+                                <p class="tl-desc">PgBouncer config hot-reloaded in production via RELOAD command.
+                                    cl_waiting drops from 412 to 0 within 30 seconds.</p>
+                                <p class="tl-actor">— Priya Raghavan</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-resolution">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">16:46 UTC</span><span
+                                        class="tl-badge">resolution</span></div>
+                                <p class="tl-desc">Checkout error rate reaches 0. Service fully restored. Monitoring
+                                    period begins.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item tl-resolution">
+                            <div class="timeline-dot">
+                                <div class="timeline-dot-inner"></div>
+                            </div>
+                            <div class="tl-content">
+                                <div class="tl-meta"><span class="tl-time">17:11 UTC</span><span
+                                        class="tl-badge">resolution</span></div>
+                                <p class="tl-desc">Incident marked Resolved after 25 minutes of stable monitoring.
+                                    Status page updated. Customer comms sent.</p>
+                                <p class="tl-actor">— Priya Raghavan</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- Lessons Learned -->
+                <h2 class="heading-2" id="lessons-learned">Lessons Learned</h2>
+
+                <div class="section-block">
+                    <p class="para">This incident highlights a classic operational gap: <strong>infrastructure limits
+                            were not treated as code</strong>. PgBouncer's max_client_conn was a manually-set value with
+                        no automated review trigger when traffic patterns changed. The fix was trivial once identified —
+                        the 2h 39m MTTR was entirely investigation time, not remediation time.</p>
+                </div>
+
+                <ul class="list-block">
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        Traffic scaling runbooks must include a checklist of all connection pool and rate limit
+                        configurations that need review
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        Infrastructure limits like max_client_conn should be derived from traffic metrics, not set
+                        manually
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        PgBouncer pool saturation (cl_waiting &gt; 0) should alert before exhaustion occurs — we had no
+                        early warning signal
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        The 90-second fix time vs. 2h 39m investigation time shows our observability gap: pool metrics
+                        were not surfaced in our primary dashboards
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                        Staging validation of config changes should use production-representative traffic load
+                    </li>
+                </ul>
+
+                <!-- Comments / Discussion -->
+                <section id="discussion" class="comments-section">
+                    <div class="comments-header">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <h2>Discussion</h2>
+                        <span class="comments-count">5</span>
+                    </div>
+
+                    <!-- Comment input -->
+                    <div class="comment-input-row">
+                        <div class="avatar" style="background:#4F378B;margin-top:4px">MK</div>
+                        <div class="comment-input-wrap">
+                            <textarea class="comment-textarea" rows="3"
+                                placeholder="Add a comment or question about this incident…"></textarea>
+                            <button class="post-btn">Post Comment</button>
+                            <div style="clear:both"></div>
+                        </div>
+                    </div>
+
+                    <!-- Comments list -->
+                    <ul class="comments-list">
+
+                        <!-- Comment 1 -->
+                        <li>
+                            <div class="comment-item">
+                                <div class="avatar" style="background:#1D6B44">TW</div>
+                                <div class="comment-body">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">Tomasz Wierzbicki</span>
+                                        <span class="comment-role">Senior SRE</span>
+                                        <span class="comment-time">Jul 18, 2026 — 19:42 UTC</span>
+                                    </div>
+                                    <div class="comment-text">Good write-up Priya. One thing worth adding: the Grafana
+                                        dashboard for payments-eu does show pgbouncer_pool_cl_waiting as a metric, but
+                                        it's buried 3 panels down and not on the main SRE overview. I've filed a
+                                        dashboard ticket to surface it prominently. Would have saved ~45 minutes of
+                                        investigation if it was front-and-center.</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn" onclick="toggleLike(this, 28)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span>28</span>
+                                        </button>
+                                        <button class="comment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 17 4 12 9 7" />
+                                                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                                            </svg>
+                                            Reply
+                                        </button>
+                                    </div>
+                                    <!-- Reply -->
+                                    <ul class="replies-list">
+                                        <li>
+                                            <div class="comment-item reply">
+                                                <div class="avatar"
+                                                    style="background:#4F378B;width:28px;height:28px;font-size:11px">PR
+                                                </div>
+                                                <div class="comment-body">
+                                                    <div class="comment-meta">
+                                                        <span class="comment-author">Priya Raghavan</span>
+                                                        <span class="comment-role">Staff SRE</span>
+                                                        <span class="comment-time">Jul 18, 2026 — 20:01 UTC</span>
+                                                    </div>
+                                                    <div class="comment-text">Agreed — I've added that to the action
+                                                        items. Also flagging: we should do the same audit for Redis
+                                                        connection limits. I suspect we have similar manual configs
+                                                        there.</div>
+                                                    <div class="comment-actions">
+                                                        <button class="comment-action-btn"
+                                                            onclick="toggleLike(this, 14)">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2">
+                                                                <path
+                                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                                            </svg>
+                                                            <span>14</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Comment 2 -->
+                        <li>
+                            <div class="comment-item">
+                                <div class="avatar" style="background:#7B3D8A">AF</div>
+                                <div class="comment-body">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">Aiko Fujimoto</span>
+                                        <span class="comment-role">Engineering Manager</span>
+                                        <span class="comment-time">Jul 19, 2026 — 08:17 UTC</span>
+                                    </div>
+                                    <div class="comment-text">Thanks for the thorough post-mortem. For context on
+                                        business impact: finance confirmed ~14,200 failed checkout attempts during the
+                                        window. At our EU average order value of ~€29.60, that's approximately €420K in
+                                        deferred revenue (most customers retried successfully within 2 hours). Insurance
+                                        and SLA implications are being reviewed separately.</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn" onclick="toggleLike(this, 41)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span>41</span>
+                                        </button>
+                                        <button class="comment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 17 4 12 9 7" />
+                                                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                                            </svg>
+                                            Reply
+                                        </button>
+                                    </div>
+                                    <ul class="replies-list">
+                                        <li>
+                                            <div class="comment-item reply">
+                                                <div class="avatar"
+                                                    style="background:#B83232;width:28px;height:28px;font-size:11px">SN
+                                                </div>
+                                                <div class="comment-body">
+                                                    <div class="comment-meta">
+                                                        <span class="comment-author">Siddharth Nair</span>
+                                                        <span class="comment-role">VP Engineering</span>
+                                                        <span class="comment-time">Jul 19, 2026 — 09:05 UTC</span>
+                                                    </div>
+                                                    <div class="comment-text">This is the third P1 this quarter with a
+                                                        root cause of "config not updated after a scaling event." We
+                                                        need a systematic fix, not just another runbook checklist. The
+                                                        Terraform proposal in the action items is the right direction —
+                                                        let's prioritize it.</div>
+                                                    <div class="comment-actions">
+                                                        <button class="comment-action-btn"
+                                                            onclick="toggleLike(this, 67)">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2">
+                                                                <path
+                                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                                            </svg>
+                                                            <span>67</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Comment 3 -->
+                        <li>
+                            <div class="comment-item">
+                                <div class="avatar" style="background:#2A6496">CB</div>
+                                <div class="comment-body">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">Camille Beaumont</span>
+                                        <span class="comment-role">Platform Engineer</span>
+                                        <span class="comment-time">Jul 19, 2026 — 10:33 UTC</span>
+                                    </div>
+                                    <div class="comment-text">Re: Terraform variable for max_client_conn — I started a
+                                        spike on this yesterday. The approach I'm exploring is deriving it from
+                                        <code>var.expected_peak_rps * var.avg_query_duration_ms / 1000 * var.app_replicas * 1.5</code>
+                                        with a floor of 100. Will share the PR for review by EOW.</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn" onclick="toggleLike(this, 35)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span>35</span>
+                                        </button>
+                                        <button class="comment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 17 4 12 9 7" />
+                                                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                                            </svg>
+                                            Reply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Comment 4 -->
+                        <li>
+                            <div class="comment-item">
+                                <div class="avatar" style="background:#8B5E3C">NO</div>
+                                <div class="comment-body">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">Nkechi Okonkwo</span>
+                                        <span class="comment-role">SRE</span>
+                                        <span class="comment-time">Jul 19, 2026 — 11:55 UTC</span>
+                                    </div>
+                                    <div class="comment-text">Quick note on the APAC audit: I ran the check this
+                                        morning. APAC-Southeast-1 PgBouncer has max_client_conn=75 against current ~320
+                                        RPS. We're at ~85% capacity. I've already updated the config and filed INC-4829
+                                        to track the change. US-East-1 looks fine at 200 with ~280 RPS.</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn" onclick="toggleLike(this, 52)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span>52</span>
+                                        </button>
+                                        <button class="comment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 17 4 12 9 7" />
+                                                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                                            </svg>
+                                            Reply
+                                        </button>
+                                    </div>
+                                    <ul class="replies-list">
+                                        <li>
+                                            <div class="comment-item reply">
+                                                <div class="avatar"
+                                                    style="background:#4F378B;width:28px;height:28px;font-size:11px">PR
+                                                </div>
+                                                <div class="comment-body">
+                                                    <div class="comment-meta">
+                                                        <span class="comment-author">Priya Raghavan</span>
+                                                        <span class="comment-role">Staff SRE</span>
+                                                        <span class="comment-time">Jul 19, 2026 — 12:10 UTC</span>
+                                                    </div>
+                                                    <div class="comment-text">Great catch — this is exactly why I added
+                                                        the regional audit to the action items. Thanks for moving
+                                                        quickly on this, Nkechi. Linking INC-4829 to this incident.
+                                                    </div>
+                                                    <div class="comment-actions">
+                                                        <button class="comment-action-btn"
+                                                            onclick="toggleLike(this, 18)">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                stroke-width="2">
+                                                                <path
+                                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                                            </svg>
+                                                            <span>18</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!-- Comment 5 -->
+                        <li>
+                            <div class="comment-item">
+                                <div class="avatar" style="background:#3D6B8A">ML</div>
+                                <div class="comment-body">
+                                    <div class="comment-meta">
+                                        <span class="comment-author">Marcus Lindqvist</span>
+                                        <span class="comment-role">Senior Backend Engineer</span>
+                                        <span class="comment-time">Jul 20, 2026 — 09:22 UTC</span>
+                                    </div>
+                                    <div class="comment-text">One thing that helped us at my previous company: we added
+                                        a <strong>synthetic canary</strong> that fires a test checkout transaction every
+                                        30 seconds from an external probe. It would have caught this in the first
+                                        minute. Happy to help implement if the team wants to explore it.</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn" onclick="toggleLike(this, 29)">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path
+                                                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span>29</span>
+                                        </button>
+                                        <button class="comment-action-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="9 17 4 12 9 7" />
+                                                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                                            </svg>
+                                            Reply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+                    </ul>
+                </section>
+            </main>
+
+            <!-- Related Incidents -->
+            <aside class="related-col sticky-col">
+                <div class="related-label">Related Incidents</div>
+                <ul class="related-list">
+                    <li>
+                        <a href="#" class="related-card">
+                            <div class="related-chips">
+                                <span class="chip chip-p2" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                    P2 — High
+                                </span>
+                                <span class="chip chip-resolved" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    Resolved
+                                </span>
+                            </div>
+                            <p class="related-title">Auth Service Redis Connection Pool Exhaustion — EU Login Failures
+                                (45min)</p>
+                            <div class="related-meta">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                </svg>
+                                87 · Auth <span class="ml-auto">Jun 30, 2026</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="related-card">
+                            <div class="related-chips">
+                                <span class="chip chip-p2" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path
+                                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                        <line x1="12" y1="9" x2="12" y2="13" />
+                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                    </svg>
+                                    P2 — High
+                                </span>
+                                <span class="chip chip-resolved" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    Resolved
+                                </span>
+                            </div>
+                            <p class="related-title">Checkout Service Latency Spike — RDS Read Replica Lag After Schema
+                                Migration</p>
+                            <div class="related-meta">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                </svg>
+                                64 · Payments <span class="ml-auto">May 14, 2026</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="related-card">
+                            <div class="related-chips">
+                                <span class="chip chip-p3" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                    P3 — Medium
+                                </span>
+                                <span class="chip chip-resolved" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    Resolved
+                                </span>
+                            </div>
+                            <p class="related-title">PgBouncer APAC Config Drift — Near-Miss Connection Exhaustion
+                                (INC-4821 Followup)</p>
+                            <div class="related-meta">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                </svg>
+                                31 · Payments <span class="ml-auto">Jul 19, 2026</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="related-card">
+                            <div class="related-chips">
+                                <span class="chip chip-p1" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <polygon
+                                            points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                    P1 — Critical
+                                </span>
+                                <span class="chip chip-resolved" style="font-size:10px;padding:3px 8px">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                        <polyline points="22 4 12 14.01 9 11.01" />
+                                    </svg>
+                                    Resolved
+                                </span>
+                            </div>
+                            <p class="related-title">EU-West-1 RDS Failover — Unplanned Primary Switchover During Peak
+                                Hours</p>
+                            <div class="related-meta">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                </svg>
+                                203 · Payments <span class="ml-auto">Apr 02, 2026</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <a href="#" class="view-all">View all incidents →</a>
+            </aside>
+
+        </div><!-- end layout-grid -->
+    </div><!-- end page-wrap -->
+
+    <script>
+        // ── Upvote toggle ──
+        var upvoted = false;
+        var upvoteCount = 142;
+        function toggleUpvote() {
+            upvoted = !upvoted;
+            upvoteCount = upvoted ? upvoteCount + 1 : upvoteCount - 1;
+            var btn = document.getElementById('upvote-btn');
+            var label = document.getElementById('upvote-label');
+            var count = document.getElementById('upvote-count');
+            var icon = document.getElementById('upvote-icon');
+            label.textContent = upvoted ? 'Upvoted' : 'Upvote';
+            count.textContent = upvoteCount;
+            if (upvoted) {
+                btn.classList.add('active-upvote');
+                icon.setAttribute('fill', 'currentColor');
+            } else {
+                btn.classList.remove('active-upvote');
+                icon.setAttribute('fill', 'none');
+            }
+        }
+
+        // ── Bookmark toggle ──
+        var bookmarked = false;
+        function toggleBookmark() {
+            bookmarked = !bookmarked;
+            var btn = document.getElementById('bookmark-btn');
+            var label = document.getElementById('bookmark-label');
+            var icon = document.getElementById('bookmark-icon');
+            label.textContent = bookmarked ? 'Saved' : 'Save';
+            if (bookmarked) {
+                btn.classList.add('active-bookmark');
+                icon.setAttribute('fill', 'currentColor');
+            } else {
+                btn.classList.remove('active-bookmark');
+                icon.setAttribute('fill', 'none');
+            }
+        }
+
+        // ── Like toggle ──
+        function toggleLike(btn, initial) {
+            var span = btn.querySelector('span');
+            var icon = btn.querySelector('svg');
+            var liked = btn.dataset.liked === '1';
+            var count = parseInt(span.textContent, 10);
+            if (liked) {
+                btn.dataset.liked = '0';
+                span.textContent = count - 1;
+                btn.style.color = '';
+                icon.setAttribute('fill', 'none');
+            } else {
+                btn.dataset.liked = '1';
+                span.textContent = count + 1;
+                btn.style.color = '#D0BCFF';
+                icon.setAttribute('fill', 'currentColor');
+            }
+        }
+
+        // ── Scroll to section ──
+        function scrollTo(id) {
+            var el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ── Copy terminal ──
+        function copyTerminal(btn, id) {
+            var el = document.getElementById(id);
+            var lines = el.querySelectorAll('.terminal-line');
+            var text = Array.from(lines).map(function (l) {
+                var t = l.textContent;
+                if (l.classList.contains('terminal-command')) return '$ ' + t;
+                return t;
+            }).join('\n');
+            navigator.clipboard.writeText(text).then(function () {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;stroke:#6DD58C"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+                setTimeout(function () {
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+                }, 2000);
+            });
+        }
+
+        // ── Copy code ──
+        function copyCode(btn, id) {
+            var el = document.getElementById(id);
+            var text = el.innerText.replace(/^\d+\s*/gm, '');
+            navigator.clipboard.writeText(text).then(function () {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;stroke:#6DD58C"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                setTimeout(function () {
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+                }, 2000);
+            });
+        }
+
+        // ── Jump nav scroll spy ──
+        var navIds = ['symptom', 'investigation', 'root-cause', 'resolution-steps', 'resolution', 'timeline', 'lessons-learned', 'discussion'];
+        var total = navIds.length;
+
+        function updateNav() {
+            var active = navIds[0];
+            for (var i = navIds.length - 1; i >= 0; i--) {
+                var el = document.getElementById(navIds[i]);
+                if (el) {
+                    var rect = el.getBoundingClientRect();
+                    if (rect.top <= 100) { active = navIds[i]; break; }
+                }
+            }
+            navIds.forEach(function (id) {
+                var btn = document.getElementById('nav-' + id);
+                if (btn) btn.classList.toggle('active', id === active);
+            });
+            var idx = navIds.indexOf(active);
+            var label = document.getElementById('nav-progress-label');
+            var fill = document.getElementById('nav-progress-fill');
+            if (label) label.textContent = 'Section ' + (idx + 1) + ' of ' + total;
+            if (fill) fill.style.width = ((idx + 1) / total * 100) + '%';
+        }
+
+        window.addEventListener('scroll', updateNav, { passive: true });
+        updateNav();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DevSolved | Saved Items</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Premium Deep Dark Palette */
+            --bg-base: #000000;
+            --bg-nav: rgba(0, 0, 0, 0.6);
+            --bg-surface: #0A0A0C;
+            --bg-surface-elevated: #111114;
+            --bg-hover: rgba(255, 255, 255, 0.06);
+            
+            --border-faint: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            
+            /* Typography */
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #52525B;
+            
+            /* Accents */
+            --accent-primary: #FAFAFA;
+            --accent-success: #10B981;
+            --accent-success-bg: rgba(16, 185, 129, 0.12);
+            --accent-warning: #F59E0B;
+            --accent-warning-bg: rgba(245, 158, 11, 0.12);
+            --accent-info: #3B82F6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Simplified Header for Context --- */
+        .header {
+            position: sticky; top: 0; width: 100%; z-index: 1000;
+            background: var(--bg-nav); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-faint);
+        }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto; height: 60px; padding: 0 24px;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+        .brand-icon { background: var(--text-primary); color: var(--bg-base); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .header-center { display: flex; gap: 32px; }
+        .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: var(--text-primary); }
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 16px; }
+        .avatar-btn { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #10B981 0%, #3B82F6 100%); cursor: pointer; border: none; }
+
+        /* --- Workspace Layout --- */
+        .workspace-container {
+            max-width: 1200px; margin: 0 auto; padding: 48px 24px 120px;
+            display: grid; grid-template-columns: 240px 1fr; gap: 48px; width: 100%; flex: 1;
+        }
+
+        /* --- Sidebar (Collections) --- */
+        .sidebar { display: flex; flex-direction: column; gap: 32px; position: sticky; top: 108px; height: fit-content; }
+        
+        .sidebar-section { display: flex; flex-direction: column; gap: 8px; }
+        .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; padding-left: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;}
+        
+        .add-collection-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; transition: color 0.2s; display: flex; align-items: center;}
+        .add-collection-btn:hover { color: var(--text-primary); }
+
+        .sidebar-link {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 8px 12px; border-radius: 8px; text-decoration: none;
+            color: var(--text-secondary); font-size: 14px; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar-link-left { display: flex; align-items: center; gap: 12px; }
+        .sidebar-link i-lucide { width: 16px; color: var(--text-muted); transition: color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-link.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+        .sidebar-link.active i-lucide { color: var(--text-primary); }
+        
+        .item-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg-surface); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-faint); }
+
+        /* --- Main Content Area --- */
+        .main-content { display: flex; flex-direction: column; min-width: 0; }
+
+        /* Top Bar */
+        .page-header { display: flex; flex-direction: column; gap: 24px; margin-bottom: 32px; animation: fadeUp 0.4s ease-out forwards; }
+        
+        .page-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;}
+        .page-title { font-size: 32px; font-weight: 700; letter-spacing: -1px; color: var(--text-primary); display: flex; align-items: center; gap: 12px; }
+        .page-title span { font-size: 16px; font-weight: 500; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; background: var(--bg-hover); padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border-faint); margin-top: 4px;}
+
+        /* Search & Filter Bar */
+        .action-bar { display: flex; gap: 16px; width: 100%; }
+        .search-input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
+        .search-input-wrapper i-lucide { position: absolute; left: 16px; color: var(--text-muted); width: 16px; }
+        .search-input {
+            width: 100%; background: var(--bg-surface); border: 1px solid var(--border-faint);
+            color: var(--text-primary); padding: 10px 16px 10px 44px; border-radius: 12px;
+            font-family: inherit; font-size: 14px; outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--border-hover); background: rgba(255,255,255,0.03); }
+        .search-input::placeholder { color: var(--text-muted); }
+
+        .filter-btn {
+            background: var(--bg-surface); border: 1px solid var(--border-faint); color: var(--text-secondary);
+            padding: 10px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; white-space: nowrap;
+        }
+        .filter-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+
+        /* --- Saved Items Grid --- */
+        .saved-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            position: relative;
+        }
+
+        /* The Card */
+        .card {
+            background: var(--bg-surface); border: 1px solid var(--border-faint); border-radius: 16px;
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none;
+            animation: fadeUp 0.6s ease-out forwards;
+        }
+        .card:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.5); }
+        
+        /* Removing Animation State */
+        .card.removing { transform: scale(0.95); opacity: 0; pointer-events: none; }
+
+        /* Bookmark Toggle Button inside Card */
+        .bookmark-toggle {
+            position: absolute; top: 16px; right: 16px; z-index: 10;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border: 1px solid var(--border-faint);
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--text-primary); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bookmark-toggle:hover { background: rgba(0,0,0,0.8); border-color: var(--border-hover); transform: scale(1.05); }
+        .bookmark-toggle:active { transform: scale(0.95); }
+        /* Fill icon because it's already saved */
+        .bookmark-toggle i-lucide { fill: currentColor; }
+
+        .card-cover-wrapper { width: 100%; height: 180px; overflow: hidden; position: relative; border-bottom: 1px solid var(--border-faint); }
+        .card-cover { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover .card-cover { transform: scale(1.05); }
+        .card-cover-wrapper::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8) 100%); pointer-events: none; }
+
+        .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+        .card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+        
+        .status-badge { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; border: 1px solid transparent; }
+        .status-badge.resolved { background: var(--accent-success-bg); color: var(--accent-success); border-color: rgba(16, 185, 129, 0.2); }
+        
+        .card-title { font-size: 18px; font-weight: 600; color: var(--text-primary); line-height: 1.3; letter-spacing: -0.5px; }
+        .card-excerpt { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .card-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+        .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,0.03); color: var(--text-secondary); border: 1px solid var(--border-faint); }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border-faint); }
+        .author-info { display: flex; align-items: center; gap: 10px; }
+        .avatar-sm { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 0 0 1px var(--border-faint); }
+        .author-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+
+        /* --- Empty State --- */
+        .empty-state {
+            display: none; /* Hidden by default via JS */
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 80px 24px; text-align: center; border: 1px dashed var(--border-hover);
+            border-radius: 24px; background: rgba(255,255,255,0.01);
+            animation: fadeUp 0.4s ease-out forwards;
+        }
+        .empty-state.show { display: flex; }
+        
+        .empty-icon-wrapper {
+            width: 64px; height: 64px; border-radius: 50%; background: var(--bg-hover);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+            color: var(--text-muted); border: 1px solid var(--border-faint);
+        }
+        .empty-state h3 { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state p { font-size: 15px; color: var(--text-secondary); max-width: 320px; margin-bottom: 24px; }
+        
+        .btn-primary {
+            background: var(--text-primary); color: var(--bg-base); border: none;
+            padding: 10px 20px; border-radius: 99px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* --- Toast System --- */
+        #toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; pointer-events: none; }
+        .custom-toast { display: flex; align-items: center; gap: 12px; background: rgba(10, 10, 12, 0.9); backdrop-filter: blur(16px); border: 1px solid var(--border-faint); border-radius: 12px; padding: 12px 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); pointer-events: auto; animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .custom-toast.toast-out { animation: toastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .toast-msg { font-size: 13px; color: var(--text-primary); font-weight: 500;}
+        .toast-action { background: transparent; border: none; color: var(--accent-info); font-size: 13px; font-weight: 600; cursor: pointer; margin-left: 8px; }
+        .toast-action:hover { text-decoration: underline; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastSlideIn { from { opacity: 0; transform: translateX(50px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0) scale(1); } to { opacity: 0; transform: translateX(20px) scale(0.95); } }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 960px) {
+            .workspace-container { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px 100px; }
+            .sidebar { position: relative; top: 0; flex-direction: row; gap: 24px; overflow-x: auto; scrollbar-width: none; padding-bottom: 16px; border-bottom: 1px solid var(--border-faint); }
+            .sidebar::-webkit-scrollbar { display: none; }
+            .sidebar-section { flex-direction: row; gap: 12px; align-items: center; }
+            .section-title { display: none; } /* Hide titles on mobile scroll */
+            .sidebar-link { white-space: nowrap; padding: 8px 16px; border-radius: 99px; background: var(--bg-surface); border: 1px solid var(--border-faint); }
+            .sidebar-link.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
+            .sidebar-link.active i-lucide { color: var(--bg-base); }
+            .sidebar-link.active .item-count { background: rgba(0,0,0,0.1); color: var(--bg-base); border-color: transparent;}
+            .page-title { font-size: 28px; }
+        }
+
+        @media (max-width: 640px) {
+            .action-bar { flex-direction: column; }
+            .saved-grid { grid-template-columns: 1fr; }
+            .card-cover-wrapper { height: 160px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Simplified Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="brand">
+                <div class="brand-icon"><i data-lucide="terminal" style="width: 14px;"></i></div> DevSolved
+            </a>
+            <nav class="header-center">
+                <a href="#" class="nav-link">Feed</a>
+                <a href="#" class="nav-link">Incidents</a>
+            </nav>
+            <div class="header-right">
+                <button class="avatar-btn"></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Workspace Layout -->
+    <div class="workspace-container">
+        
+        <!-- Left: Collections Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-title">Library</div>
+                <a href="#" class="sidebar-link active">
+                    <div class="sidebar-link-left">
+                        <i data-lucide="bookmark"></i> All Saved
+                    </div>
+                    <span class="item-count" id="totalCount">3</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <div class="sidebar-link-left">
+                        <i data-lucide="clock"></i> Recently Read
+                    </div>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">
+                    Collections
+                    <button class="add-collection-btn" title="New Collection"><i data-lucide="plus" style="width: 14px;"></i></button>
+                </div>
+                <a href="#" class="sidebar-link">
+                    <div class="sidebar-link-left">
+                        <i data-lucide="folder"></i> Postmortems
+                    </div>
+                    <span class="item-count">2</span>
+                </a>
+                <a href="#" class="sidebar-link">
+                    <div class="sidebar-link-left">
+                        <i data-lucide="folder"></i> AWS Architecture
+                    </div>
+                    <span class="item-count">1</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Right: Main Content -->
+        <main class="main-content">
+            
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">All Saved Items <span id="headerCount">3 items</span></h1>
+                </div>
+
+                <div class="action-bar">
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search"></i>
+                        <input type="text" class="search-input" placeholder="Search your saved incidents...">
+                    </div>
+                    <button class="filter-btn">
+                        <i data-lucide="sliders-horizontal" style="width: 16px;"></i> Sort by: Newest
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State Component (Hidden default) -->
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon-wrapper"><i data-lucide="bookmark-minus" style="width: 28px; height: 28px;"></i></div>
+                <h3>No saved incidents</h3>
+                <p>Articles, postmortems, and solutions you bookmark will appear here for easy access.</p>
+                <a href="index.html" class="btn-primary">Explore Feed</a>
+            </div>
+
+            <!-- Saved Grid -->
+            <div class="saved-grid" id="savedGrid">
+                
+                <!-- Card 1 -->
+                <div class="card" id="card-1">
+                    <button class="bookmark-toggle" onclick="unsaveCard('card-1')" aria-label="Remove bookmark">
+                        <i data-lucide="bookmark"></i>
+                    </button>
+                    <a href="#" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; height: 100%;">
+                        <div class="card-cover-wrapper">
+                            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=600" alt="Server Racks" class="card-cover">
+                        </div>
+                        <div class="card-body">
+                            <div class="card-header">
+                                <div class="status-badge resolved" title="Resolved"><i data-lucide="check" style="width: 16px;"></i></div>
+                                <h2 class="card-title">Website taking exactly 20 seconds to load initially</h2>
+     

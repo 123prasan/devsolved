@@ -1,0 +1,2937 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head', { useLottie: true }) %>
+        <link id="hljs-theme-stylesheet" rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
+        <script>
+            // Synchronously apply saved user Syntax Theme & Monospace Terminal Font from settings!
+            (function () {
+                try {
+                    const savedTheme = localStorage.getItem('devsolved_syntax_theme') || 'vs2015';
+                    const themeLink = document.getElementById('hljs-theme-stylesheet');
+                    if (themeLink && savedTheme !== 'vs2015') {
+                        themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/${savedTheme}.min.css`;
+                    }
+                    document.documentElement.setAttribute('data-syntax-theme', savedTheme);
+
+                    const savedFont = localStorage.getItem('devsolved_terminal_font');
+                    if (savedFont) {
+                        document.documentElement.style.setProperty('--font-mono', savedFont);
+                    }
+                } catch (e) { }
+            })();
+        </script>
+        <style>
+            /* ── MD3 Dark Theme Tokens ── */
+            :root {
+                --bg: #141218;
+                --fg: #E6E1E5;
+                --surface: #1C1B1F;
+                --surface-container: #211F26;
+                --surface-container-high: #2B2930;
+                --surface-container-highest: #36343B;
+                --primary: #D0BCFF;
+                --primary-container: #4F378B;
+                --on-primary: #381E72;
+                --on-primary-container: #EADDFF;
+                --secondary: #CCC2DC;
+                --tertiary: #EFB8C8;
+                --error: #F2B8B5;
+                --error-container: #8C1D18;
+                --warning: #FFB951;
+                --success: #6DD58C;
+                --outline: #938F99;
+                --outline-variant: #49454F;
+                --muted: #938F99;
+                --radius: 12px;
+                --radius-sm: 8px;
+                --font-sans: 'Google Sans', 'Segoe UI', system-ui, sans-serif;
+                --font-mono: 'Roboto Mono', 'Fira Code', 'Cascadia Code', monospace;
+            }
+
+
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--fg);
+                font-family: var(--font-sans);
+                -webkit-font-smoothing: antialiased;
+                line-height: 1.6;
+                font-size: 15px;
+            }
+
+            ::selection {
+                background: rgba(208, 188, 255, .25);
+                color: #E8DEF8;
+            }
+
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: var(--outline);
+                border-radius: 3px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--secondary);
+            }
+
+            a {
+                color: var(--primary);
+                text-decoration: none;
+            }
+
+            a:hover {
+                opacity: .8;
+            }
+
+            code,
+            pre,
+            kbd {
+                font-family: var(--font-mono);
+            }
+
+            /* ── Layout ── */
+            .topbar {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+                background: rgba(20, 18, 24, .92);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--outline-variant);
+                padding: 0 24px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .topbar-logo {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--primary);
+                letter-spacing: -.01em;
+            }
+
+            .topbar-sep {
+                color: var(--outline);
+                font-size: 18px;
+            }
+
+            .topbar-title {
+                font-size: 13px;
+                color: var(--muted);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 400px;
+            }
+
+            .page-wrap {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 32px 24px 80px;
+            }
+
+            .layout-grid {
+                display: grid;
+                grid-template-columns: 220px 1fr 280px;
+                gap: 40px;
+                align-items: start;
+                margin-top: 24px;
+            }
+
+            @media (max-width: 1200px) {
+                .layout-grid {
+                    grid-template-columns: 200px 1fr;
+                }
+
+                .related-col {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 900px) {
+                .layout-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .nav-col {
+                    display: none;
+                }
+            }
+
+            /* ── Sticky sidebar ── */
+            .sticky-col {
+                position: sticky;
+                top: 72px;
+            }
+
+            /* ── Breadcrumb ── */
+            .breadcrumb {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 16px;
+            }
+
+            .breadcrumb span {
+                cursor: pointer;
+                transition: color .2s;
+            }
+
+            .breadcrumb span:hover {
+                color: var(--fg);
+            }
+
+            .breadcrumb .sep {
+                opacity: .5;
+            }
+
+            /* ── Header ── */
+            .incident-header {
+                animation: fadeInUp .4s ease both;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(12px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .chips-row {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 12px;
+            }
+
+            .chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 11px;
+                font-weight: 700;
+                border-radius: 999px;
+                padding: 4px 10px;
+                letter-spacing: .02em;
+            }
+
+            .chip-p1 {
+                background: rgba(242, 184, 181, .15);
+                color: #F2B8B5;
+                border: 1px solid rgba(242, 184, 181, .3);
+            }
+
+            .chip-p2 {
+                background: rgba(255, 185, 81, .12);
+                color: #FFB951;
+                border: 1px solid rgba(255, 185, 81, .3);
+            }
+
+            .chip-p3 {
+                background: rgba(208, 188, 255, .12);
+                color: #D0BCFF;
+                border: 1px solid rgba(208, 188, 255, .3);
+            }
+
+            .chip-p4 {
+                background: rgba(109, 213, 140, .12);
+                color: #6DD58C;
+                border: 1px solid rgba(109, 213, 140, .3);
+            }
+
+            .chip-resolved {
+                background: rgba(109, 213, 140, .12);
+                color: #6DD58C;
+                border: 1px solid rgba(109, 213, 140, .3);
+            }
+
+            .chip-investigating {
+                background: rgba(255, 185, 81, .12);
+                color: #FFB951;
+                border: 1px solid rgba(255, 185, 81, .3);
+            }
+
+            .chip-identified {
+                background: rgba(208, 188, 255, .12);
+                color: #D0BCFF;
+                border: 1px solid rgba(208, 188, 255, .3);
+            }
+
+            .chip-monitoring {
+                background: rgba(204, 194, 220, .12);
+                color: #CCC2DC;
+                border: 1px solid rgba(204, 194, 220, .3);
+            }
+
+            .incident-title {
+                font-size: 26px;
+                font-weight: 700;
+                color: var(--fg);
+                line-height: 1.3;
+                letter-spacing: -.02em;
+                margin-bottom: 12px;
+            }
+
+            .tags-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 16px;
+            }
+
+            .tag {
+                font-size: 12px;
+                font-weight: 500;
+                padding: 3px 10px;
+                border-radius: 999px;
+                background: var(--surface-container);
+                border: 1px solid var(--outline-variant);
+                color: var(--muted);
+                cursor: pointer;
+                transition: all .2s;
+            }
+
+            .tag:hover {
+                color: var(--fg);
+                border-color: var(--outline);
+            }
+
+            .meta-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 18px;
+                font-size: 15px;
+                color: var(--muted);
+                margin-bottom: 20px;
+                align-items: center;
+            }
+
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+            }
+
+            .meta-item svg {
+                width: 15px;
+                height: 15px;
+            }
+
+            .meta-item strong {
+                color: var(--fg);
+                font-weight: 600;
+            }
+
+            .actions-row {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 7px 16px;
+                border-radius: 999px;
+                font-size: 13px;
+                font-weight: 600;
+                border: 1px solid var(--outline-variant);
+                background: transparent;
+                color: var(--muted);
+                cursor: pointer;
+                transition: all .2s;
+            }
+
+            .btn:hover {
+                border-color: var(--outline);
+                color: var(--fg);
+            }
+
+            .btn-upvote {
+                padding: 8px 20px;
+                font-size: 15px;
+                border-color: rgba(255, 255, 240, 0.3);
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .btn-upvote:hover {
+                border-color: #FFFFF0;
+                color: #FFFFF0;
+                background: rgba(255, 255, 240, 0.08);
+                transform: translateY(-1px);
+            }
+
+            .btn-upvote.active-upvote {
+                color: #1A1A1A;
+                border-color: #FFFFF0;
+                background: #FFFFF0;
+                box-shadow: 0 4px 12px rgba(255, 255, 240, 0.2);
+            }
+
+            .btn.active-bookmark {
+                color: var(--tertiary);
+                border-color: rgba(239, 184, 200, .4);
+                background: rgba(239, 184, 200, .08);
+            }
+
+            .btn-ml {
+                margin-left: auto;
+            }
+
+            .exec-summary {
+                background: var(--surface-container);
+                border: 1px solid var(--outline-variant);
+                border-radius: var(--radius);
+                padding: 20px 20px 20px 24px;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .exec-summary::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 4px;
+                background: var(--primary);
+                border-radius: var(--radius) 0 0 var(--radius);
+            }
+
+            .exec-summary-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--primary);
+                margin-bottom: 8px;
+            }
+
+            .exec-summary p {
+                font-size: 15px;
+                line-height: 1.75;
+                color: var(--fg);
+            }
+
+            /* ── Jump Nav ── */
+            .jump-nav-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--muted);
+                margin-bottom: 10px;
+                padding: 0 12px;
+            }
+
+            .jump-nav ul {
+                list-style: none;
+            }
+
+            .jump-nav li button {
+                width: 100%;
+                text-align: left;
+                padding: 8px 12px;
+                border-radius: 0 6px 6px 0;
+                font-size: 13px;
+                font-weight: 500;
+                background: transparent;
+                border: none;
+                color: var(--muted);
+                cursor: pointer;
+                transition: all .2s;
+                border-left: 2px solid transparent;
+            }
+
+            .jump-nav li button:hover {
+                color: var(--fg);
+                background: var(--surface-container);
+            }
+
+            .jump-nav li button.active {
+                color: var(--primary);
+                background: rgba(208, 188, 255, .08);
+                border-left-color: var(--primary);
+            }
+
+            .nav-progress {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .nav-progress-label {
+                font-size: 11px;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+
+            .nav-progress-bar {
+                height: 4px;
+                background: var(--surface-container-high);
+                border-radius: 999px;
+                overflow: hidden;
+            }
+
+            .nav-progress-fill {
+                height: 100%;
+                background: var(--primary);
+                border-radius: 999px;
+                transition: width .3s;
+            }
+
+            /* ── Content Blocks ── */
+            .content-area {
+                min-width: 0;
+            }
+
+            .section-block {
+                margin-bottom: 24px;
+            }
+
+            .block-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .block-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .block-icon svg {
+                width: 15px;
+                height: 15px;
+            }
+
+            .block-icon-warning {
+                background: rgba(255, 185, 81, .15);
+            }
+
+            .block-icon-warning svg {
+                stroke: #FFB951;
+            }
+
+            .block-icon-primary {
+                background: rgba(208, 188, 255, .15);
+            }
+
+            .block-icon-primary svg {
+                stroke: #D0BCFF;
+            }
+
+            .block-icon-error {
+                background: rgba(242, 184, 181, .15);
+            }
+
+            .block-icon-error svg {
+                stroke: #F2B8B5;
+            }
+
+            .block-icon-success {
+                background: rgba(109, 213, 140, .15);
+            }
+
+            .block-icon-success svg {
+                stroke: #6DD58C;
+            }
+
+            .block-icon-secondary {
+                background: rgba(204, 194, 220, .15);
+            }
+
+            .block-icon-secondary svg {
+                stroke: #CCC2DC;
+            }
+
+            .block-title {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--fg);
+            }
+
+            .block-card {
+                background: var(--surface-container);
+                border-radius: var(--radius);
+                padding: 16px;
+                border: 1px solid var(--outline-variant);
+            }
+
+            .block-card-warning {
+                border-color: rgba(255, 185, 81, .25);
+            }
+
+            .block-card-error {
+                border-color: rgba(242, 184, 181, .25);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .block-card-error::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(90deg, rgba(242, 184, 181, .7), rgba(242, 184, 181, .2), transparent);
+            }
+
+            .block-card-success {
+                border-color: rgba(109, 213, 140, .25);
+            }
+
+            .block-card p {
+                font-size: 14px;
+                line-height: 1.75;
+                color: var(--fg);
+                margin-bottom: 12px;
+            }
+
+            .block-card p:last-child {
+                margin-bottom: 0;
+            }
+
+            .block-card .technical-detail {
+                font-size: 13px;
+                line-height: 1.7;
+                color: var(--muted);
+                margin-top: 10px;
+                padding-top: 10px;
+                border-top: 1px solid var(--outline-variant);
+            }
+
+            /* Symptom list */
+            .symptom-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .symptom-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.6;
+            }
+
+            .symptom-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--warning);
+                flex-shrink: 0;
+                margin-top: 7px;
+            }
+
+            /* Investigation list */
+            .investigation-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .investigation-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.6;
+            }
+
+            .step-num {
+                flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: rgba(208, 188, 255, .15);
+                color: var(--primary);
+                font-size: 11px;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 2px;
+            }
+
+            /* Resolution list */
+            .resolution-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .resolution-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.6;
+            }
+
+            .resolution-list li svg {
+                flex-shrink: 0;
+                margin-top: 2px;
+                stroke: #6DD58C;
+                width: 15px;
+                height: 15px;
+            }
+
+            .action-items-section {
+                margin-top: 16px;
+                padding-top: 12px;
+                border-top: 1px solid var(--outline-variant);
+            }
+
+            .action-items-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--success);
+                margin-bottom: 8px;
+            }
+
+            .action-items-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .action-items-list li {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--muted);
+                line-height: 1.6;
+            }
+
+            .action-dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: rgba(109, 213, 140, .6);
+                flex-shrink: 0;
+                margin-top: 7px;
+            }
+
+            /* Paragraph */
+            .para {
+                font-size: 15px;
+                line-height: 1.75;
+                color: var(--fg);
+                margin-bottom: 16px;
+            }
+
+            .para code {
+                background: var(--surface-container-high);
+                padding: 1px 5px;
+                border-radius: 4px;
+                font-size: 13px;
+                color: var(--primary);
+            }
+
+            /* Heading */
+            .heading-2 {
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--fg);
+                margin: 32px 0 12px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid var(--outline-variant);
+            }
+
+            /* List block */
+            .list-block {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+
+            .list-block li {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.6;
+            }
+
+            .list-block li svg {
+                flex-shrink: 0;
+                margin-top: 3px;
+                stroke: var(--muted);
+                width: 14px;
+                height: 14px;
+            }
+
+            /* Divider */
+            .divider {
+                border: none;
+                border-top: 1px solid var(--outline-variant);
+                margin: 24px 0;
+            }
+
+            /* Terminal */
+            .terminal-block {
+                background: #0D0D0D;
+                border: 1px solid #2A2A2A;
+                border-radius: var(--radius-sm);
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+
+            .terminal-titlebar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 16px;
+                border-bottom: 1px solid #2A2A2A;
+            }
+
+            .terminal-dots {
+                display: flex;
+                gap: 6px;
+            }
+
+            .terminal-dots span {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .dot-red {
+                background: #FF5F57;
+            }
+
+            .dot-yellow {
+                background: #FEBC2E;
+            }
+
+            .dot-green {
+                background: #28C840;
+            }
+
+            .terminal-title-text {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                color: #666;
+                font-family: var(--font-mono);
+                margin-left: 8px;
+            }
+
+            .terminal-title-text svg {
+                width: 12px;
+                height: 12px;
+                stroke: #666;
+            }
+
+            .terminal-copy-btn {
+                font-size: 12px;
+                color: #666;
+                background: none;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                transition: color .2s;
+            }
+
+            .terminal-copy-btn:hover {
+                color: #AAA;
+            }
+
+            .terminal-copy-btn svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .terminal-body {
+                padding: 16px;
+                overflow-x: auto;
+            }
+
+            .terminal-line {
+                font-family: var(--font-mono);
+                font-size: 13px;
+                line-height: 1.6;
+                white-space: pre;
+            }
+
+            .terminal-command {
+                color: #E8E8E8;
+            }
+
+            .terminal-command::before {
+                content: '$ ';
+                color: #6DD58C;
+                user-select: none;
+            }
+
+            .terminal-error {
+                color: #F2B8B5;
+            }
+
+            .terminal-success {
+                color: #6DD58C;
+            }
+
+            .terminal-output {
+                color: #A8A8A8;
+            }
+
+            /* Code block */
+            .code-block {
+                background: #0F0F14;
+                border: 1px solid var(--outline-variant);
+                border-radius: var(--radius-sm);
+                margin-bottom: 20px;
+                overflow: hidden;
+            }
+
+            .code-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 16px;
+                border-bottom: 1px solid var(--outline-variant);
+                background: var(--surface-container);
+            }
+
+            .code-header-left {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .code-header-left svg {
+                width: 13px;
+                height: 13px;
+                stroke: var(--muted);
+            }
+
+            .code-filename {
+                font-size: 12px;
+                font-family: var(--font-mono);
+                color: var(--muted);
+            }
+
+            .code-lang {
+                font-size: 11px;
+                padding: 2px 8px;
+                border-radius: 4px;
+                background: var(--surface-container-high);
+                color: var(--muted);
+                font-family: var(--font-mono);
+                text-transform: uppercase;
+                letter-spacing: .05em;
+            }
+
+            .code-copy-btn {
+                font-size: 12px;
+                color: var(--muted);
+                background: none;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                transition: color .2s;
+            }
+
+            .code-copy-btn:hover {
+                color: var(--fg);
+            }
+
+            .code-copy-btn svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .code-body {
+                overflow-x: auto;
+            }
+
+            pre.code-pre {
+                margin: 0;
+                padding: 16px;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                line-height: 1.6;
+                color: #CDD6F4;
+                background: #0F0F14;
+                counter-reset: line;
+            }
+
+            pre.code-pre .line {
+                display: flex;
+            }
+
+            pre.code-pre .line-num {
+                color: #4A4A5A;
+                font-size: 11px;
+                min-width: 32px;
+                padding-right: 16px;
+                user-select: none;
+                text-align: right;
+                flex-shrink: 0;
+            }
+
+            /* ── Global Monospace Override for Saved User Font Preference ── */
+            pre,
+            code,
+            kbd,
+            samp,
+            .hljs,
+            pre.code-pre,
+            .code-filename,
+            .code-lang,
+            [style*="monospace"] {
+                font-family: var(--font-mono) !important;
+            }
+
+            /* ── Adaptive Syntax Highlighting Theme Backgrounds & Borders ── */
+            html[data-syntax-theme="monokai"] .code-block,
+            html[data-syntax-theme="monokai"] pre.code-pre,
+            html[data-syntax-theme="monokai"] .hljs,
+            html[data-syntax-theme="monokai"] #diffContent {
+                background: #272822 !important;
+                color: #F8F8F2 !important;
+                border-color: #3E3D32 !important;
+            }
+
+            html[data-syntax-theme="monokai"] .code-header {
+                background: #1E1F1A !important;
+                border-bottom-color: #3E3D32 !important;
+            }
+
+            html[data-syntax-theme="dracula"] .code-block,
+            html[data-syntax-theme="dracula"] pre.code-pre,
+            html[data-syntax-theme="dracula"] .hljs,
+            html[data-syntax-theme="dracula"] #diffContent {
+                background: #282A36 !important;
+                color: #F8F8F2 !important;
+                border-color: #44475A !important;
+            }
+
+            html[data-syntax-theme="dracula"] .code-header {
+                background: #21222C !important;
+                border-bottom-color: #44475A !important;
+            }
+
+            html[data-syntax-theme="vs2015"] .code-block,
+            html[data-syntax-theme="vs2015"] pre.code-pre,
+            html[data-syntax-theme="vs2015"] .hljs,
+            html[data-syntax-theme="vs2015"] #diffContent {
+                background: #1E1E1E !important;
+                color: #DCDCDC !important;
+                border-color: #333333 !important;
+            }
+
+            html[data-syntax-theme="vs2015"] .code-header {
+                background: #181818 !important;
+                border-bottom-color: #333333 !important;
+            }
+
+            /* INI syntax colors */
+            .ini-section {
+                color: #89DCEB;
+            }
+
+            .ini-key {
+                color: #89B4FA;
+            }
+
+            .ini-value {
+                color: #A6E3A1;
+            }
+
+            .ini-comment {
+                color: #6C7086;
+                font-style: italic;
+            }
+
+            .ini-eq {
+                color: #CDD6F4;
+            }
+
+            /* Timeline */
+            .timeline-section {
+                margin-bottom: 24px;
+            }
+
+            .timeline-list {
+                list-style: none;
+                position: relative;
+                padding-left: 16px;
+            }
+
+            .timeline-list::before {
+                content: '';
+                position: absolute;
+                left: 27px;
+                top: 16px;
+                bottom: 16px;
+                width: 2px;
+                background: var(--outline-variant);
+                z-index: 0;
+            }
+
+            .timeline-item {
+                position: relative;
+                display: flex;
+                align-items: flex-start;
+                gap: 14px;
+                padding-bottom: 24px;
+            }
+
+            .timeline-dot {
+                position: relative;
+                z-index: 2;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 0;
+                background: var(--surface-container-high);
+            }
+
+            .timeline-step-num {
+                font-size: 11px;
+                font-weight: 700;
+                font-family: var(--font-mono);
+                color: var(--muted);
+            }
+
+            .tl-detection .timeline-dot {
+                background: rgba(255, 185, 81, .15);
+            }
+
+            .tl-detection .timeline-step-num {
+                color: #FFB951;
+            }
+
+            .tl-detection .tl-time {
+                color: #FFB951;
+            }
+
+            .tl-detection .tl-badge {
+                background: rgba(255, 185, 81, .15);
+                color: #FFB951;
+            }
+
+            .tl-escalation .timeline-dot {
+                background: rgba(242, 184, 181, .15);
+            }
+
+            .tl-escalation .timeline-step-num {
+                color: #F2B8B5;
+            }
+
+            .tl-escalation .tl-time {
+                color: #F2B8B5;
+            }
+
+            .tl-escalation .tl-badge {
+                background: rgba(242, 184, 181, .15);
+                color: #F2B8B5;
+            }
+
+            .tl-fail .timeline-dot {
+                background: rgba(242, 184, 181, .15);
+            }
+
+            .tl-fail .timeline-step-num {
+                color: #F2B8B5;
+            }
+
+            .tl-fail .tl-time {
+                color: #F2B8B5;
+            }
+
+            .tl-fail .tl-badge {
+                background: rgba(242, 184, 181, .15);
+                color: #F2B8B5;
+            }
+
+            .tl-investigation .timeline-dot {
+                background: rgba(208, 188, 255, .15);
+            }
+
+            .tl-investigation .timeline-step-num {
+                color: #D0BCFF;
+            }
+
+            .tl-investigation .tl-time {
+                color: #D0BCFF;
+            }
+
+            .tl-investigation .tl-badge {
+                background: rgba(208, 188, 255, .15);
+                color: #D0BCFF;
+            }
+
+            .tl-mitigation .timeline-dot {
+                background: rgba(239, 184, 200, .15);
+            }
+
+            .tl-mitigation .timeline-step-num {
+                color: #EFB8C8;
+            }
+
+            .tl-mitigation .tl-time {
+                color: #EFB8C8;
+            }
+
+            .tl-mitigation .tl-badge {
+                background: rgba(239, 184, 200, .15);
+                color: #EFB8C8;
+            }
+
+            .tl-resolution .timeline-dot {
+                background: rgba(109, 213, 140, .15);
+            }
+
+            .tl-resolution .timeline-step-num {
+                color: #6DD58C;
+            }
+
+            .tl-resolution .tl-time {
+                color: #6DD58C;
+            }
+
+            .tl-resolution .tl-badge {
+                background: rgba(109, 213, 140, .15);
+                color: #6DD58C;
+            }
+
+            .tl-update .timeline-dot {
+                background: var(--surface-container-high);
+            }
+
+            .tl-update .timeline-step-num {
+                color: var(--muted);
+            }
+
+            .tl-update .tl-time {
+                color: var(--muted);
+            }
+
+            .tl-update .tl-badge {
+                background: var(--surface-container-high);
+                color: var(--muted);
+            }
+
+            .tl-content {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .tl-meta {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 4px;
+            }
+
+            .tl-time {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                font-weight: 600;
+            }
+
+            .tl-badge {
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
+
+            .tl-desc {
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.5;
+            }
+
+            .tl-actor {
+                font-size: 12px;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+
+            /* Comments */
+            .comments-section {
+                margin-top: 40px;
+                padding-top: 32px;
+                border-top: 1px solid var(--outline-variant);
+            }
+
+            .comments-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 20px;
+            }
+
+            .comments-header svg {
+                width: 18px;
+                height: 18px;
+                stroke: var(--muted);
+            }
+
+            .comments-header h2 {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--fg);
+            }
+
+            .comments-count {
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: var(--surface-container-high);
+                color: var(--muted);
+                font-size: 12px;
+                font-weight: 600;
+            }
+
+            .comment-input-row {
+                display: flex;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 700;
+                color: #fff;
+            }
+
+            .comment-input-wrap {
+                flex: 1;
+            }
+
+            .comment-textarea {
+                width: 100%;
+                padding: 12px 16px;
+                border-radius: var(--radius);
+                background: var(--surface-container);
+                border: 1px solid var(--outline-variant);
+                color: var(--fg);
+                font-size: 14px;
+                font-family: var(--font-sans);
+                resize: none;
+                outline: none;
+                transition: border-color .2s;
+            }
+
+            .comment-textarea:focus {
+                border-color: var(--primary);
+            }
+
+            .comment-textarea::placeholder {
+                color: var(--muted);
+            }
+
+            .post-btn {
+                margin-top: 8px;
+                float: right;
+                padding: 7px 18px;
+                border-radius: 999px;
+                background: var(--primary);
+                color: var(--on-primary);
+                font-size: 13px;
+                font-weight: 700;
+                border: none;
+                cursor: pointer;
+                transition: opacity .2s;
+            }
+
+            .post-btn:hover {
+                opacity: .9;
+            }
+
+            .comments-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .comment-item {
+                display: flex;
+                gap: 12px;
+            }
+
+            .comment-item.reply {
+                padding-left: 32px;
+                border-left: 1px solid var(--outline-variant);
+                margin-top: 16px;
+            }
+
+            .comment-body {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .comment-meta {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 6px;
+            }
+
+            .comment-author {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--fg);
+            }
+
+            .comment-role {
+                font-size: 11px;
+                color: var(--muted);
+            }
+
+            .comment-time {
+                font-size: 11px;
+                color: var(--muted);
+                margin-left: auto;
+            }
+
+            .comment-text {
+                font-size: 14px;
+                color: var(--fg);
+                line-height: 1.65;
+            }
+
+            .comment-text code {
+                background: var(--surface-container-high);
+                padding: 1px 5px;
+                border-radius: 4px;
+                font-size: 12px;
+                color: var(--primary);
+            }
+
+            .comment-text strong {
+                font-weight: 700;
+            }
+
+            .comment-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-top: 8px;
+            }
+
+            .comment-action-btn {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 12px;
+                color: var(--muted);
+                background: none;
+                border: none;
+                cursor: pointer;
+                transition: color .2s;
+            }
+
+            .comment-action-btn:hover {
+                color: var(--fg);
+            }
+
+            .comment-action-btn svg {
+                width: 12px;
+                height: 12px;
+            }
+
+            .replies-list {
+                list-style: none;
+                margin-top: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            /* Related Incidents */
+            .related-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .08em;
+                color: var(--muted);
+                margin-bottom: 12px;
+            }
+
+            .related-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .related-card {
+                display: block;
+                padding: 14px;
+                border-radius: var(--radius);
+                background: var(--surface-container);
+                border: 1px solid var(--outline-variant);
+                transition: all .2s;
+                text-decoration: none;
+            }
+
+            .related-card:hover {
+                border-color: var(--outline);
+                background: var(--surface-container-high);
+            }
+
+            .related-chips {
+                display: flex;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+
+            .related-title {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--fg);
+                line-height: 1.4;
+                margin-bottom: 8px;
+                transition: color .2s;
+            }
+
+            .related-card:hover .related-title {
+                color: var(--primary);
+            }
+
+            .related-meta {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 11px;
+                color: var(--muted);
+            }
+
+            .related-meta svg {
+                width: 10px;
+                height: 10px;
+                stroke: var(--muted);
+            }
+
+            .related-meta .ml-auto {
+                margin-left: auto;
+                font-family: var(--font-mono);
+            }
+
+            .view-all {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 14px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--primary);
+                text-decoration: none;
+                padding: 8px;
+                transition: opacity .2s;
+            }
+
+            .view-all:hover {
+                opacity: .8;
+            }
+        </style>
+</head>
+
+<body>
+    <% if (typeof isPreview==='undefined' || !isPreview) { %>
+        <%- include('../partials/header') %>
+            <% } else { %>
+                <div
+                    style="background: rgba(59, 130, 246, 0.12); border-bottom: 1px solid rgba(59, 130, 246, 0.25); color: #93C5FD; padding: 10px 24px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; font-family: 'Inter', -apple-system, sans-serif;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M2 12h20" />
+                            <path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" />
+                            <path d="m4 8 16-4" />
+                            <path d="m8 8 6-6" />
+                        </svg>
+                        Live Preview Mode
+                    </span>
+                </div>
+                <% } %>
+
+                    <div class="page-wrap">
+                        <!-- Incident Header -->
+                        <div class="incident-header">
+                            <nav class="breadcrumb" aria-label="Breadcrumb">
+                                <span>Incidents</span>
+                                <span class="sep">›</span>
+                                <% if (post.tags && post.tags.length> 0) { %>
+                                    <span>
+                                        <%= post.tags[0].name %>
+                                    </span>
+                                    <% } else { %>
+                                        <span>General</span>
+                                        <% } %>
+                                            <span class="sep">›</span>
+                                            <span style="color:var(--fg);font-weight:600">INC-<%=
+                                                    post._id.toString().substring(0, 4).toUpperCase() %></span>
+                            </nav>
+
+                            <div class="chips-row">
+                                <% if (post.severity) { %>
+                                    <span
+                                        class="chip <%= post.severity === 'critical' ? 'chip-p1' : (post.severity === 'high' ? 'chip-p2' : 'chip-p3') %>">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.5">
+                                            <polygon
+                                                points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                                            <line x1="12" y1="8" x2="12" y2="12" />
+                                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                                        </svg>
+                                        <%= post.severity.toUpperCase() %>
+                                    </span>
+                                    <% } %>
+                                        <span
+                                            class="chip <%= post.status === 'resolved' ? 'chip-resolved' : 'chip-investigating' %>">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2.5">
+                                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                                <polyline points="22 4 12 14.01 9 11.01" />
+                                            </svg>
+                                            <%= post.status==='resolved' ? 'Resolved' : 'Investigating' %>
+                                        </span>
+                                        <% if (post.githubPrUrl && post.githubPrUrl !=='' ) { %>
+                                            <button onclick="openDiffModal('<%= post._id || post.slug %>')" class="chip"
+                                                style="background: rgba(35, 134, 54, 0.2); color: #48c774; border: 1px solid rgba(35, 134, 54, 0.4); text-decoration: none; cursor: pointer; transition: all 0.2s;"
+                                                title="Click to launch In-App Code Diff Preview">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
+                                                    <path
+                                                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                                    </path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                                    viewBox="0 0 24 24" fill="none" stroke="#9eb6ff" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                    class="lucide lucide-cable-icon lucide-cable">
+                                                    <path
+                                                        d="M17 19a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a1 1 0 0 1-1 1z" />
+                                                    <path d="M17 21v-2" />
+                                                    <path d="M19 14V6.5a1 1 0 0 0-7 0v11a1 1 0 0 1-7 0V10" />
+                                                    <path d="M21 21v-2" />
+                                                    <path d="M3 5V3" />
+                                                    <path
+                                                        d="M4 10a2 2 0 0 1-2-2V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2a2 2 0 0 1-2 2z" />
+                                                    <path d="M7 5V3" />
+                                                </svg> View Verified Fix Diff (PR)
+                                            </button>
+                                            <% } else { %>
+                                                <button id="btnLinkPr"
+                                                    onclick="linkGitHubPR('<%= post._id || post.slug %>')" class="chip"
+                                                    style="background: rgba(255, 255, 255, 0.08); color: #FFF; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; transition: all 0.2s;"
+                                                    onmouseover="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.borderColor='#FFF';"
+                                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.2)';">
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2">
+                                                        <path
+                                                            d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                                        </path>
+                                                    </svg>
+                                                    ➕ Link GitHub PR (+25 Rep 🔥)
+                                                </button>
+                                                <% } %>
+                            </div>
+
+                            <h1 class="incident-title">
+                                <%= post.title %>
+                            </h1>
+
+                            <div class="tags-row">
+                                <% if (post.tags && Array.isArray(post.tags)) { %>
+                                <% post.tags.forEach(tag=> { %>
+                                    <span class="tag">
+                                        <%= tag.name || tag %>
+                                    </span>
+                                    <% }) %>
+                                <% } %>
+                            </div>
+
+                            <div class="meta-row">
+                                <a href="<%= post.author ? '/u/' + post.author.username : '#' %>"
+                                    class="meta-item profile-link" style="text-decoration:none; transition: all 0.2s;">
+                                    <% if (post.author && post.author.avatarUrl) { %>
+                                        <img src="<%= post.author.avatarUrl %>" alt="Avatar" loading="lazy" decoding="async"
+                                            style="width:26px; height:26px; border-radius:50%; object-fit:cover; border: 2px solid transparent; transition: border-color 0.2s;">
+                                        <% } else if (post.author && post.author.avatarFallback) { %>
+                                            <img src="<%= post.author.avatarFallback %>" alt="Avatar" loading="lazy" decoding="async"
+                                                style="width:26px; height:26px; border-radius:50%; object-fit:cover; border: 2px solid transparent; transition: border-color 0.2s;">
+                                            <% } else { %>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" style="width:26px; height:26px;">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                                    <circle cx="12" cy="7" r="4" />
+                                                </svg>
+                                                <% } %>
+                                                    <strong style="font-size: 15px; transition: color 0.2s;">
+                                                        <%= post.author?.displayName || post.author?.username
+                                                            || 'System' %>
+                                                    </strong>
+                                </a>
+                                <style>
+                                    .profile-link:hover strong {
+                                        color: var(--primary);
+                                    }
+
+                                    .profile-link:hover img {
+                                        border-color: var(--primary) !important;
+                                    }
+
+                                    .profile-link:hover svg {
+                                        stroke: var(--primary);
+                                    }
+                                </style>
+                                <span class="meta-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                    <% const d=new Date(post.createdAt); %>
+                                        <%= d.toLocaleDateString('en-US', {month:'short', day:'numeric',
+                                            year:'numeric'}) %> &mdash;
+                                            <%= d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit',
+                                                hour12:false, timeZone:'UTC'}) %> UTC
+                                </span>
+                                <span class="meta-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    MTTR: <strong>
+                                        <%= post.investigationHours ? post.investigationHours + ' hours' : 'N/A' %>
+                                    </strong>
+                                </span>
+                                <% if (post.slaImpact || post.affectedScale) { %>
+                                    <span class="meta-item"
+                                        style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); padding: 3px 10px; border-radius: 6px; color: #FCA5A5; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#EF4444"
+                                            stroke-width="2">
+                                            <path
+                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                            <line x1="12" y1="9" x2="12" y2="13" />
+                                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                                        </svg>
+                                        <span>Blast Radius: <strong style="color: #FFF;">
+                                                <%= post.slaImpact || '' %>
+                                                    <%= (post.slaImpact && post.affectedScale) ? '·' : '' %>
+                                                        <%= post.affectedScale || '' %>
+                                            </strong></span>
+                                    </span>
+                                    <% } %>
+                                        <span class="meta-item">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                            <%= post.views || 0 %> views
+                                        </span>
+                            </div>
+
+                            <div class="actions-row">
+                                <button class="btn btn-upvote <%= hasUpvoted ? 'active-upvote' : '' %>" id="upvoteBtn"
+                                    data-post-id="<%= post._id %>" aria-label="Upvote">
+                                    <svg width="16" height="16" viewBox="0 0 24 24"
+                                        fill="<%= hasUpvoted ? 'currentColor' : 'none' %>" stroke="currentColor"
+                                        stroke-width="2" id="upvote-icon">
+                                        <path
+                                            d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                        <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                    </svg>
+                                    <span id="upvote-label">
+                                        <%= hasUpvoted ? 'Upvoted' : 'Upvote' %>
+                                    </span>
+                                    <span id="upvoteCount" style="font-weight:700">
+                                        <%= post.upvotes || 0 %>
+                                    </span>
+                                </button>
+                                <button class="btn <%= hasSaved ? 'active-bookmark' : '' %>" id="saveBtn"
+                                    data-post-id="<%= post._id %>" aria-label="Bookmark">
+                                    <svg width="15" height="15" viewBox="0 0 24 24"
+                                        fill="<%= hasSaved ? 'currentColor' : 'none' %>" stroke="currentColor"
+                                        stroke-width="2" id="bookmark-icon">
+                                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                    <span id="bookmark-label">
+                                        <%= hasSaved ? 'Saved' : 'Save' %>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <% if (post.excerpt) { %>
+                                <div class="exec-summary">
+                                    <div class="exec-summary-label">Executive Summary</div>
+                                    <p>
+                                        <%= post.excerpt %>
+                                    </p>
+                                </div>
+                                <% } %>
+                        </div>
+
+                        <div class="layout-grid">
+                            <aside class="nav-col sticky-col">
+                                <nav class="jump-nav" aria-label="Jump to section">
+                                    <div class="jump-nav-label">On this page</div>
+                                    <ul id="jump-nav-list">
+                                        <% 
+                                        let sections = []; 
+                                        if (post.content && Array.isArray(post.content)) {
+                                            const secMap = {
+                                                symptom: 'Symptom',
+                                                investigation: 'Investigation',
+                                                rootCause: 'Root Cause',
+                                                resolution: 'Resolution',
+                                                timeline: 'Timeline',
+                                                'five-whys': '5 Whys Analysis',
+                                                'action-items': 'Action Items',
+                                                mermaid: 'Architecture Diagram'
+                                            };
+                                            post.content.forEach((b, i) => {
+                                                if (secMap[b.type]) {
+                                                    sections.push({id: 'section-' + b.type + '-' + i, label: secMap[b.type]});
+                                                } else if (b.type === 'custom-heading') {
+                                                    sections.push({id: 'section-heading-' + i, label: b.heading || b.content || 'Section'});
+                                                }
+                                            });
+                                        }
+                                        %>
+                                            <% sections.forEach((sec, i)=> { %>
+                                                <li><button onclick="scrollTo('<%= sec.id %>')" id="nav-<%= sec.id %>"
+                                                        class="<%= i === 0 ? 'active' : '' %>">
+                                                        <%= sec.label %>
+                                                    </button></li>
+                                                <% }) %>
+                                                    <li><button onclick="scrollTo('discussion')"
+                                                            id="nav-discussion">Discussion</button>
+                                                    </li>
+                                    </ul>
+                                    <div class="nav-progress">
+                                        <div class="nav-progress-label" id="nav-progress-label">Section 1 of <%=
+                                                sections.length + 1 %>
+                                        </div>
+                                        <div class="nav-progress-bar">
+                                            <div class="nav-progress-fill" id="nav-progress-fill"
+                                                style="width:<%= 100 / (sections.length + 1) %>%"></div>
+                                        </div>
+                                    </div>
+                                </nav>
+                            </aside>
+
+                            <main class="content-area">
+                                <% if (Array.isArray(post.content)) { %>
+                                    <% post.content.forEach((block, idx)=> { %>
+                                        <% if (block.type==='paragraph' ) { %>
+                                            <div class="section-block">
+                                                <p class="para"><%- block.content %></p>
+                                            </div>
+                                            <% } else if (block.type==='custom-heading' ) { %>
+                                                <h2 class="heading-2" id="section-heading-<%= idx %>"><%- block.heading
+                                                        || block.content || 'Section' %></h2>
+                                                <% } else if (block.type==='divider' ) { %>
+                                                    <hr class="divider" />
+                                                    <% } else if (block.type==='quote' ) { %>
+                                                        <div class="section-block quote-block"
+                                                            style="border-left: 4px solid var(--outline); padding: 14px 20px; margin: 24px 0; font-style: italic; background: var(--surface-container-low); border-radius: 0 8px 8px 0; color: var(--muted); position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                                                            <div
+                                                                style="font-size: 16px; line-height: 1.6; color: var(--fg);">
+                                                                <%- block.content %>
+                                                            </div>
+                                                        </div>
+                                                        <% } else if (block.type==='alert' ) { %>
+                                                            <div class="section-block alert-block"
+                                                                style="background: rgba(255, 185, 81, 0.08); border: 1px solid rgba(255, 185, 81, 0.3); border-radius: 10px; padding: 18px; margin: 24px 0; display: flex; gap: 14px; align-items: flex-start; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                                                <svg viewBox="0 0 24 24" width="22" height="22"
+                                                                    fill="none" stroke="#FFB951" stroke-width="2"
+                                                                    style="flex-shrink: 0; margin-top: 2px;">
+                                                                    <path
+                                                                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                                    <line x1="12" y1="9" x2="12" y2="13" />
+                                                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                                </svg>
+                                                                <div
+                                                                    style="flex: 1; color: var(--fg); font-size: 15px; line-height: 1.6;">
+                                                                    <%- block.content %>
+                                                                </div>
+                                                            </div>
+                                                            <% } else if (block.type==='info' ) { %>
+                                                                <div class="section-block info-block"
+                                                                    style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; padding: 18px; margin: 24px 0; display: flex; gap: 14px; align-items: flex-start; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                                                    <svg viewBox="0 0 24 24" width="22" height="22"
+                                                                        fill="none" stroke="#3B82F6" stroke-width="2"
+                                                                        style="flex-shrink: 0; margin-top: 2px;">
+                                                                        <circle cx="12" cy="12" r="10" />
+                                                                        <line x1="12" y1="16" x2="12" y2="12" />
+                                                                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                                                                    </svg>
+                                                                    <div
+                                                                        style="flex: 1; color: var(--fg); font-size: 15px; line-height: 1.6;">
+                                                                        <%- block.content %>
+                                                                    </div>
+                                                                </div>
+                                                                <% } else if (block.type==='image' ) { %>
+                                                                    <div class="section-block">
+                                                                        <img src="<%= block.src %>" loading="lazy" decoding="async"
+                                                                            alt="<%= block.caption %>"
+                                                                            style="width:100%; border-radius:8px; border:1px solid var(--outline-variant); margin-bottom: 8px;">
+                                                                        <% if (block.caption) { %>
+                                                                            <p
+                                                                                style="font-size:12px;color:var(--muted);text-align:center">
+                                                                                <%= block.caption %>
+                                                                            </p>
+                                                                            <% } %>
+                                                                    </div>
+                                                                        <% } else if (block.type==='list' ) { %>
+                                                                        <ul class="list-block">
+                                                                            <% if (block.items && Array.isArray(block.items)) { %>
+                                                                            <% block.items.forEach(li=> { %>
+                                                                                <li>
+                                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+                                                                                    <%- li %>
+                                                                                </li>
+                                                                                <% }) %>
+                                                                            <% } %>
+                                                                        </ul>
+                                                                        <% } else if (block.type==='symptom' ) { %>
+                                                                            <section id="section-symptom-<%= idx %>"
+                                                                                class="section-block">
+                                                                                <div class="block-header">
+                                                                                    <div
+                                                                                        class="block-icon block-icon-warning">
+                                                                                        <svg viewBox="0 0 24 24"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            stroke-width="2">
+                                                                                            <path
+                                                                                                d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                                                                            <line x1="12" y1="9" x2="12"
+                                                                                                y2="13" />
+                                                                                            <line x1="12" y1="17"
+                                                                                                x2="12.01" y2="17" />
+                                                                                        </svg>
+                                                                                    </div>
+                                                                                    <h2 class="block-title">Symptom</h2>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="block-card block-card-warning">
+                                                                                    <%- block.content %>
+                                                                                </div>
+                                                                            </section>
+                                                                            <% } else if (block.type==='investigation' )
+                                                                                { %>
+                                                                                <section
+                                                                                    id="section-investigation-<%= idx %>"
+                                                                                    class="section-block">
+                                                                                    <div class="block-header">
+                                                                                        <div
+                                                                                            class="block-icon block-icon-primary">
+                                                                                            <svg viewBox="0 0 24 24"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                stroke-width="2">
+                                                                                                <circle cx="11" cy="11"
+                                                                                                    r="8" />
+                                                                                                <line x1="21" y1="21"
+                                                                                                    x2="16.65"
+                                                                                                    y2="16.65" />
+                                                                                            </svg>
+                                                                                        </div>
+                                                                                        <h2 class="block-title">
+                                                                                            Investigation</h2>
+                                                                                    </div>
+                                                                                    <div class="block-card">
+                                                                                        <%- block.content %>
+                                                                                    </div>
+                                                                                </section>
+                                                                                <% } else if (block.type==='rootCause' )
+                                                                                    { %>
+                                                                                    <section
+                                                                                        id="section-rootCause-<%= idx %>"
+                                                                                        class="section-block">
+                                                                                        <div class="block-header">
+                                                                                            <div
+                                                                                                class="block-icon block-icon-error">
+                                                                                                <svg viewBox="0 0 24 24"
+                                                                                                    fill="none"
+                                                                                                    stroke="currentColor"
+                                                                                                    stroke-width="2">
+                                                                                                    <circle cx="12"
+                                                                                                        cy="12"
+                                                                                                        r="10" />
+                                                                                                    <line x1="12" y1="8"
+                                                                                                        x2="12"
+                                                                                                        y2="12" />
+                                                                                                    <line x1="12"
+                                                                                                        y1="16"
+                                                                                                        x2="12.01"
+                                                                                                        y2="16" />
+                                                                                                </svg>
+                                                                                            </div>
+                                                                                            <h2 class="block-title">Root
+                                                                                                Cause</h2>
+                                                                                        </div>
+                                                                                        <div
+                                                                                            class="block-card block-card-error">
+                                                                                            <p><%- block.content %></p>
+                                                                                        </div>
+                                                                                    </section>
+                                                                                    <% } else if
+                                                                                        (block.type==='resolution' ) {
+                                                                                        %>
+                                                                                        <section
+                                                                                            id="section-resolution-<%= idx %>"
+                                                                                            class="section-block">
+                                                                                            <div class="block-header">
+                                                                                                <div
+                                                                                                    class="block-icon block-icon-success">
+                                                                                                    <svg viewBox="0 0 24 24"
+                                                                                                        fill="none"
+                                                                                                        stroke="currentColor"
+                                                                                                        stroke-width="2">
+                                                                                                        <path
+                                                                                                            d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                                                                                        <polyline
+                                                                                                            points="22 4 12 14.01 9 11.01" />
+                                                                                                    </svg>
+                                                                                                </div>
+                                                                                                <h2 class="block-title">
+                                                                                                    Resolution</h2>
+                                                                                            </div>
+                                                                                            <div
+                                                                                                class="block-card block-card-success">
+                                                                                                <%- block.content %>
+                                                                                            </div>
+                                                                                        </section>
+                                                                                        <% } else if
+                                                                                            (block.type==='terminal' ) {
+                                                                                            %>
+                                                                                            <div class="terminal-block">
+                                                                                                <div
+                                                                                                    class="terminal-titlebar">
+                                                                                                    <div
+                                                                                                        style="display:flex;align-items:center;gap:8px">
+                                                                                                        <div
+                                                                                                            class="terminal-dots">
+                                                                                                            <span
+                                                                                                                class="dot-red"></span><span
+                                                                                                                class="dot-yellow"></span><span
+                                                                                                                class="dot-green"></span>
+                                                                                                        </div>
+                                                                                                        <div
+                                                                                                            class="terminal-title-text">
+                                                                                                            <svg viewBox="0 0 24 24"
+                                                                                                                fill="none"
+                                                                                                                stroke="currentColor"
+                                                                                                                stroke-width="2">
+                                                                                                                <polyline
+                                                                                                                    points="4 17 10 11 4 5" />
+                                                                                                                <line
+                                                                                                                    x1="12"
+                                                                                                                    y1="19"
+                                                                                                                    x2="20"
+                                                                                                                    y2="19" />
+                                                                                                            </svg>
+                                                                                                            <%= block.title
+                                                                                                                || 'Terminal'
+                                                                                                                %>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <button
+                                                                                                        class="terminal-copy-btn"
+                                                                                                        onclick="copyTerminal(this, 'term-<%= idx %>')">
+                                                                                                        <svg viewBox="0 0 24 24"
+                                                                                                            fill="none"
+                                                                                                            stroke="currentColor"
+                                                                                                            stroke-width="2">
+                                                                                                            <rect x="9"
+                                                                                                                y="9"
+                                                                                                                width="13"
+                                                                                                                height="13"
+                                                                                                                rx="2"
+                                                                                                                ry="2" />
+                                                                                                            <path
+                                                                                                                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                                                                        </svg>Copy
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                <div class="terminal-body"
+                                                                                                    id="term-<%= idx %>">
+                                                                                                    <% const
+                                                                                                        termLines=Array.isArray(block.lines)
+                                                                                                        ? block.lines :
+                                                                                                        (block.content ?
+                                                                                                        String(block.content).split('\n')
+                                                                                                        : []); %>
+                                                                                                        <%
+                                                                                                            (termLines || []).forEach(line=>
+                                                                                                            { %>
+                                                                                                            <div
+                                                                                                                class="terminal-line <%= (line || '').startsWith('$') ? 'terminal-command' : 'terminal-output' %>">
+                                                                                                                <%- (line
+                                                                                                                    || ''
+                                                                                                                    ).replace(/^\$\s*/, ''
+                                                                                                                    ) %>
+                                                                                                            </div>
+                                                                                                            <% }) %>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <% } else if
+                                                                                                (block.type==='code' ) {
+                                                                                                %>
+                                                                                                <div class="code-block">
+                                                                                                    <div
+                                                                                                        class="code-header">
+                                                                                                        <div
+                                                                                                            class="code-header-left">
+                                                                                                            <svg viewBox="0 0 24 24"
+                                                                                                                fill="none"
+                                                                                                                stroke="currentColor"
+                                                                                                                stroke-width="2">
+                                                                                                                <polyline
+                                                                                                                    points="16 18 22 12 16 6" />
+                                                                                                                <polyline
+                                                                                                                    points="8 6 2 12 8 18" />
+                                                                                                            </svg>
+                                                                                                            <span
+                                                                                                                class="code-filename">
+                                                                                                                <%= block.filename
+                                                                                                                    || 'Code'
+                                                                                                                    %>
+                                                                                                            </span>
+                                                                                                            <span
+                                                                                                                class="code-lang">
+                                                                                                                <%= block.language
+                                                                                                                    || 'text'
+                                                                                                                    %>
+                                                                                                            </span>
+                                                                                                        </div>
+                                                                                                        <button
+                                                                                                            class="code-copy-btn"
+                                                                                                            onclick="copyCode(this, 'code-<%= idx %>')">
+                                                                                                            <svg viewBox="0 0 24 24"
+                                                                                                                fill="none"
+                                                                                                                stroke="currentColor"
+                                                                                                                stroke-width="2">
+                                                                                                                <rect
+                                                                                                                    x="9"
+                                                                                                                    y="9"
+                                                                                                                    width="13"
+                                                                                                                    height="13"
+                                                                                                                    rx="2"
+                                                                                                                    ry="2" />
+                                                                                                                <path
+                                                                                                                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                                                                                            </svg>Copy
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    <div
+                                                                                                        class="code-body">
+                                                                                                        <pre class="code-pre"
+                                                                                                            id="code-<%= idx %>"><code class="language-<%= block.language || 'text' %>"><%= block.content %></code></pre>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <% } else if
+                                                                                                    (block.type==='timeline'
+                                                                                                    ) { %>
+                                                                                                    <section
+                                                                                                        id="section-timeline-<%= idx %>"
+                                                                                                        class="section-block timeline-section">
+                                                                                                        <div
+                                                                                                            class="block-header">
+                                                                                                            <div
+                                                                                                                class="block-icon block-icon-secondary">
+                                                                                                                <svg viewBox="0 0 24 24"
+                                                                                                                    fill="none"
+                                                                                                                    stroke="currentColor"
+                                                                                                                    stroke-width="2">
+                                                                                                                    <circle
+                                                                                                                        cx="12"
+                                                                                                                        cy="12"
+                                                                                                                        r="10" />
+                                                                                                                    <polyline
+                                                                                                                        points="12 6 12 12 16 14" />
+                                                                                                                </svg>
+                                                                                                            </div>
+                                                                                                            <h2
+                                                                                                                class="block-title">
+                                                                                                                Timeline
+                                                                                                            </h2>
+                                                                                                        </div>
+                                                                                                        <ul
+                                                                                                            class="timeline-list">
+                                                                                                            <% if
+                                                                                                                (block.steps
+                                                                                                                &&
+                                                                                                                Array.isArray(block.steps))
+                                                                                                                { %>
+                                                                                                                <% block.steps.forEach((ev,
+                                                                                                                    evIdx)=>
+                                                                                                                    { %>
+                                                                                                                    <li
+                                                                                                                        class="timeline-item tl-<%= (ev.status || 'update').toLowerCase() %>">
+                                                                                                                        <div
+                                                                                                                            class="timeline-dot">
+                                                                                                                            <span
+                                                                                                                                class="timeline-step-num">
+                                                                                                                                <%= evIdx
+                                                                                                                                    +
+                                                                                                                                    1
+                                                                                                                                    %>
+                                                                                                                            </span>
+                                                                                                                        </div>
+                                                                                                                        <div
+                                                                                                                            class="tl-content">
+                                                                                                                            <div
+                                                                                                                                class="tl-meta">
+                                                                                                                                <span
+                                                                                                                                    class="tl-time">
+                                                                                                                                    <%= ev.time
+                                                                                                                                        || 'Update'
+                                                                                                                                        %>
+                                                                                                                                </span><span
+                                                                                                                                    class="tl-badge">
+                                                                                                                                    <%= ev.status
+                                                                                                                                        || 'update'
+                                                                                                                                        %>
+                                                                                                                                </span>
+                                                                                                                            </div>
+                                                                                                                            <p
+                                                                                                                                class="tl-desc">
+                                                                                                                                <%- ev.content
+                                                                                                                                    ||
+                                                                                                                                    ev.description
+                                                                                                                                    %>
+                                                                                                                            </p>
+                                                                                                                            <% if
+                                                                                                                                (ev.actor)
+                                                                                                                                {
+                                                                                                                                %>
+                                                                                                                                <p
+                                                                                                                                    class="tl-actor">
+                                                                                                                                    —
+                                                                                                                                    <%= ev.actor
+                                                                                                                                        %>
+                                                                                                                                </p>
+                                                                                                                                <% }
+                                                                                                                                    %>
+                                                                                                                        </div>
+                                                                                                                    </li>
+                                                                                                                    <% }) %>
+                                                                                                                    <% } %>
+                                                                                                        </ul>
+                                                                                                    </section>
+                                                                                                    <% } else if (block.type==='five-whys' ) { %>
+                                                                                                    <section id="section-five-whys-<%= idx %>" class="section-block" style="margin: 32px 0;">
+                                                                                                        <div class="block-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                                                                                            <div class="block-icon" style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #C084FC; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                                                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                                                                                            </div>
+                                                                                                            <h2 class="block-title" style="font-size: 20px; font-weight: 700; color: #FAFAFA; margin: 0;">5 Whys Root Cause Drill-Down</h2>
+                                                                                                        </div>
+                                                                                                        <div style="display: flex; flex-direction: column; gap: 0; position: relative;">
+                                                                                                            <% if (block.whys && Array.isArray(block.whys)) { %>
+                                                                                                            <% block.whys.forEach((w, wIdx) => { %>
+                                                                                                                <div style="display: flex; gap: 16px; position: relative; padding-bottom: <%= wIdx === block.whys.length - 1 ? '0' : '20px' %>;">
+                                                                                                                    <% if (wIdx < block.whys.length - 1) { %>
+                                                                                                                    <div style="position: absolute; top: 32px; left: 15px; width: 2px; bottom: 0; background: linear-gradient(180deg, #A855F7, #3B82F6);"></div>
+                                                                                                                    <% } %>
+                                                                                                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #121214; border: 2px solid #A855F7; color: #FAFAFA; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2; box-shadow: 0 0 10px rgba(168,85,247,0.25);">
+                                                                                                                        <%= wIdx + 1 %>
+                                                                                                                    </div>
+                                                                                                                    <div style="flex: 1; background: #09090B; border: 1px solid #27272A; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                                                                                                                        <% const whyTitle = w.question || ("Why #" + (wIdx + 1)); %>
+                                                                                                                        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #A855F7; margin-bottom: 4px;"><%= whyTitle %></div>
+                                                                                                                        <div style="color: #E2E8F0; font-size: 15px; line-height: 1.6;"><%- w.answer || w.content || '' %></div>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            <% }) %>
+                                                                                                            <% } %>
+                                                                                                        </div>
+                                                                                                    </section>
+                                                                                                    <% } else if (block.type==='action-items' ) { %>
+                                                                                                    <section id="section-action-items-<%= idx %>" class="section-block" style="margin: 32px 0;">
+                                                                                                        <div class="block-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                                                                                            <div class="block-icon" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34D399; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                                                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                                                                                            </div>
+                                                                                                            <h2 class="block-title" style="font-size: 20px; font-weight: 700; color: #FAFAFA; margin: 0;">Preventive Action Items</h2>
+                                                                                                        </div>
+                                                                                                        <div style="background: #09090B; border: 1px solid #27272A; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.5);">
+                                                                                                            <% if (block.items && Array.isArray(block.items)) { %>
+                                                                                                            <% block.items.forEach((item, iIdx) => { %>
+                                                                                                                <div style="display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: <%= iIdx === block.items.length - 1 ? 'none' : '1px solid #1F1F22' %>;">
+                                                                                                                    <div style="width: 20px; height: 20px; border-radius: 6px; border: 2px solid <%= item.completed ? '#10B981' : '#52525B' %>; background: <%= item.completed ? 'rgba(16, 185, 129, 0.2)' : 'transparent' %>; display: flex; align-items: center; justify-content: center; color: #10B981;">
+                                                                                                                        <% if (item.completed) { %><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg><% } %>
+                                                                                                                    </div>
+                                                                                                                    <% const priStyle = (item.priority === 'P0' || item.priority === 'Blocker') ? 'background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3);' : ((item.priority === 'P1' || item.priority === 'High') ? 'background: rgba(245, 158, 11, 0.2); color: #FDBA74; border: 1px solid rgba(245,158,11,0.3);' : 'background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59,130,246,0.3);'); %>
+                                                                                                                    <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.03em; <%= priStyle %>"><%= item.priority || 'P1' %></span>
+                                                                                                                    <span style="flex: 1; color: #FAFAFA; font-size: 15px;"><%- item.task || item.content || '' %></span>
+                                                                                                                    <% if (item.owner) { %>
+                                                                                                                    <span style="font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #A1A1AA; background: #18181B; border: 1px solid #27272A; padding: 4px 10px; border-radius: 999px;">@<%= item.owner.replace(/^@/, '') %></span>
+                                                                                                                    <% } %>
+                                                                                                                </div>
+                                                                                                            <% }) %>
+                                                                                                            <% } %>
+                                                                                                        </div>
+                                                                                                    </section>
+                                                                                                    <% } else if (block.type==='mermaid' ) { %>
+                                                                                                    <section id="section-mermaid-<%= idx %>" class="section-block" style="margin: 32px 0;">
+                                                                                                        <div class="block-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                                                                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                                                                                <div class="block-icon" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60A5FA; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                                                                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h6v6H3z"/><path d="M15 3h6v6h-6z"/><path d="M9 18h6v6H9z"/><path d="M6 9v3a3 3 0 0 0 3 3h6"/><path d="M18 9v3a3 3 0 0 1-3 3"/></svg>
+                                                                                                                </div>
+                                                                                                                <h2 class="block-title" style="font-size: 20px; font-weight: 700; color: #FAFAFA; margin: 0;">System Architecture Flowchart</h2>
+                                                                                                            </div>
+                                                                                                            <span style="font-size: 12px; color: #52525B; font-family: 'JetBrains Mono', monospace;">Live Vector Canvas</span>
+                                                                                                        </div>
+                                                                                                        <div style="background: #09090B; border: 1px solid #27272A; border-radius: 12px; padding: 24px; display: flex; justify-content: center; overflow-x: auto; box-shadow: 0 6px 20px rgba(0,0,0,0.6);">
+                                                                                                            <div class="mermaid" style="max-width: 100%; font-family: 'Inter', sans-serif;"><%- (block.code || block.content || '').trim() %></div>
+                                                                                                        </div>
+                                                                                                    </section>
+                                                                                                    <% } %>
+                                                                                                        <% }) %>
+                                                                                                            <% } %>
+
+                                                                                                                            <% if
+                                                                                                                                (typeof
+                                                                                                                                isPreview==='undefined'
+                                                                                                                                ||
+                                                                                                                                !isPreview)
+                                                                                                                                {
+                                                                                                                                %>
+                                                                                                                                <%- include('../partials/commentThread',
+                                                                                                                                    {
+                                                                                                                                    comments:
+                                                                                                                                    typeof
+                                                                                                                                    comments
+                                                                                                                                    !=='undefined'
+                                                                                                                                    ?
+                                                                                                                                    comments
+                                                                                                                                    :
+                                                                                                                                    [],
+                                                                                                                                    post,
+                                                                                                                                    user:
+                                                                                                                                    typeof
+                                                                                                                                    user
+                                                                                                                                    !=='undefined'
+                                                                                                                                    ?
+                                                                                                                                    user
+                                                                                                                                    :
+                                                                                                                                    null,
+                                                                                                                                    isRoot:
+                                                                                                                                    true
+                                                                                                                                    })
+                                                                                                                                    %>
+                                                                                                                                    <% } else
+                                                                                                                                        {
+                                                                                                                                        %>
+                                                                                                                                        <div
+                                                                                                                                            style="margin-top: 32px; padding: 24px; border: 1px dashed var(--outline-variant); border-radius: 12px; text-align: center; color: var(--muted); font-size: 14px;">
+                                                                                                                                            Discussion
+                                                                                                                                            thread
+                                                                                                                                            will
+                                                                                                                                            become
+                                                                                                                                            interactive
+                                                                                                                                            upon
+                                                                                                                                            publishing
+                                                                                                                                            this
+                                                                                                                                            incident.
+                                                                                                                                        </div>
+                                                                                                                                        <% }
+                                                                                                                                            %>
+                            </main>
+
+                            <aside class="related-col sticky-col">
+                                <div class="related-label">Related Incidents</div>
+                                <ul class="related-list">
+                                    <% if (typeof relatedPosts !=='undefined' && relatedPosts.length> 0) { %>
+                                        <% relatedPosts.forEach(related=> { %>
+                                            <li>
+                                                <a href="/incidents/<%= related.slug %>" class="related-card">
+                                                    <div class="related-chips">
+                                                        <span
+                                                            class="chip <%= related.severity === 'critical' ? 'chip-p1' : (related.severity === 'high' ? 'chip-p2' : 'chip-p3') %>"
+                                                            style="font-size:10px;padding:3px 8px">
+                                                            <%= (related.severity || 'normal' ).toUpperCase() %>
+                                                        </span>
+                                                        <span
+                                                            class="chip <%= related.status === 'resolved' ? 'chip-resolved' : 'chip-investigating' %>"
+                                                            style="font-size:10px;padding:3px 8px">
+                                                            <%= related.status==='resolved' ? 'Resolved'
+                                                                : 'Investigating' %>
+                                                        </span>
+                                                    </div>
+                                                    <p class="related-title">
+                                                        <%= related.title %>
+                                                    </p>
+                                                    <div class="related-meta">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2">
+                                                            <path
+                                                                d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+                                                            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                                        </svg>
+                                                        <%= related.upvotes || 0 %> · <%= related.tags &&
+                                                                related.tags[0] ? related.tags[0].name : 'General' %>
+                                                                <span class="ml-auto">
+                                                                    <%= new
+                                                                        Date(related.createdAt).toLocaleDateString('en-US',
+                                                                        {month:'short', day:'numeric'}) %>
+                                                                </span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <p style="font-size:13px; color:var(--muted)">No related incidents
+                                                        found.</p>
+                                                    <% } %>
+                                </ul>
+                            </aside>
+                        </div>
+                    </div>
+
+                    <% if (typeof isPreview==='undefined' || !isPreview) { %>
+                        <%- include('../partials/footer') %>
+                            <% } %>
+
+                                <script>
+                                    // ── Upvote toggle ──
+                                    var upvoted = false;
+                                    var upvoteCount = 142;
+                                    function toggleUpvote() {
+                                        upvoted = !upvoted;
+                                        upvoteCount = upvoted ? upvoteCount + 1 : upvoteCount - 1;
+                                        var btn = document.getElementById('upvote-btn');
+                                        var label = document.getElementById('upvote-label');
+                                        var count = document.getElementById('upvote-count');
+                                        var icon = document.getElementById('upvote-icon');
+                                        label.textContent = upvoted ? 'Upvoted' : 'Upvote';
+                                        count.textContent = upvoteCount;
+                                        if (upvoted) {
+                                            btn.classList.add('active-upvote');
+                                            icon.setAttribute('fill', 'currentColor');
+                                        } else {
+                                            btn.classList.remove('active-upvote');
+                                            icon.setAttribute('fill', 'none');
+                                        }
+                                    }
+
+                                    // ── Bookmark toggle ──
+                                    var bookmarked = false;
+                                    function toggleBookmark() {
+                                        bookmarked = !bookmarked;
+                                        var btn = document.getElementById('bookmark-btn');
+                                        var label = document.getElementById('bookmark-label');
+                                        var icon = document.getElementById('bookmark-icon');
+                                        label.textContent = bookmarked ? 'Saved' : 'Save';
+                                        if (bookmarked) {
+                                            btn.classList.add('active-bookmark');
+                                            icon.setAttribute('fill', 'currentColor');
+                                        } else {
+                                            btn.classList.remove('active-bookmark');
+                                            icon.setAttribute('fill', 'none');
+                                        }
+                                    }
+
+                                    // ── Like toggle ──
+                                    function toggleLike(btn, initial) {
+                                        var span = btn.querySelector('span');
+                                        var icon = btn.querySelector('svg');
+                                        var liked = btn.dataset.liked === '1';
+                                        var count = parseInt(span.textContent, 10);
+                                        if (liked) {
+                                            btn.dataset.liked = '0';
+                                            span.textContent = count - 1;
+                                            btn.style.color = '';
+                                            icon.setAttribute('fill', 'none');
+                                        } else {
+                                            btn.dataset.liked = '1';
+                                            span.textContent = count + 1;
+                                            btn.style.color = '#D0BCFF';
+                                            icon.setAttribute('fill', 'currentColor');
+                                        }
+                                    }
+
+                                    // ── Scroll to section ──
+                                    function scrollTo(id) {
+                                        var el = document.getElementById(id);
+                                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+
+                                    // ── Copy terminal ──
+                                    function copyTerminal(btn, id) {
+                                        var el = document.getElementById(id);
+                                        var lines = el.querySelectorAll('.terminal-line');
+                                        var text = Array.from(lines).map(function (l) {
+                                            var t = l.textContent;
+                                            if (l.classList.contains('terminal-command')) return '$ ' + t;
+                                            return t;
+                                        }).join('\n');
+                                        navigator.clipboard.writeText(text).then(function () {
+                                            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;stroke:#6DD58C"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+                                            setTimeout(function () {
+                                                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+                                            }, 2000);
+                                        });
+                                    }
+
+                                    // ── Copy code ──
+                                    function copyCode(btn, id) {
+                                        var el = document.getElementById(id);
+                                        var text = el.innerText.replace(/^\d+\s*/gm, '');
+                                        navigator.clipboard.writeText(text).then(function () {
+                                            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;stroke:#6DD58C"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                                            setTimeout(function () {
+                                                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+                                            }, 2000);
+                                        });
+                                    }
+
+                                    // ── Jump nav scroll spy ──
+                                    var navIds = ['symptom', 'investigation', 'root-cause', 'resolution-steps', 'resolution', 'timeline', 'lessons-learned', 'discussion'];
+                                    var total = navIds.length;
+
+                                    function updateNav() {
+                                        var active = navIds[0];
+                                        for (var i = navIds.length - 1; i >= 0; i--) {
+                                            var el = document.getElementById(navIds[i]);
+                                            if (el) {
+                                                var rect = el.getBoundingClientRect();
+                                                if (rect.top <= 100) { active = navIds[i]; break; }
+                                            }
+                                        }
+                                        navIds.forEach(function (id) {
+                                            var btn = document.getElementById('nav-' + id);
+                                            if (btn) btn.classList.toggle('active', id === active);
+                                        });
+                                        var idx = navIds.indexOf(active);
+                                        var label = document.getElementById('nav-progress-label');
+                                        var fill = document.getElementById('nav-progress-fill');
+                                        if (label) label.textContent = 'Section ' + (idx + 1) + ' of ' + total;
+                                        if (fill) fill.style.width = ((idx + 1) / total * 100) + '%';
+                                    }
+
+                                    window.addEventListener('scroll', updateNav, { passive: true });
+                                    updateNav();
+                                </script>
+
+                                <script>
+                                    const postId = '<%= post._id %>';
+
+                                    // Upvote Logic
+                                    const upvoteBtn = document.getElementById('upvoteBtn');
+                                    if (upvoteBtn) {
+                                        upvoteBtn.addEventListener('click', async () => {
+                                            const countEls = document.querySelectorAll('#upvoteCount');
+                                            try {
+                                                const res = await fetch(`/api/posts/${postId}/upvote`, { method: 'POST', credentials: 'include' });
+                                                if (res.status === 401) { window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname); return; }
+                                                const data = await res.json();
+                                                if (data.success) {
+                                                    countEls.forEach(el => el.textContent = data.upvotes);
+                                                    upvoteBtn.classList.toggle('active-upvote', data.hasUpvoted);
+                                                    const icon = document.getElementById('upvote-icon');
+                                                    const label = document.getElementById('upvote-label');
+                                                    icon.setAttribute('fill', data.hasUpvoted ? 'currentColor' : 'none');
+                                                    label.textContent = data.hasUpvoted ? 'Upvoted' : 'Upvote';
+                                                }
+                                            } catch (e) { console.error(e) }
+                                        });
+                                    }
+
+                                    // Save Logic
+                                    const saveBtn = document.getElementById('saveBtn');
+                                    if (saveBtn) {
+                                        saveBtn.addEventListener('click', async () => {
+                                            try {
+                                                const res = await fetch(`/api/posts/${postId}/save`, { method: 'POST', credentials: 'include' });
+                                                if (res.status === 401) { window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname); return; }
+                                                const data = await res.json();
+                                                if (data.success) {
+                                                    saveBtn.classList.toggle('active-bookmark', data.hasSaved);
+                                                    const icon = document.getElementById('bookmark-icon');
+                                                    const label = document.getElementById('bookmark-label');
+                                                    icon.setAttribute('fill', data.hasSaved ? 'currentColor' : 'none');
+                                                    label.textContent = data.hasSaved ? 'Saved' : 'Save';
+                                                }
+                                            } catch (e) { console.error(e) }
+                                        });
+                                    }
+
+                                    // Jump Nav updates
+                                    var navIds = [];
+        <% sections.forEach(sec => { %>
+                                        navIds.push('<%= sec.id %>');
+        <% }) %>
+                                        navIds.push('discussion');
+
+                                    function updateNavDynamic() {
+                                        var active = navIds[0];
+                                        for (var i = navIds.length - 1; i >= 0; i--) {
+                                            var el = document.getElementById(navIds[i]);
+                                            if (el) {
+                                                var rect = el.getBoundingClientRect();
+                                                if (rect.top <= 150) { active = navIds[i]; break; }
+                                            }
+                                        }
+                                        navIds.forEach(function (id) {
+                                            var btn = document.getElementById('nav-' + id);
+                                            if (btn) btn.classList.toggle('active', id === active);
+                                        });
+                                        var idx = navIds.indexOf(active);
+                                        var label = document.getElementById('nav-progress-label');
+                                        var fill = document.getElementById('nav-progress-fill');
+                                        if (label) label.textContent = 'Section ' + (idx + 1) + ' of ' + navIds.length;
+                                        if (fill) fill.style.width = ((idx + 1) / navIds.length * 100) + '%';
+                                    }
+
+                                    window.addEventListener('scroll', updateNavDynamic, { passive: true });
+                                    setTimeout(updateNavDynamic, 100);
+                                </script>
+
+                                <!-- Syntax Highlighting -->
+                                <script
+                                    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+                                <script>hljs.highlightAll();</script>
+                                <script>
+                                    function linkGitHubPR(postId) {
+                                        const prUrl = prompt("🔗 Enter verified GitHub Pull Request or commit URL that resolved this outage:\n(Example: https://github.com/kubernetes/kubernetes/pull/112450)");
+                                        if (!prUrl || prUrl.trim() === "") return;
+
+                                        const gitRegex = /git(hub|lab)\.com\/([^\/]+)\/([^\/]+)\/(pull|merge_requests|commit|commits)\/([a-zA-Z0-9]+)/i;
+                                        if (!gitRegex.test(prUrl.trim())) {
+                                            alert("⚠️ PR Verification Failed: You must provide an official GitHub or GitLab Pull Request or commit URL (e.g., https://github.com/org/repo/pull/123).");
+                                            return;
+                                        }
+
+                                        const btn = document.getElementById('btnLinkPr');
+                                        if (btn) btn.innerHTML = "⌛ Verifying commit signature & diff...";
+
+                                        fetch(`/api/posts/${postId}/link-pr`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ prUrl: prUrl.trim() })
+                                        })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    if (btn) {
+                                                        btn.outerHTML = `
+                            <button onclick="openDiffModal('${postId}')" class="chip" style="background: rgba(35, 134, 54, 0.2); color: #48c774; border: 1px solid rgba(35, 134, 54, 0.4); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                                </svg>
+                                🔍 View Verified Fix Diff (PR)
+                            </button>`;
+                                                    }
+                                                    // Render floating celebration toast
+                                                    const toast = document.createElement('div');
+                                                    toast.style.cssText = "position: fixed; bottom: 30px; right: 30px; background: #000; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8); color: #FFF; padding: 16px 24px; border-radius: 12px; z-index: 10000; font-family: sans-serif; display: flex; align-items: center; gap: 12px;";
+                                                    toast.innerHTML = `<span style="font-size: 20px;">🎉</span><div><div style="font-weight: 700; color: #6DD58C;">Verified PR Accepted! +25 Rep</div><div style="font-size: 13px; color: #CCC;">${data.message}</div></div>`;
+                                                    document.body.appendChild(toast);
+                                                    setTimeout(() => {
+                                                        toast.style.transition = "opacity 0.5s";
+                                                        toast.style.opacity = "0";
+                                                        setTimeout(() => toast.remove(), 500);
+                                                    }, 4500);
+
+                                                    // Automatically open diff modal to celebrate verification!
+                                                    setTimeout(() => openDiffModal(postId), 600);
+                                                } else {
+                                                    alert(data.message || "Verification failed: Invalid Pull Request.");
+                                                    if (btn) btn.innerHTML = "➕ Link GitHub PR (+25 Rep 🔥)";
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.error(err);
+                                                alert("Error communicating with telemetry server.");
+                                                if (btn) btn.innerHTML = "➕ Link GitHub PR (+25 Rep 🔥)";
+                                            });
+                                    }
+                                </script>
+
+                                <!-- 🔍 In-App GitHub Diff Preview Modal -->
+                                <div id="prDiffModal"
+                                    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+                                    <div
+                                        style="background: #121214; border: 1px solid #27272A; border-radius: 20px; width: 100%; max-width: 860px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.95); overflow: hidden;">
+                                        <!-- Modal Header -->
+                                        <div
+                                            style="padding: 20px 24px; border-bottom: 1px solid #27272A; display: flex; align-items: center; justify-content: space-between; background: #0A0A0C;">
+                                            <div
+                                                style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
+                                                <div
+                                                    style="background: rgba(138, 43, 226, 0.2); border: 1px solid rgba(138, 43, 226, 0.4); padding: 5px 10px; border-radius: 20px; color: #D0BCFF; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                                                    <span
+                                                        style="width: 8px; height: 8px; border-radius: 50%; background: #9B51E0; display: inline-block;"></span>
+                                                    VERIFIED PR DIFF
+                                                </div>
+                                                <h3 id="diffTitle"
+                                                    style="font-size: 15px; font-weight: 600; color: #FFF; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                    Loading Fix Diff...</h3>
+                                            </div>
+                                            <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                                                <a id="diffExternalLink" href="#" target="_blank"
+                                                    style="background: #27272A; color: #FFF; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: background 0.2s;">
+                                                    Open in GitHub ↗
+                                                </a>
+                                                <button onclick="closeDiffModal()"
+                                                    style="background: transparent; border: none; color: #A1A1AA; font-size: 26px; cursor: pointer; padding: 0 8px; line-height: 1;">&times;</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal Metadata Bar -->
+                                        <div
+                                            style="padding: 12px 24px; background: #18181B; border-bottom: 1px solid #27272A; display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #A1A1AA;">
+                                            <div>Author: <strong id="diffAuthor"
+                                                    style="color: #FFF;">@developer</strong></div>
+                                            <div
+                                                style="display: flex; align-items: center; gap: 16px; font-family: 'JetBrains Mono', monospace;">
+                                                <span id="diffState" style="color: #6DD58C; font-weight: 700;">●
+                                                    MERGED</span>
+                                                <span id="diffAdditions" style="color: #6DD58C; font-weight: 600;">+0
+                                                    lines</span>
+                                                <span id="diffDeletions" style="color: #F2B8B5; font-weight: 600;">-0
+                                                    lines</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal Code Diff Box (Authentic GitHub Dark Pro Theme) -->
+                                        <div
+                                            style="padding: 20px; overflow-y: auto; flex-grow: 1; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; background: #010409;">
+                                            <div id="diffContent"
+                                                style="border: 1px solid #30363D; border-radius: 10px; overflow: hidden; background: #0D1117; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+                                                <!-- Dynamically tinted diff lines will render here -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal Footer -->
+                                        <div
+                                            style="padding: 14px 24px; border-top: 1px solid #30363D; background: #0E1117; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #8B949E;">
+                                            <span>🛡️ Verified code patch against production repository
+                                                architecture.</span>
+                                            <button onclick="copyDiffSnippet()"
+                                                style="background: #21262D; border: 1px solid #363B42; color: #E6EDF3; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;">📋
+                                                Copy Patch</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    let activeDiffText = "";
+
+                                    function openDiffModal(postId) {
+                                        const modal = document.getElementById('prDiffModal');
+                                        if (!modal) return;
+                                        modal.style.display = 'flex';
+                                        document.getElementById('diffTitle').textContent = 'Loading verified telemetry diff...';
+                                        document.getElementById('diffContent').innerHTML = '<div style="padding: 40px; text-align: center; color: #3FB950; font-family: \'JetBrains Mono\', monospace;">⌛ Fetching raw commit patch from GitHub repository...</div>';
+
+                                        fetch(`/api/posts/${postId}/pr-diff`)
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data.success && data.metadata) {
+                                                    const meta = data.metadata;
+                                                    document.getElementById('diffTitle').textContent = meta.title || "Verified Production Resolution Fix";
+                                                    document.getElementById('diffAuthor').textContent = `@${meta.author || "sre-core"}`;
+                                                    document.getElementById('diffState').textContent = `● ${(meta.state || 'MERGED').toUpperCase()}`;
+                                                    document.getElementById('diffAdditions').textContent = `+${meta.additions || 14} lines`;
+                                                    document.getElementById('diffDeletions').textContent = `-${meta.deletions || 3} lines`;
+                                                    document.getElementById('diffExternalLink').href = data.prUrl || "#";
+
+                                                    activeDiffText = meta.diffSnippet || "No diff output available.";
+
+                                                    // Render with authentic GitHub Dark Diff Engine
+                                                    document.getElementById('diffContent').innerHTML = renderGitHubStyleDiff(activeDiffText);
+                                                } else {
+                                                    document.getElementById('diffContent').innerHTML = '<div style="padding: 20px; color: #F85149; text-align: center;">⚠️ Could not load commit patch telemetry.</div>';
+                                                }
+                                            })
+                                            .catch(err => {
+                                                document.getElementById('diffContent').innerHTML = '<div style="padding: 20px; color: #F85149; text-align: center;">⚠️ Network error loading diff telemetry.</div>';
+                                            });
+                                    }
+
+                                    // Authentic GitHub Dark Dimmed 2-Column Diff Rendering Engine
+                                    function renderGitHubStyleDiff(diffText) {
+                                        const lines = diffText.split('\n');
+                                        let html = '';
+                                        let currentFile = 'src/resolution_patch.c';
+                                        let oldLineNo = 1;
+                                        let newLineNo = 1;
+
+                                        lines.forEach((line, index) => {
+                                            // 1. File Header (--- a/... and +++ b/...)
+                                            if (line.startsWith('--- ')) return;
+                                            if (line.startsWith('+++ ')) {
+                                                currentFile = line.replace(/^\+\+\+ (b\/)?/, '').trim();
+                                                html += `
+                        <div style="background: #161B22; border-bottom: 1px solid #30363D; border-top: ${index > 1 ? '1px' : '0'} solid #30363D; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: #E6EDF3;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16" fill="#8B949E"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V4.664a.25.25 0 0 0-.073-.177l-2.914-2.914a.25.25 0 0 0-.177-.073Z"></path></svg>
+                                <span>${escapeHtml(currentFile)}</span>
+                            </div>
+                            <div style="font-size: 11px; color: #8B949E; border: 1px solid #30363D; padding: 2px 8px; border-radius: 6px; background: #0D1117;">View file patch</div>
+                        </div>`;
+                                                return;
+                                            }
+
+                                            // 2. Hunk Coordinates (@@ -208,12 +208,23 @@)
+                                            if (line.startsWith('@@ ')) {
+                                                const match = line.match(/@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+                                                if (match) {
+                                                    oldLineNo = parseInt(match[1], 10);
+                                                    newLineNo = parseInt(match[2], 10);
+                                                }
+                                                html += `
+                        <div style="display: flex; background: rgba(56, 139, 253, 0.1); color: #79C0FF; border-bottom: 1px solid #21262D; font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                            <div style="width: 50px; min-width: 50px; background: rgba(56, 139, 253, 0.15); color: #79C0FF; border-right: 1px solid #21262D; display: flex; align-items: center; justify-content: center; user-select: none;">•••</div>
+                            <div style="width: 50px; min-width: 50px; background: rgba(56, 139, 253, 0.15); color: #79C0FF; border-right: 1px solid #30363D; display: flex; align-items: center; justify-content: center; user-select: none;">•••</div>
+                            <div style="padding: 3px 16px; flex-grow: 1; overflow-x: auto; white-space: pre;">${escapeHtml(line)}</div>
+                        </div>`;
+                                                return;
+                                            }
+
+                                            // 3. Render Dual Gutter Line Numbers and Code
+                                            let bg = "#0D1117";
+                                            let gutterBg = "#0D1117";
+                                            let color = "#E6EDF3";
+                                            let oldDisplay = oldLineNo;
+                                            let newDisplay = newLineNo;
+
+                                            if (line.startsWith('+')) {
+                                                bg = "rgba(46, 160, 67, 0.15)";
+                                                gutterBg = "rgba(46, 160, 67, 0.25)";
+                                                color = "#7EE787";
+                                                oldDisplay = "";
+                                                newDisplay = newLineNo++;
+                                            } else if (line.startsWith('-')) {
+                                                bg = "rgba(248, 81, 73, 0.15)";
+                                                gutterBg = "rgba(248, 81, 73, 0.25)";
+                                                color = "#FFA198";
+                                                oldDisplay = oldLineNo++;
+                                                newDisplay = "";
+                                            } else {
+                                                oldDisplay = oldLineNo++;
+                                                newDisplay = newLineNo++;
+                                            }
+
+                                            html += `
+                    <div style="display: flex; background: ${bg}; color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.02); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px;">
+                        <!-- Old File Line Number Column -->
+                        <div style="width: 50px; min-width: 50px; padding: 2px 10px; text-align: right; color: #6E7681; background: ${gutterBg}; border-right: 1px solid #21262D; user-select: none; font-size: 12px; display: flex; align-items: center; justify-content: flex-end;">${oldDisplay}</div>
+                        <!-- New File Line Number Column -->
+                        <div style="width: 50px; min-width: 50px; padding: 2px 10px; text-align: right; color: #6E7681; background: ${gutterBg}; border-right: 1px solid #30363D; user-select: none; font-size: 12px; display: flex; align-items: center; justify-content: flex-end;">${newDisplay}</div>
+                        <!-- Verified Code Text -->
+                        <div style="padding: 2px 16px; flex-grow: 1; overflow-x: auto; white-space: pre; line-height: 1.6;">${escapeHtml(line)}</div>
+                    </div>`;
+                                        });
+
+                                        return html || '<div style="padding: 20px; color: #8B949E; text-align: center;">No commit diff patch contents to display.</div>';
+                                    }
+
+                                    function closeDiffModal() {
+                                        const modal = document.getElementById('prDiffModal');
+                                        if (modal) modal.style.display = 'none';
+                                    }
+
+                                    function copyDiffSnippet() {
+                                        if (!activeDiffText) return;
+                                        navigator.clipboard.writeText(activeDiffText).then(() => {
+                                            alert("📋 Verified patch code copied to clipboard!");
+                                        });
+                                    }
+
+                                    function escapeHtml(text) {
+                                        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+                                        return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+                                    }
+
+                                    window.addEventListener('keydown', function (e) {
+                                        if (e.key === 'Escape') closeDiffModal();
+                                    });
+
+                                    document.addEventListener('DOMContentLoaded', () => {
+                                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                                    });
+                                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                                </script>
+                                <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+                                <script>
+                                    if (typeof mermaid !== 'undefined') {
+                                        mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+                                    }
+                                </script>
+</body>
+
+</html>

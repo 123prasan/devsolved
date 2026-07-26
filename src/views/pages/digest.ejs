@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #121214;
+            --bg-surface-elevated: #18181B;
+            --border-faint: #27272A;
+            --border-hover: #3F3F46;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #71717A;
+            --brand-primary: #FFFFFF;
+            --brand-text: #000000;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', system-ui, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-sans); background: var(--bg-base); color: var(--text-primary); min-height: 100vh; }
+        
+        .digest-container { max-width: 1000px; margin: 0 auto; padding: 48px 24px 120px; }
+        .digest-header { background: var(--bg-surface); border: 1px solid var(--border-faint); border-radius: 24px; padding: 40px; margin-bottom: 40px; position: relative; overflow: hidden; }
+        .digest-header::before { content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%; background: radial-gradient(circle at 100% 50%, rgba(255,255,255,0.06) 0%, transparent 70%); pointer-events: none; }
+        
+        .meta-tag { font-family: var(--font-mono); font-size: 12px; background: rgba(255,255,255,0.08); color: #FFFFFF; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 18px; border: 1px solid var(--border-faint); }
+        .digest-title { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); margin-bottom: 12px; }
+        .digest-desc { color: var(--text-secondary); font-size: 16px; line-height: 1.6; max-width: 700px; }
+
+        .stack-badges { display: flex; align-items: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+        .stack-pill { font-family: var(--font-mono); font-size: 12px; padding: 6px 14px; border-radius: 12px; background: #18181B; border: 1px solid #3F3F46; color: #FFFFFF; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+        .digest-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .digest-card { background: var(--bg-surface); border: 1px solid var(--border-faint); border-radius: 18px; padding: 28px; transition: all 0.25s; display: flex; flex-direction: column; gap: 14px; }
+        .digest-card:hover { border-color: var(--border-hover); transform: translateY(-2px); background: var(--bg-surface-elevated); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+
+        .card-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); }
+        .severity-badge { padding: 3px 10px; border-radius: 8px; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+        .severity-critical { background: rgba(234, 67, 53, 0.15); color: #EA4335; border: 1px solid rgba(234, 67, 53, 0.3); }
+        .severity-high { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .severity-normal { background: rgba(59, 130, 246, 0.15); color: #3B82F6; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .card-heading { font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; transition: color 0.2s; line-height: 1.3; }
+        .card-heading:hover { color: #E4E4E7; text-decoration: underline; }
+        
+        .card-snippet { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+        
+        .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border-faint); margin-top: 4px; }
+        .author-box { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+        .author-avatar { width: 28px; height: 28px; border-radius: 50%; }
+
+        .btn-bookmark { background: transparent; border: 1px solid var(--border-faint); color: var(--text-secondary); padding: 7px 14px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-bookmark:hover { background: #FFFFFF; color: #000; border-color: #FFFFFF; }
+        .btn-bookmark.saved { background: #10B981; color: #000; border-color: #10B981; font-weight: 700; }
+
+        .toast { position: fixed; bottom: 30px; right: 30px; background: #18181B; border: 1px solid #3F3F46; color: #fff; padding: 14px 22px; border-radius: 12px; font-size: 14px; display: flex; align-items: center; gap: 10px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 5000; }
+        .toast.show { opacity: 1; pointer-events: auto; transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <main class="digest-container">
+        <section class="digest-header">
+            <span class="meta-tag">
+                <i data-lucide="terminal" style="width:14px; color:#10B981;"></i>
+                <span>WEEKLY DEVELOPER TELEMETRY DIGEST</span>
+            </span>
+            <h1 class="digest-title">Curated Production War Stories & Fixes</h1>
+            <p class="digest-desc">Here are this week's highest-impact un-Googleable incident resolutions matching your custom technology tools. Documented by engineers who solved them under fire.</p>
+            
+            <div class="stack-badges">
+                <span style="font-size:13px; color:var(--text-muted); font-weight:600; margin-right:4px;">Your Configured Stack:</span>
+                <span class="stack-pill"><i data-lucide="cpu" style="width:14px; color:#68A063;"></i> Node.js</span>
+                <span class="stack-pill"><i data-lucide="box" style="width:14px; color:#2496ED;"></i> Docker</span>
+                <span class="stack-pill"><i data-lucide="database" style="width:14px; color:#47A248;"></i> MongoDB</span>
+            </div>
+        </section>
+
+        <div class="digest-grid">
+            <!-- Digest Article 1 -->
+            <article class="digest-card">
+                <div class="card-meta">
+                    <span>Node.js / V8 Memory GC • 5m read</span>
+                    <span class="severity-badge severity-critical">Critical Severity</span>
+                </div>
+                <a href="/incidents/aws-lambda-redis-iam-auth" class="card-heading">Why our Node.js HTTP/2 server leaked 12GB of heap during steady traffic spikes and how we debugged heap snapshots</a>
+                <p class="card-snippet">When traffic surged during Black Friday, our ECS tasks began restarting with OOM killed events every 30 minutes. Here is the complete postmortem on how an unclosed stream listener inside a middleware proxy held context references in the V8 old space.</p>
+                <div class="card-footer">
+                    <div class="author-box">
+                        <img src="https://ui-avatars.com/api/?name=Elena+Rostova&background=3B82F6&color=fff&size=60" alt="" class="author-avatar">
+                        <span>Elena Rostova (Staff SRE)</span>
+                    </div>
+                    <button class="btn-bookmark" onclick="toggleBookmark(this)">
+                        <i data-lucide="bookmark" style="width:14px;"></i>
+                        <span>Save Investigation</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Digest Article 2 -->
+            <article class="digest-card">
+                <div class="card-meta">
+                    <span>Docker / Container Networking • 8m read</span>
+                    <span class="severity-badge severity-high">High Severity</span>
+                </div>
+                <a href="/incidents/k8s-dns-timeout-storm" class="card-heading">Docker bridge network packet drops when MTU mismatches AWS EC2 Jumbo Frames</a>
+                <p class="card-snippet">Service-to-service RPC calls were randomly freezing on payload sizes over 1460 bytes while ping health checks succeeded completely. We traced the TCP SYN-ACK handshake and discovered silent ICMP fragmentation blackholes.</p>
+                <div class="card-footer">
+                    <div class="author-box">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Rivera&background=10B981&color=fff&size=60" alt="" class="author-avatar">
+                        <span>Alex Rivera (Systems Architect)</span>
+                    </div>
+                    <button class="btn-bookmark" onclick="toggleBookmark(this)">
+                        <i data-lucide="bookmark" style="width:14px;"></i>
+                        <span>Save Investigation</span>
+                    </button>
+                </div>
+            </article>
+
+            <!-- Digest Article 3 -->
+            <article class="digest-card">
+                <div class="card-meta">
+                    <span>MongoDB / WiredTiger Engine • 6m read</span>
+                    <span class="severity-badge severity-normal">Normal Severity</span>
+                </div>
+                <a href="/incidents/sqlite-wal-mode-40gb" class="card-heading">MongoDB WiredTiger cache eviction stalls causing 5000ms latency spikes on concurrent updates</a>
+                <p class="card-snippet">Our primary database began dropping write operations with LockBusy errors despite CPU sitting at only 40%. Here is the exact WiredTiger storage engine config tweak and compound indexing solution that restored p99 latency to under 12ms.</p>
+                <div class="card-footer">
+                    <div class="author-box">
+                        <img src="https://ui-avatars.com/api/?name=Marcus+Brody&background=6366F1&color=fff&size=60" alt="" class="author-avatar">
+                        <span>Marcus Brody (Principal Database SRE)</span>
+                    </div>
+                    <button class="btn-bookmark" onclick="toggleBookmark(this)">
+                        <i data-lucide="bookmark" style="width:14px;"></i>
+                        <span>Save Investigation</span>
+                    </button>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <div class="toast" id="digestToast">
+        <i data-lucide="check-circle-2" style="width:18px; color:#10B981;"></i>
+        <span id="toastMsg">Investigation saved to workspace!</span>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        function toggleBookmark(btn) {
+            const isSaved = btn.classList.contains('saved');
+            const msg = document.getElementById('toastMsg');
+            const toast = document.getElementById('digestToast');
+            
+            if (isSaved) {
+                btn.classList.remove('saved');
+                btn.innerHTML = `<i data-lucide="bookmark" style="width:14px;"></i><span>Save Investigation</span>`;
+                msg.innerText = 'Removed from your Saved Investigations';
+            } else {
+                btn.classList.add('saved');
+                btn.innerHTML = `<i data-lucide="check" style="width:14px;"></i><span>Saved to Workspace</span>`;
+                msg.innerText = 'Investigation bookmarked to Saved Items!';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            toast.classList.add('show');
+            clearTimeout(window._dTimer);
+            window._dTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        .doc-content ul { margin-bottom: 20px; padding-left: 24px; }
+        .doc-content li { margin-bottom: 8px; font-size: 16px; color: #D4D4D8; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Privacy Policy</h1>
+        <div class="doc-meta">Last Updated: August 2026</div>
+        <div class="doc-content">
+            <p>At DevSolved, we believe developer data should not be commoditized. This Privacy Policy outlines our strict data handling practices.</p>
+            
+            <h2>1. We Do Not Sell Your Data</h2>
+            <p>Under no circumstances does DevSolved sell, rent, or lease your personal information, telemetry data, or published postmortems to third-party advertisers or data brokers. Our revenue model does not rely on exploiting your data.</p>
+
+            <h2>2. What We Collect</h2>
+            <p>We only collect the absolute minimum data required to operate the platform:</p>
+            <ul>
+                <li><strong>Account Information:</strong> Your username, email address, and OAuth tokens (if you sign in via GitHub or Google).</li>
+                <li><strong>Content Data:</strong> The postmortems, comments, and upvotes you explicitly choose to submit to the platform.</li>
+                <li><strong>Operational Telemetry:</strong> Standard web server logs for security monitoring and DDOS protection.</li>
+            </ul>
+
+            <h2>3. Your Rights</h2>
+            <p>You have the absolute right to request an export of your data or complete deletion of your account and all associated telemetry at any time. When you delete your account, your data is hard-deleted from our primary databases immediately.</p>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

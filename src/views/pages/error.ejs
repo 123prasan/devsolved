@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            .error-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex: 1;
+                padding: 80px 24px;
+                text-align: center;
+                animation: fadeUp 0.4s ease-out forwards;
+            }
+
+            .error-code {
+                font-size: 120px;
+                font-weight: 700;
+                line-height: 1;
+                background: linear-gradient(135deg, #E5484D 0%, #818CF8 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 24px;
+                font-family: 'JetBrains Mono', monospace;
+            }
+
+            .error-title {
+                font-size: 24px;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 16px;
+                font-family: 'Manrope', 'Inter', sans-serif;
+            }
+
+            .error-desc {
+                font-size: 15.5px;
+                color: var(--text-secondary);
+                max-width: 480px;
+                margin-bottom: 36px;
+                line-height: 1.7;
+            }
+
+            .error-detail {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 13px;
+                color: var(--text-muted);
+                background: var(--bg-surface, #111518);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 10px 18px;
+                margin-bottom: 36px;
+                max-width: 560px;
+                word-break: break-all;
+            }
+
+            .error-actions {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn-home {
+                background: var(--text-primary, #ECF0F4);
+                color: var(--bg-base, #090C0F);
+                padding: 12px 24px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 14.5px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .btn-home:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+                box-shadow: 0 8px 24px rgba(255, 255, 255, 0.08);
+            }
+
+            .btn-back {
+                background: transparent;
+                color: var(--text-secondary, #8A96A3);
+                padding: 12px 24px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 14.5px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                transition: all 0.2s;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .btn-back:hover {
+                color: var(--text-primary, #ECF0F4);
+                border-color: rgba(255, 255, 255, 0.16);
+            }
+
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="error-container">
+            <div class="error-code">
+                <%= status || 500 %>
+            </div>
+            <h1 class="error-title">Something went wrong</h1>
+            <% if (process.env.NODE_ENV==='development' && message) { %>
+                <p class="error-desc">The server encountered an unexpected error.</p>
+                <div class="error-detail">
+                    <%= message %>
+                </div>
+                <% } else { %>
+                    <p class="error-desc">
+                        The server encountered an unexpected error and couldn't complete your request.
+                        Try refreshing the page. If the problem persists, the team has been notified.
+                    </p>
+                    <% } %>
+                        <div class="error-actions">
+                            <a href="/" class="btn-home">
+                                <i data-lucide="arrow-left" style="width:16px;"></i> Return to Feed
+                            </a>
+                            <a href="javascript:history.back()" class="btn-back">
+                                <i data-lucide="rotate-ccw" style="width:16px;"></i> Go Back
+                            </a>
+                        </div>
+        </main>
+
+        <%- include('../partials/footer') %>
+            <script>lucide.createIcons();</script>
+</body>
+
+</html>

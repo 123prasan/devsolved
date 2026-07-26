@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        .doc-content ul { margin-bottom: 20px; padding-left: 24px; }
+        .doc-content li { margin-bottom: 8px; font-size: 16px; color: #D4D4D8; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Terms of Service</h1>
+        <div class="doc-meta">Last Updated: August 2026</div>
+        <div class="doc-content">
+            <p>By accessing or using DevSolved, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, then you may not access the service.</p>
+            
+            <h2>1. User Content</h2>
+            <p>You retain full ownership of all intellectual property rights in any content you submit to DevSolved. By submitting content, you grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, adapt, publish, translate, and distribute it on the DevSolved platform.</p>
+
+            <h2>2. Acceptable Use</h2>
+            <p>You agree not to use DevSolved to:</p>
+            <ul>
+                <li>Publish sensitive credentials, API keys, or unredacted personally identifiable information (PII).</li>
+                <li>Harass, abuse, or engage in toxic behavior against other engineers.</li>
+                <li>Attempt to reverse engineer, scrape, or DDOS the platform's infrastructure.</li>
+            </ul>
+
+            <h2>3. Limitation of Liability</h2>
+            <p>DevSolved provides a platform for engineers to share solutions. We do not guarantee the accuracy or safety of the code snippets or architectural advice provided by the community. You implement solutions at your own risk.</p>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

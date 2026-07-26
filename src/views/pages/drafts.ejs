@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        :root { --bg-base: #000000; --bg-surface: #0A0A0C; --bg-surface-elevated: #111114; --bg-hover: rgba(255,255,255,0.06); --border-faint: rgba(255,255,255,0.06); --border-hover: rgba(255,255,255,0.15); --text-primary: #FFFFFF; --text-secondary: #A1A1AA; --text-muted: #52525B; --accent-primary: #FAFAFA; --accent-warning: #F59E0B; --accent-warning-bg: rgba(245, 158, 11, 0.12); --accent-error: #EF4444; --accent-info: #3B82F6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-base); background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 50%); background-attachment: fixed; color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
+        .workspace-container { max-width: 1200px; margin: 0 auto; padding: 48px 24px 120px; display: grid; grid-template-columns: 240px 1fr; gap: 48px; width: 100%; flex: 1; }
+        .sidebar { display: flex; flex-direction: column; gap: 32px; position: sticky; top: 108px; height: fit-content; }
+        .sidebar-section { display: flex; flex-direction: column; gap: 8px; }
+        .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; padding-left: 12px; margin-bottom: 4px; }
+        .sidebar-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--text-secondary); font-size: 14px; font-weight: 500; transition: all 0.2s; }
+        .sidebar-link-left { display: flex; align-items: center; gap: 12px; }
+        .sidebar-link i { width: 16px; color: var(--text-muted); transition: color 0.2s; }
+        .sidebar-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-link.active { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+        .sidebar-link.active i { color: var(--text-primary); }
+        .item-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--bg-surface); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-faint); }
+        .main-content { display: flex; flex-direction: column; min-width: 0; }
+        .page-header { display: flex; flex-direction: column; gap: 24px; margin-bottom: 32px; animation: fadeUp 0.4s ease-out forwards; }
+        .page-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;}
+        .page-title { font-size: 32px; font-weight: 700; letter-spacing: -1px; color: var(--text-primary); display: flex; align-items: center; gap: 12px; }
+        .page-title span { font-size: 16px; font-weight: 500; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; background: var(--bg-hover); padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border-faint); margin-top: 4px;}
+        .action-bar { display: flex; gap: 16px; width: 100%; }
+        .search-input-wrapper { flex: 1; position: relative; display: flex; align-items: center; }
+        .search-input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); width: 16px; }
+        .search-input { width: 100%; background: var(--bg-surface); border: 1px solid var(--border-faint); color: var(--text-primary); padding: 10px 16px 10px 44px; border-radius: 12px; font-family: inherit; font-size: 14px; outline: none; transition: all 0.2s; }
+        .search-input:focus { border-color: var(--border-hover); background: rgba(255,255,255,0.03); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .btn-new { background: var(--text-primary); color: var(--bg-base); border: none; padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; text-decoration: none; white-space: nowrap; }
+        .btn-new:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,255,255,0.15); }
+        .drafts-list { display: flex; flex-direction: column; gap: 16px; }
+        .draft-item { background: var(--bg-surface); border: 1px solid var(--border-faint); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); animation: fadeUp 0.5s ease-out forwards; position: relative; overflow: hidden; }
+        .draft-item:hover { border-color: var(--border-hover); background: var(--bg-surface-elevated); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+        .draft-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;}
+        .draft-title { font-size: 18px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 10px; }
+        .badge-draft { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-warning-bg); color: var(--accent-warning); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 6px; padding: 2px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .draft-preview { font-size: 14px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .draft-meta { display: flex; align-items: center; gap: 16px; margin-top: 4px; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .meta-item { display: flex; align-items: center; gap: 6px; }
+        .draft-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .btn-edit { background: transparent; border: 1px solid var(--border-hover); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; text-decoration: none; }
+        .btn-edit:hover { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); }
+        .empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; text-align: center; border: 1px dashed var(--border-hover); border-radius: 24px; background: rgba(255,255,255,0.01); animation: fadeUp 0.4s ease-out forwards; margin-top: 16px; }
+        .empty-state.show { display: flex; }
+        .empty-icon-wrapper { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-hover); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; color: var(--text-muted); border: 1px solid var(--border-faint); }
+        .empty-state h3 { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state p { font-size: 15px; color: var(--text-secondary); max-width: 340px; margin-bottom: 24px; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 960px) { .workspace-container { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px 100px; } .sidebar { position: relative; top: 0; flex-direction: row; gap: 24px; overflow-x: auto; scrollbar-width: none; padding-bottom: 16px; border-bottom: 1px solid var(--border-faint); } .sidebar::-webkit-scrollbar { display: none; } .sidebar-section { flex-direction: row; gap: 12px; align-items: center; } .section-title { display: none; } .sidebar-link { white-space: nowrap; padding: 8px 16px; border-radius: 99px; background: var(--bg-surface); border: 1px solid var(--border-faint); } .sidebar-link.active { background: var(--text-primary); color: var(--bg-base); border-color: var(--text-primary); } .sidebar-link.active i { color: var(--bg-base); } .sidebar-link.active .item-count { background: rgba(0,0,0,0.1); color: var(--bg-base); border-color: transparent;} .page-title { font-size: 28px; } }
+        @media (max-width: 640px) { .action-bar { flex-direction: column; } .draft-item { flex-direction: column; align-items: flex-start; gap: 20px; padding: 20px; } .draft-info { width: 100%; } .draft-actions { width: 100%; justify-content: space-between; border-top: 1px solid var(--border-faint); padding-top: 16px; } .btn-edit { flex: 1; justify-content: center; } }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="workspace-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-title">Library</div>
+                <a href="/saved" class="sidebar-link <%= currentPath === '/saved' ? 'active' : '' %>">
+                    <div class="sidebar-link-left"><i data-lucide="bookmark"></i> All Saved</div>
+                </a>
+                <a href="/drafts" class="sidebar-link <%= currentPath === '/drafts' ? 'active' : '' %>">
+                    <div class="sidebar-link-left"><i data-lucide="file-edit"></i> Drafts</div>
+                    <span class="item-count"><%= drafts.length %></span>
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-title">Settings</div>
+                <a href="/u/<%= user.username %>" class="sidebar-link">
+                    <div class="sidebar-link-left"><i data-lucide="user"></i> Profile</div>
+                </a>
+                <a href="/settings" class="sidebar-link">
+                    <div class="sidebar-link-left"><i data-lucide="settings"></i> Settings</div>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">Your Drafts <span><%= drafts.length %> items</span></h1>
+                </div>
+
+                <div class="action-bar">
+                    <div class="search-input-wrapper">
+                        <i data-lucide="search"></i>
+                        <input type="text" class="search-input" placeholder="Search through your drafts...">
+                    </div>
+                    <a href="/write" class="btn-new">
+                        <i data-lucide="pen-line" style="width: 16px;"></i> New Incident
+                    </a>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <% if (drafts.length === 0) { %>
+            <div class="empty-state show">
+                <div class="empty-icon-wrapper"><i data-lucide="file-x" style="width: 28px; height: 28px;"></i></div>
+                <h3>No pending drafts</h3>
+                <p>You don't have any unpublished war stories. Start documenting a new incident to see it here.</p>
+                <a href="/write" class="btn-new">
+                    <i data-lucide="pen-line" style="width: 16px;"></i> Start Writing
+                </a>
+            </div>
+            <% } else { %>
+            <!-- Drafts List -->
+            <div class="drafts-list" id="draftsList">
+                <% drafts.forEach((draft, i) => { %>
+                <div class="draft-item" style="animation-delay: <%= i * 0.05 %>s">
+                    <div class="draft-info">
+                        <h2 class="draft-title">
+                            <span class="badge-draft">Draft</span>
+                            <%= draft.title || 'Untitled Draft' %>
+                        </h2>
+                        <p class="draft-preview"><%= draft.excerpt || 'No description provided yet.' %></p>
+                        <div class="draft-meta">
+                            <div class="meta-item"><i data-lucide="clock" style="width: 12px;"></i> Last edited <%= new Date(draft.updatedAt).toLocaleDateString() %></div>
+                            <div class="meta-item"><i data-lucide="layers" style="width: 12px;"></i> <%= (draft.content && Array.isArray(draft.content)) ? draft.content.length : 0 %> Blocks</div>
+                        </div>
+                    </div>
+                    <div class="draft-actions">
+                        <a href="/write?id=<%= draft._id %>" class="btn-edit">
+                            <i data-lucide="edit-3" style="width: 14px;"></i> Continue
+                        </a>
+                        <button class="btn-delete" onclick="deleteDraft('<%= draft._id %>', this)" aria-label="Delete draft" title="Delete Draft" style="background: transparent; border: none; color: var(--text-muted); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                            <i data-lucide="trash-2" style="width: 18px;"></i>
+                        </button>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+            <% } %>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script>
+        lucide.createIcons();
+
+        async function deleteDraft(id, btn) {
+            if (!confirm('Are you sure you want to delete this draft?')) return;
+            const draftItem = btn.closest('.draft-item');
+            
+            try {
+                const res = await fetch(`/api/posts/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    draftItem.style.opacity = '0';
+                    draftItem.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        draftItem.remove();
+                        // Update counts
+                        const countElements = document.querySelectorAll('.item-count, .page-title span');
+                        countElements.forEach(el => {
+                            const count = parseInt(el.textContent.replace(/[^0-9]/g, '')) - 1;
+                            if (el.classList.contains('item-count')) el.textContent = count;
+                            else el.textContent = count + (count === 1 ? ' item' : ' items');
+                        });
+                        if (document.querySelectorAll('.draft-item').length === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }, 300);
+                } else {
+                    alert(data.message || 'Failed to delete draft');
+                }
+            } catch (e) {
+                alert('Network error occurred');
+            }
+        }
+    </script>
+</body>
+</html>

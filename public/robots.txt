@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Directories to ignore
+Disallow: /drafts/
+
+Disallow: /settings/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://devsolved.com/sitemap.xml

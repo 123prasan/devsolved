@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        .doc-content ul { margin-bottom: 20px; padding-left: 24px; }
+        .doc-content li { margin-bottom: 8px; font-size: 16px; color: #D4D4D8; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Writing Guidelines</h1>
+        <div class="doc-meta">Last Updated: August 2026</div>
+        <div class="doc-content">
+            <p>DevSolved is a repository of technical truth. To ensure that our platform remains the highest-signal resource for software engineers, we require all published war stories to adhere to these guidelines.</p>
+            
+            <h2>1. Redact Personally Identifiable Information (PII)</h2>
+            <p>Never publish actual user data, plaintext API keys, proprietary source code (beyond what is strictly necessary to demonstrate the bug), or internal server IPs. Obfuscate sensitive variables before posting.</p>
+
+            <h2>2. Blameless Postmortems</h2>
+            <p>We do not accept submissions that attack, blame, or shame individual developers. If a junior engineer dropped a production database, the postmortem must focus on the missing guardrails in the infrastructure, not the engineer's mistake.</p>
+
+            <h2>3. Provide Reproducible Context</h2>
+            <p>A good war story includes the exact error signature, the environment constraints, and the symptoms. A great war story includes the exact steps to reproduce the issue.</p>
+            <ul>
+                <li><strong>Include Stack Traces:</strong> Provide the exact stack trace snippet.</li>
+                <li><strong>Specify Versions:</strong> Note the versions of the libraries, frameworks, and databases involved.</li>
+            </ul>
+
+            <h2>4. Focus on the Root Cause</h2>
+            <p>Do not just state the fix (e.g., "I restarted the server"). Explain <em>why</em> the server needed to be restarted (e.g., "A memory leak in the websocket connection handler exhausted the heap").</p>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

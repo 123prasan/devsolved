@@ -1,0 +1,68 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title><%= typeof title !== 'undefined' ? title : 'DevSolved' %></title>
+<link rel="icon" href="/images/devsolved.svg" type="image/svg+xml">
+<meta name="description" content="<%= typeof description !== 'undefined' ? description : 'DevSolved – Developer war stories, documented.' %>">
+
+<% if (typeof canonicalUrl !== 'undefined') { %>
+<link rel="canonical" href="<%= canonicalUrl %>">
+<% } %>
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="DevSolved">
+<meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'DevSolved' %>">
+<meta property="og:description" content="<%= typeof description !== 'undefined' ? description : 'Developer war stories, documented.' %>">
+<meta property="og:type" content="<%= typeof ogType !== 'undefined' ? ogType : 'website' %>">
+<% if (typeof canonicalUrl !== 'undefined') { %>
+<meta property="og:url" content="<%= canonicalUrl %>">
+<% } %>
+<meta property="og:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' %>">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : 'DevSolved' %>">
+<meta name="twitter:description" content="<%= typeof description !== 'undefined' ? description : 'Developer war stories, documented.' %>">
+<meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' %>">
+
+<!-- Schema.org JSON-LD -->
+<% if (typeof structuredData !== 'undefined') { %>
+<script type="application/ld+json">
+<%- JSON.stringify(structuredData) %>
+</script>
+<% } %>
+
+<!-- Google Sitelinks Search Box Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DevSolved",
+  "url": "https://devsolved.com/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://devsolved.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- DotLottie Web Player (only on pages that use it) -->
+<% if (typeof useLottie !== 'undefined' && useLottie) { %>
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+<% } %>
+
+<!-- Anime.js (only on pages that use it) -->
+<% if (typeof useAnime !== 'undefined' && useAnime) { %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<% } %>
+
+<!-- Global Styles -->
+<link rel="stylesheet" href="/css/global.css">

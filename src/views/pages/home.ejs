@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head', { useLottie: true }) %>
+        <style>
+            :root {
+                --bg-base: #000000;
+                --bg-surface: #09090B;
+                --bg-surface-elevated: #121215;
+                --bg-card-hover: #141418;
+                --border-faint: rgba(255, 255, 255, 0.08);
+                --border-hover: rgba(255, 255, 255, 0.2);
+                --text-primary: #FFFFFF;
+                --text-secondary: #A1A1AA;
+                --text-muted: #62626C;
+                --accent-primary: #3B82F6;
+                --accent-success: #10B981;
+                --accent-warning: #F59E0B;
+                --accent-critical: #EF4444;
+                --font-mono: 'JetBrains Mono', monospace;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: 'Inter', -apple-system, sans-serif;
+                background-color: var(--bg-base);
+                background-image:
+                    radial-gradient(circle at 15% 0%, rgba(59, 130, 246, 0.12), transparent 40%),
+                    radial-gradient(circle at 85% 100%, rgba(16, 185, 129, 0.08), transparent 40%);
+                background-attachment: fixed;
+                color: var(--text-primary);
+                line-height: 1.6;
+                -webkit-font-smoothing: antialiased;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            /* ── LottieFiles Inspired Hero Section ────────────────────────────── */
+            .hero-section {
+                padding: 64px 24px 48px;
+                max-width: 1280px;
+                margin: 0 auto;
+                display: grid;
+                grid-template-columns: 1.1fr 0.9fr;
+                gap: 48px;
+                align-items: center;
+            }
+
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .hero-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                color: var(--accent-success);
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.25);
+                padding: 6px 14px;
+                border-radius: 20px;
+                margin-bottom: 20px;
+                font-weight: 600;
+                letter-spacing: 0.3px;
+            }
+
+            .hero-badge i {
+                color: var(--accent-success);
+            }
+
+            .hero-title {
+                font-size: 50px;
+                font-weight: 800;
+                letter-spacing: -1.5px;
+                line-height: 1.12;
+                margin-bottom: 18px;
+            }
+
+            .hero-title span {
+                background: linear-gradient(135deg, #FFFFFF 0%, #71717A 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+                color: var(--text-secondary);
+                line-height: 1.65;
+                max-width: 560px;
+                margin-bottom: 30px;
+            }
+
+            /* Hero Inline Search Box */
+            .hero-search-box {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: var(--bg-surface-elevated);
+                border: 1.5px solid var(--border-faint);
+                padding: 12px 18px;
+                border-radius: 14px;
+                width: 100%;
+                max-width: 500px;
+                cursor: pointer;
+                transition: all 0.25s;
+                margin-bottom: 28px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .hero-search-box:hover {
+                border-color: rgba(255, 255, 255, 0.25);
+                background: #18181D;
+                transform: translateY(-2px);
+                box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7);
+            }
+
+            .hero-search-placeholder {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 14px;
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+
+            .hero-search-shortcut {
+                font-family: var(--font-mono);
+                font-size: 12px;
+                font-weight: 700;
+                padding: 4px 10px;
+                background: rgba(255, 255, 255, 0.06);
+                border-radius: 6px;
+                color: var(--text-primary);
+                border: 1px solid var(--border-faint);
+            }
+
+            .hero-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .btn-primary {
+                background: #FFFFFF;
+                color: #000000;
+                border: 1px solid #FFFFFF;
+                padding: 11px 22px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+
+            .btn-primary:hover {
+                background: #E4E4E7;
+                transform: translateY(-1px);
+            }
+
+            .btn-outline {
+                background: rgba(255, 255, 255, 0.03);
+                color: var(--text-primary);
+                border: 1px solid var(--border-faint);
+                padding: 11px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+
+            .btn-outline:hover {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: var(--border-hover);
+            }
+
+            .hero-visual {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                animation: float 6s ease-in-out infinite;
+            }
+
+            .hero-glow {
+                position: absolute;
+                width: 360px;
+                height: 360px;
+                background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+                border-radius: 50%;
+                filter: blur(50px);
+                z-index: -1;
+            }
+
+            /* ── Stack Navigation Pills ───────────────────────────────────────── */
+            .stack-nav-section {
+                max-width: 1280px;
+                margin: 0 auto 48px;
+                padding: 0 24px;
+            }
+
+            .tech-stack-scroll {
+                display: flex;
+                gap: 10px;
+                overflow-x: auto;
+                padding-bottom: 8px;
+                scrollbar-width: none;
+            }
+
+            .tech-stack-scroll::-webkit-scrollbar {
+                display: none;
+            }
+
+            .tech-pill {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                color: var(--text-secondary);
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: all 0.2s;
+                text-decoration: none;
+            }
+
+            .tech-pill:hover {
+                background: var(--bg-surface-elevated);
+                border-color: var(--border-hover);
+                color: #FFF;
+            }
+
+            .tech-pill.active {
+                background: #FFFFFF;
+                color: #000000;
+                border-color: #FFFFFF;
+                font-weight: 700;
+            }
+
+            .tech-pill i {
+                width: 14px;
+                height: 14px;
+            }
+
+            /* ── Showcase Container (The "Mix") ──────────────────────────────── */
+            .main-showcase {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 0 24px 120px;
+                display: flex;
+                flex-direction: column;
+                gap: 64px;
+            }
+
+            .section-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 24px;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .section-title-wrap {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .section-title {
+                font-size: 22px;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                color: #FFFFFF;
+            }
+
+            .section-subtitle {
+                font-size: 14px;
+                color: var(--text-muted);
+                font-weight: 500;
+                margin-left: 6px;
+            }
+
+            .feed-tabs {
+                display: flex;
+                gap: 6px;
+                background: var(--bg-surface);
+                padding: 4px;
+                border-radius: 12px;
+                border: 1px solid var(--border-faint);
+            }
+
+            .tab-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 14px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-decoration: none;
+                transition: all 0.2s;
+            }
+
+            .tab-btn i {
+                width: 14px;
+                height: 14px;
+            }
+
+            .tab-btn:hover {
+                color: #FFFFFF;
+                background: rgba(255, 255, 255, 0.04);
+            }
+
+            .tab-btn.active {
+                background: var(--bg-surface-elevated);
+                color: #FFFFFF;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            }
+
+            /* Filter Controls */
+            .filter-dropdown-wrapper {
+                position: relative;
+            }
+
+            .filter-trigger-btn {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                color: var(--text-secondary);
+                padding: 8px 14px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                transition: all 0.2s;
+            }
+
+            .filter-trigger-btn:hover {
+                color: #FFF;
+                border-color: var(--border-hover);
+                background: var(--bg-surface-elevated);
+            }
+
+            .filter-menu {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                margin-top: 8px;
+                background: var(--bg-surface-elevated);
+                border: 1px solid var(--border-hover);
+                border-radius: 12px;
+                padding: 18px;
+                width: 220px;
+                box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
+                z-index: 100;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(-6px);
+                transition: all 0.2s;
+            }
+
+            .filter-menu.show {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+
+            .filter-group {
+                margin-bottom: 14px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .filter-label {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                letter-spacing: 0.6px;
+            }
+
+            .checkbox-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--text-secondary);
+                cursor: pointer;
+            }
+
+            .checkbox-item input {
+                accent-color: #3B82F6;
+                width: 14px;
+                height: 14px;
+            }
+
+            /* ── Section 1: Featured 2-Column Highlight Grid ───────────────────── */
+            .grid-2col {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 24px;
+                width: 100%;
+            }
+
+            /* ── Section 2: Discover 3-Column Compact Card Grid ────────────────── */
+            .grid-3col {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+                gap: 24px;
+                width: 100%;
+            }
+
+            /* Universal Clean Card Styles */
+            .incident-card {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 16px;
+                text-decoration: none;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                position: relative;
+            }
+
+            .incident-card:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--border-hover);
+                transform: translateY(-4px);
+                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+            }
+
+            .incident-card:hover .card-title {
+                color: #3B82F6;
+            }
+
+            /* Featured Highlight Card Top Accent */
+            .incident-card.featured::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #3B82F6, #10B981);
+                z-index: 2;
+            }
+
+            .card-cover-wrapper {
+                width: 100%;
+                height: 150px;
+                overflow: hidden;
+                position: relative;
+                border-bottom: 1px solid var(--border-faint);
+                background: #0E0E12;
+            }
+
+            .incident-card.featured .card-cover-wrapper {
+                height: 180px;
+            }
+
+            .card-cover {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s;
+            }
+
+            .incident-card:hover .card-cover {
+                transform: scale(1.04);
+            }
+
+            .card-body {
+                padding: 20px 22px;
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                justify-content: space-between;
+                gap: 14px;
+            }
+
+            .card-header-meta {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                font-size: 12px;
+            }
+
+            .status-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                padding: 3px 9px;
+                border-radius: 6px;
+            }
+
+            .status-pill.resolved {
+                background: rgba(16, 185, 129, 0.12);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.25);
+            }
+
+            .status-pill.investigating {
+                background: rgba(245, 158, 11, 0.12);
+                color: #F59E0B;
+                border: 1px solid rgba(245, 158, 11, 0.25);
+            }
+
+            .severity-pill {
+                font-family: var(--font-mono);
+                font-size: 10px;
+                font-weight: 700;
+                padding: 2px 7px;
+                border-radius: 5px;
+                background: rgba(255, 255, 255, 0.05);
+                color: var(--text-secondary);
+                border: 1px solid var(--border-faint);
+                text-transform: uppercase;
+            }
+
+            .severity-pill.critical {
+                color: #EF4444;
+                border-color: rgba(239, 68, 68, 0.3);
+                background: rgba(239, 68, 68, 0.1);
+            }
+
+            .severity-pill.high {
+                color: #F97316;
+                border-color: rgba(249, 115, 22, 0.3);
+                background: rgba(249, 115, 22, 0.1);
+            }
+
+            .time-badge {
+                font-size: 11px;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .card-title {
+                font-size: 17px;
+                font-weight: 700;
+                color: #FFFFFF;
+                line-height: 1.35;
+                letter-spacing: -0.3px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                transition: color 0.2s;
+            }
+
+            .incident-card.featured .card-title {
+                font-size: 20px;
+            }
+
+            .card-excerpt {
+                font-size: 13px;
+                color: var(--text-secondary);
+                line-height: 1.55;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .card-tags {
+                display: flex;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+
+            .tag-chip {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                padding: 3px 8px;
+                border-radius: 6px;
+                background: rgba(255, 255, 255, 0.04);
+                color: var(--text-secondary);
+                border: 1px solid var(--border-faint);
+                transition: all 0.2s;
+            }
+
+            .incident-card:hover .tag-chip {
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+
+            .card-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 14px;
+                border-top: 1px solid var(--border-faint);
+                gap: 10px;
+                font-size: 12px;
+                color: var(--text-muted);
+                flex-wrap: wrap;
+            }
+
+            .author-wrap {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+
+            .avatar-sm {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                border: 1px solid var(--border-hover);
+                object-fit: cover;
+            }
+
+            .post-date {
+                font-family: var(--font-mono);
+                font-size: 11px;
+                color: var(--text-muted);
+            }
+
+            .metrics-row {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                font-family: var(--font-mono);
+                font-weight: 600;
+                color: var(--text-muted);
+                font-size: 12px;
+            }
+
+            .metric-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .metric-item i {
+                width: 14px;
+                height: 14px;
+                color: var(--text-muted);
+                transition: color 0.2s;
+            }
+
+            .incident-card:hover .metric-item i {
+                color: var(--text-secondary);
+            }
+
+            /* ── Section 3: Community Solvers & Creators Spotlight Strip ──────── */
+            .solvers-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 20px;
+                width: 100%;
+            }
+
+            .solver-card {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 16px;
+                padding: 20px;
+                text-decoration: none;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 12px;
+                transition: all 0.2s;
+            }
+
+            .solver-card:hover {
+                background: var(--bg-card-hover);
+                border-color: var(--border-hover);
+                transform: translateY(-3px);
+            }
+
+            .solver-avatar-wrap {
+                position: relative;
+            }
+
+            .avatar-lg {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                border: 2px solid var(--border-hover);
+                object-fit: cover;
+            }
+
+            .solver-rank-badge {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: var(--bg-surface-elevated);
+                border: 1px solid var(--border-hover);
+                font-size: 10px;
+                font-weight: 800;
+                font-family: var(--font-mono);
+                padding: 2px 6px;
+                border-radius: 10px;
+                color: #FFF;
+            }
+
+            .solver-name {
+                font-size: 14px;
+                font-weight: 700;
+                color: #FFF;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .solver-score-pill {
+                font-family: var(--font-mono);
+                font-size: 12px;
+                font-weight: 700;
+                color: #10B981;
+                background: rgba(16, 185, 129, 0.1);
+                border: 1px solid rgba(16, 185, 129, 0.2);
+                padding: 3px 10px;
+                border-radius: 12px;
+            }
+
+            .empty-showcase {
+                text-align: center;
+                padding: 80px 24px;
+                color: var(--text-secondary);
+                background: var(--bg-surface);
+                border: 1px dashed var(--border-faint);
+                border-radius: 16px;
+                width: 100%;
+            }
+
+            @keyframes float {
+
+                0%,
+                100% {
+                    transform: translateY(0px);
+                }
+
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+
+            /* ── Responsive Architecture ─────────────────────────────────────── */
+            @media (max-width: 960px) {
+                .hero-section {
+                    grid-template-columns: 1fr;
+                    text-align: center;
+                    gap: 32px;
+                    padding: 48px 20px 32px;
+                }
+
+                .hero-content {
+                    align-items: center;
+                }
+
+                .hero-search-box {
+                    max-width: 100%;
+                }
+
+                .grid-2col {
+                    grid-template-columns: 1fr;
+                }
+
+                .grid-3col {
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                }
+            }
+
+            @media (max-width: 600px) {
+                .hero-title {
+                    font-size: 36px;
+                    letter-spacing: -1px;
+                }
+
+                .grid-3col {
+                    grid-template-columns: 1fr;
+                }
+
+                .solvers-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .card-footer {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 12px;
+                }
+
+                .metrics-row {
+                    width: 100%;
+                    justify-content: space-between;
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <!-- LottieFiles-Style Showcase Hero -->
+        <header class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i data-lucide="zap" style="width: 14px;"></i>
+                    <span>
+                        <%= (typeof totalIncidents !=='undefined' ? totalIncidents : 0).toLocaleString() %> Documented
+                            Solutions & Postmortems
+                    </span>
+                </div>
+                <h1 class="hero-title">Developer war stories, <span>solved & documented.</span></h1>
+                <p class="hero-subtitle">Discover thousands of verified engineering incident investigations, root-cause
+                    analyses, and solutions across production stacks.</p>
+
+                <!-- Inline Search Box (No AI Jargon) -->
+                <div class="hero-search-box" onclick="window.location.href='/search'">
+                    <div class="hero-search-placeholder">
+                        <i data-lucide="search" style="width: 18px; color: #3B82F6;"></i>
+                        <span>Search production outages, bugs, or stack tags...</span>
+                    </div>
+                    <span class="hero-search-shortcut">Search</span>
+                </div>
+
+                <div class="hero-actions">
+                    <a href="<%= user ? '#' : '/signup' %>" class="btn-primary" <%=user
+                        ? 'onclick="openWriteModal && openWriteModal()"' : '' %>>
+                        <i data-lucide="edit-3" style="width: 16px;"></i> Document an Incident
+                    </a>
+                    <a href="/leaderboard" class="btn-outline">
+                        <i data-lucide="trophy" style="width: 16px; color: #F59E0B;"></i> View Leaderboard
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-glow"></div>
+                <img src="/images/homeanime.svg"
+                    onerror="this.src='https://illustrations.pika.style/api/v1/illustration/3d/cloud-data?color=3B82F6'"
+                    alt="Developer Ecosystem"
+                    style="width: 100%; max-width: 420px; filter: drop-shadow(0 16px 36px rgba(0,0,0,0.6));">
+            </div>
+        </header>
+
+        <!-- Interactive Stack & Category Navigation -->
+        <nav class="stack-nav-section">
+            <div class="tech-stack-scroll">
+                <a href="/" class="tech-pill <%= !activeTag ? 'active' : '' %>">All Technologies</a>
+                <a href="/?tag=kubernetes" class="tech-pill <%= activeTag === 'kubernetes' ? 'active' : '' %>"><i
+                        data-lucide="layers"></i> Kubernetes</a>
+                <a href="/?tag=aws" class="tech-pill <%= activeTag === 'aws' ? 'active' : '' %>"><i
+                        data-lucide="cloud"></i> AWS & Cloud</a>
+                <a href="/?tag=postgresql" class="tech-pill <%= activeTag === 'postgresql' ? 'active' : '' %>"><i
+                        data-lucide="database"></i> PostgreSQL</a>
+                <a href="/?tag=docker" class="tech-pill <%= activeTag === 'docker' ? 'active' : '' %>"><i
+                        data-lucide="box"></i> Docker & Containers</a>
+                <a href="/?tag=nodejs" class="tech-pill <%= activeTag === 'nodejs' ? 'active' : '' %>"><i
+                        data-lucide="cpu"></i> Node.js & Runtime</a>
+                <a href="/?tag=react" class="tech-pill <%= activeTag === 'react' ? 'active' : '' %>"><i
+                        data-lucide="code"></i> React & Frontend</a>
+                <a href="/?tag=redis" class="tech-pill <%= activeTag === 'redis' ? 'active' : '' %>"><i
+                        data-lucide="zap"></i> Redis & Cache</a>
+            </div>
+        </nav>
+
+        <!-- Main Showcase Content (The Mixed Grid) -->
+        <main class="main-showcase">
+
+            <!-- SECTION 1: Featured & Critical Outage Spotlights (2-Column Grid) -->
+            <% if (posts && posts.length>= 2 && !activeTag && !activeStatus && !activeSeverity && activeTab ===
+                'latest') { %>
+                <section>
+                    <div class="section-header">
+                        <div class="section-title-wrap">
+                            <i data-lucide="flame" style="width: 24px; color: #F59E0B;"></i>
+                            <h2 class="section-title">Featured Investigations</h2>
+                            <span class="section-subtitle">Critical production outages and high-impact fixes</span>
+                        </div>
+                    </div>
+
+                    <div class="grid-2col">
+                        <% posts.slice(0, 2).forEach(post=> { %>
+                            <a href="/incidents/<%= post.slug %>" class="incident-card featured">
+                                <% if (post.coverImage) { %>
+                                    <div class="card-cover-wrapper">
+                                        <img src="<%= post.coverImage %>" alt="<%= post.title %>" class="card-cover"
+                                            loading="lazy">
+                                    </div>
+                                    <% } %>
+                                        <div class="card-body">
+                                            <div>
+                                                <div class="card-header-meta" style="margin-bottom:12px;">
+                                                    <span class="status-pill <%= post.status %>">
+                                                        <i data-lucide="<%= post.status === 'resolved' ? 'check-circle-2' : 'alert-circle' %>"
+                                                            style="width: 13px;"></i>
+                                                        <%= post.status==='resolved' ? 'Resolved' : 'Investigating' %>
+                                                    </span>
+                                                    <% if (post.severity) { %>
+                                                        <span class="severity-pill <%= post.severity %>">
+                                                            <%= post.severity %> SEVERITY
+                                                        </span>
+                                                        <% } %>
+                                                            <% if (post.investigationHours> 0) { %>
+                                                                <span class="time-badge"><i data-lucide="clock"></i>
+                                                                    <%= post.investigationHours %>h investigation
+                                                                </span>
+                                                                <% } %>
+                                                </div>
+                                                <h3 class="card-title" style="margin-bottom:10px;">
+                                                    <%= post.title %>
+                                                </h3>
+                                                <p class="card-excerpt">
+                                                    <%= post.excerpt %>
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <div class="card-tags" style="margin-top:16px;">
+                                                    <% (post.tags || []).slice(0, 4).forEach(tag=> { %>
+                                                        <span class="tag-chip">#<%= tag.name || tag %></span>
+                                                        <% }) %>
+                                                </div>
+
+                                                <div class="card-footer">
+                                                    <div class="author-wrap">
+                                                        <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>"
+                                                            alt="Avatar" class="avatar-sm">
+                                                        <span>
+                                                            <%= post.author?.displayName || post.author?.username
+                                                                || 'Engineer' %>
+                                                        </span>
+                                                        <span style="color:var(--text-muted);">•</span>
+                                                        <span class="post-date">
+                                                            <%= new Date(post.createdAt).toLocaleDateString('en-US', {
+                                                                month: 'short' , day: 'numeric' }) %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="metrics-row">
+                                                        <span class="metric-item" title="Upvotes"><i
+                                                                data-lucide="arrow-up" style="color:#10B981;"></i>
+                                                            <%= post.upvotes || 0 %>
+                                                        </span>
+                                                        <span class="metric-item" title="Comments"><i
+                                                                data-lucide="message-square"></i>
+                                                            <%= post.comments || 0 %>
+                                                        </span>
+                                                        <span class="metric-item" title="Views"><i
+                                                                data-lucide="eye"></i>
+                                                            <%= post.views || 0 %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                            </a>
+                            <% }) %>
+                    </div>
+                </section>
+                <% } %>
+
+                    <!-- SECTION 2: Explore Community Feed (3-Column Showcase Grid) -->
+                    <section id="feed">
+                        <div class="section-header">
+                            <div class="feed-tabs">
+                                <a href="/?tab=latest" class="tab-btn <%= activeTab === 'latest' ? 'active' : '' %>">
+                                    <i data-lucide="clock"></i> Latest Feed
+                                </a>
+                                <a href="/?tab=trending"
+                                    class="tab-btn <%= activeTab === 'trending' ? 'active' : '' %>">
+                                    <i data-lucide="trending-up"></i> Trending
+                                </a>
+                                <% if (user) { %>
+                                    <a href="/?tab=following"
+                                        class="tab-btn <%= activeTab === 'following' ? 'active' : '' %>">
+                                        <i data-lucide="users"></i> Following
+                                    </a>
+                                    <% } %>
+                            </div>
+
+                            <div class="filter-dropdown-wrapper">
+                                <button class="filter-trigger-btn" id="filterBtn">
+                                    <i data-lucide="sliders-horizontal" style="width: 14px;"></i> Filters
+                                </button>
+                                <div class="filter-menu" id="filterMenu">
+                                    <div class="filter-group">
+                                        <span class="filter-label">Status</span>
+                                        <label class="checkbox-item"><input type="checkbox" value="resolved"
+                                                class="filter-status" <%=(!activeStatus ||
+                                                activeStatus.includes('resolved')) ? 'checked' : '' %>> Resolved</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="investigating"
+                                                class="filter-status" <%=(!activeStatus ||
+                                                activeStatus.includes('investigating')) ? 'checked' : '' %>>
+                                            Investigating</label>
+                                    </div>
+                                    <div class="filter-group" style="margin-top: 14px;">
+                                        <span class="filter-label">Severity</span>
+                                        <label class="checkbox-item"><input type="checkbox" value="critical"
+                                                class="filter-severity" <%=(activeSeverity &&
+                                                activeSeverity.includes('critical')) ? 'checked' : '' %>>
+                                            Critical</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="high"
+                                                class="filter-severity" <%=(activeSeverity &&
+                                                activeSeverity.includes('high')) ? 'checked' : '' %>> High</label>
+                                        <label class="checkbox-item"><input type="checkbox" value="normal"
+                                                class="filter-severity" <%=(activeSeverity &&
+                                                activeSeverity.includes('normal')) ? 'checked' : '' %>> Normal</label>
+                                    </div>
+                                    <button id="applyFiltersBtn" class="btn-primary"
+                                        style="padding: 6px 12px; font-size: 12px; width: 100%; justify-content: center; margin-top: 8px;">Apply
+                                        Filters</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% const displayPosts=(posts && posts.length>= 2 && !activeTag && !activeStatus &&
+                            !activeSeverity && activeTab === 'latest')
+                            ? posts.slice(2)
+                            : (posts || []);
+                            %>
+
+                            <% if (displayPosts && displayPosts.length> 0) { %>
+                                <div class="grid-3col">
+                                    <% displayPosts.forEach(post=> { %>
+                                        <a href="/incidents/<%= post.slug %>" class="incident-card">
+                                            <% if (post.coverImage) { %>
+                                                <div class="card-cover-wrapper">
+                                                    <img src="<%= post.coverImage %>" alt="<%= post.title %>"
+                                                        class="card-cover" loading="lazy">
+                                                </div>
+                                                <% } %>
+                                                    <div class="card-body">
+                                                        <div>
+                                                            <div class="card-header-meta" style="margin-bottom: 10px;">
+                                                                <span class="status-pill <%= post.status %>">
+                                                                    <i data-lucide="<%= post.status === 'resolved' ? 'check-circle-2' : 'alert-circle' %>"
+                                                                        style="width: 12px;"></i>
+                                                                    <%= post.status==='resolved' ? 'Resolved' : 'Active'
+                                                                        %>
+                                                                </span>
+                                                                <% if (post.severity) { %>
+                                                                    <span class="severity-pill <%= post.severity %>">
+                                                                        <%= post.severity %>
+                                                                    </span>
+                                                                    <% } %>
+                                                                        <% if (post.investigationHours> 0) { %>
+                                                                            <span class="time-badge"><i
+                                                                                    data-lucide="clock"></i>
+                                                                                <%= post.investigationHours %>h
+                                                                            </span>
+                                                                            <% } %>
+                                                            </div>
+                                                            <h3 class="card-title" style="margin-bottom: 8px;">
+                                                                <%= post.title %>
+                                                            </h3>
+                                                            <p class="card-excerpt">
+                                                                <%= post.excerpt %>
+                                                            </p>
+                                                        </div>
+
+                                                        <div>
+                                                            <div class="card-tags" style="margin-top: 14px;">
+                                                                <% (post.tags || []).slice(0, 3).forEach(tag=> { %>
+                                                                    <span class="tag-chip">#<%= tag.name || tag %>
+                                                                            </span>
+                                                                    <% }) %>
+                                                            </div>
+
+                                                            <div class="card-footer">
+                                                                <div class="author-wrap">
+                                                                    <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>"
+                                                                        alt="Avatar" class="avatar-sm">
+                                                                    <span
+                                                                        style="max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                                        <%= post.author?.displayName ||
+                                                                            post.author?.username || 'Engineer' %>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="metrics-row">
+                                                                    <span class="metric-item" title="Upvotes"><i
+                                                                            data-lucide="arrow-up"
+                                                                            style="color:#10B981;"></i>
+                                                                        <%= post.upvotes || 0 %>
+                                                                    </span>
+                                                                    <span class="metric-item" title="Comments"><i
+                                                                            data-lucide="message-square"></i>
+                                                                        <%= post.comments || 0 %>
+                                                                    </span>
+                                                                    <span class="metric-item" title="Views"><i
+                                                                            data-lucide="eye"></i>
+                                                                        <%= post.views || 0 %>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        </a>
+                                        <% }) %>
+                                </div>
+                                <% } else { %>
+                                    <div class="empty-showcase">
+                                        <i data-lucide="inbox"
+                                            style="width: 48px; height: 48px; color: var(--text-muted); margin: 0 auto 16px; display: block;"></i>
+                                        <h3 style="font-size: 18px; color: #FFF; font-weight: 700; margin-bottom: 8px;">
+                                            No incidents documented yet</h3>
+                                        <p>No war stories matched your filter criteria or tag selection.</p>
+                                    </div>
+                                    <% } %>
+                    </section>
+
+                    <!-- SECTION 3: Community Solvers & Creators Spotlight -->
+                    <% if (topSolvers && topSolvers.length> 0) { %>
+                        <section style="margin-top: 16px;">
+                            <div class="section-header">
+                                <div class="section-title-wrap">
+                                    <i data-lucide="award" style="width: 24px; color: #10B981;"></i>
+                                    <h2 class="section-title">Top Problem Solvers</h2>
+                                    <span class="section-subtitle">Engineers driving the community resolution
+                                        leaderboard</span>
+                                </div>
+                                <a href="/leaderboard" class="tab-btn" style="color: var(--text-primary);">
+                                    <span>Full Leaderboard</span>
+                                    <i data-lucide="arrow-right" style="width: 15px;"></i>
+                                </a>
+                            </div>
+
+                            <div class="solvers-grid">
+                                <% topSolvers.forEach((solver, idx)=> { %>
+                                    <a href="/u/<%= solver.username %>" class="solver-card">
+                                        <div class="solver-avatar-wrap">
+                                            <img src="<%= solver.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(solver.displayName || solver.username)}&background=3B82F6&color=fff&size=56` %>"
+                                                alt="<%= solver.displayName || solver.username %>" class="avatar-lg">
+                                            <span class="solver-rank-badge">#<%= idx + 1 %></span>
+                                        </div>
+                                        <div>
+                                            <div class="solver-name">
+                                                <span>
+                                                    <%= solver.displayName || solver.username %>
+                                                </span>
+                                                <% if (solver.isPro || idx===0) { %><i data-lucide="badge-check"
+                                                        style="width: 15px; color: #3B82F6; flex-shrink: 0;"></i>
+                                                    <% } %>
+                                            </div>
+                                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">@
+                                                <%= solver.username %>
+                                            </div>
+                                        </div>
+                                        <span class="solver-score-pill">+<%= (solver.reputation || 0).toLocaleString()
+                                                %> Rep</span>
+                                    </a>
+                                    <% }) %>
+                            </div>
+                        </section>
+                        <% } %>
+
+        </main>
+
+        <%- include('../partials/footer') %>
+
+            <script>
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                // Filter Menu Toggle
+                const filterBtn = document.getElementById('filterBtn');
+                const filterMenu = document.getElementById('filterMenu');
+                const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+
+                if (filterBtn && filterMenu) {
+                    filterBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        filterMenu.classList.toggle('show');
+                        filterBtn.classList.toggle('active');
+                    });
+                    filterMenu.addEventListener('click', (e) => { e.stopPropagation(); });
+                    document.addEventListener('click', (e) => {
+                        if (!filterBtn.contains(e.target) && !filterMenu.contains(e.target)) {
+                            filterMenu.classList.remove('show');
+                            filterBtn.classList.remove('active');
+                        }
+                    });
+                }
+
+                if (applyFiltersBtn) {
+                    applyFiltersBtn.addEventListener('click', () => {
+                        const statuses = Array.from(document.querySelectorAll('.filter-status:checked')).map(cb => cb.value);
+                        const severities = Array.from(document.querySelectorAll('.filter-severity:checked')).map(cb => cb.value);
+                        const url = new URL(window.location.href);
+
+                        if (statuses.length > 0 && statuses.length < 2) {
+                            url.searchParams.set('status', statuses.join(','));
+                        } else {
+                            url.searchParams.delete('status');
+                        }
+                        if (severities.length > 0 && severities.length < 3) {
+                            url.searchParams.set('severity', severities.join(','));
+                        } else {
+                            url.searchParams.delete('severity');
+                        }
+                        window.location.href = url.toString();
+                    });
+                }
+            </script>
+</body>
+
+</html>

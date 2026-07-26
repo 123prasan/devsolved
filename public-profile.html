@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prasanna (@prasanna) | DevSolved</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            /* Premium Deep Dark Palette */
+            --bg-base: #000000;
+            --bg-nav: rgba(0, 0, 0, 0.6);
+            --bg-surface: #0A0A0C;
+            --bg-surface-elevated: #111114;
+            --bg-hover: rgba(255, 255, 255, 0.06);
+            
+            --border-faint: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            
+            /* Typography */
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #62626C;
+            
+            /* Accents */
+            --accent-primary: #FAFAFA;
+            --accent-success: #10B981;
+            --accent-success-bg: rgba(16, 185, 129, 0.12);
+            --accent-info: #3B82F6;
+            --accent-info-bg: rgba(59, 130, 246, 0.12);
+            --accent-warning: #F59E0B;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* --- Simplified Header --- */
+        .header {
+            position: sticky; top: 0; width: 100%; z-index: 1000;
+            background: var(--bg-nav); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-faint);
+        }
+        .header-inner {
+            max-width: 1200px; margin: 0 auto; height: 60px; padding: 0 24px;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--text-primary); text-decoration: none; }
+        .brand-icon { background: var(--text-primary); color: var(--bg-base); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .header-center { display: flex; gap: 32px; }
+        .nav-link { color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; }
+        .nav-link:hover { color: var(--text-primary); }
+        .header-right { justify-self: end; display: flex; align-items: center; gap: 16px; }
+        .avatar-btn { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #10B981 0%, #3B82F6 100%); cursor: pointer; border: none; }
+
+        /* --- Profile Banner --- */
+        .profile-banner {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #020617 100%);
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-faint);
+        }
+        /* Pattern Overlay */
+        .profile-banner::after {
+            content: ''; position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.5;
+        }
+
+        /* --- Main Layout --- */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px 120px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 48px;
+            position: relative;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- Left Column (Header & Feed) --- */
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Profile Header Details */
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            margin-top: -64px; /* Pulls avatar into banner */
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .avatar-large {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 6px solid var(--bg-base);
+            background: var(--bg-surface);
+            object-fit: cover;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn-follow {
+            background: var(--text-primary); color: var(--bg-base); border: none;
+            padding: 8px 24px; border-radius: 999px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-follow:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-follow.following { background: transparent; color: var(--text-primary); border: 1px solid var(--border-hover); }
+        .btn-follow.following:hover { background: rgba(239, 68, 68, 0.1); color: var(--accent-error); border-color: rgba(239, 68, 68, 0.2); }
+
+        .btn-icon {
+            background: transparent; border: 1px solid var(--border-hover); color: var(--text-secondary);
+            width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-icon:hover { color: var(--text-primary); background: var(--bg-hover); border-color: var(--border-focus); }
+
+        /* Profile Info */
+        .profile-name { font-size: 32px; font-weight: 700; color: var(--text-primary); letter-spacing: -1px; line-height: 1.2; display: flex; align-items: center; gap: 12px;}
+        .profile-handle { font-size: 16px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+        
+        .badge-pro { background: var(--accent-info-bg); color: var(--accent-info); border: 1px solid rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .profile-bio { font-size: 16px; color: var(--text-secondary); max-width: 600px; margin-bottom: 24px; line-height: 1.6; }
+
+        .profile-meta { display: flex; flex-wrap: wrap; gap: 24px; font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+        .meta-item { display: flex; align-items: center; gap: 8px; }
+
+        /* Social Links in Profile */
+        .profile-socials { display: flex; gap: 12px; }
+        .social-link { color: var(--text-muted); transition: color 0.2s; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid transparent;}
+        .social-link:hover { color: var(--text-primary); border-color: var(--border-hover); background: var(--bg-hover); }
+
+        /* --- Tabs & Feed --- */
+        .profile-tabs {
+            display: flex; gap: 32px; border-bottom: 1px solid var(--border-faint); margin-bottom: 32px;
+        }
+        .tab {
+            background: transparent; border: none; color: var(--text-secondary); font-size: 15px; font-weight: 500;
+            padding-bottom: 16px; margin-bottom: -1px; cursor: pointer; position: relative; transition: color 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--text-primary); }
+        .tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: var(--text-primary); border-radius: 2px; box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        .tab-count { background: var(--bg-hover); padding: 2px 8px; border-radius: 99px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+
+        /* Feed Grid */
+        .incident-feed { display: flex; flex-direction: column; gap: 24px; }
+        
+        .card {
+            background: rgba(10, 10, 12, 0.6); border: 1px solid var(--border-faint); border-radius: 16px;
+            display: flex; overflow: hidden; transition: all 0.3s ease; text-decoration: none;
+            backdrop-filter: blur(12px);
+        }
+        .card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+        
+        .card-cover-wrapper { width: 220px; flex-shrink: 0; overflow: hidden; border-right: 1px solid var(--border-faint); }
+        .card-cover { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+        .card:hover .card-cover { transform: scale(1.05); }
+
+        .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .status-badge { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .status-badge.resolved { background: var(--accent-success-bg); color: var(--accent-success); }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.5px; }
+        .card-excerpt { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .card-tags { display: flex; gap: 8px; }
+        .tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,0.03); color: var(--text-secondary); border: 1px solid var(--border-faint); }
+        .metrics { display: flex; gap: 16px; color: var(--text-muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+        .metric { display: flex; align-items: center; gap: 4px; }
+
+        /* --- Right Column (Sidebar) --- */
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            padding-top: 40px; /* Align with tabs */
+        }
+
+        .sidebar-widget {
+            background: var(--bg-surface); border: 1px solid var(--border-faint);
+            border-radius: 16px; padding: 24px;
+        }
+
+        .widget-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;}
+        .widget-title i-lucide { color: var(--text-muted); width: 18px; }
+
+        /* Tech Stack Pills */
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tech-tag {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-faint);
+            color: var(--text-secondary); font-size: 13px; font-weight: 500;
+            padding: 6px 12px; border-radius: 99px; transition: all 0.2s;
+        }
+        .tech-tag:hover { color: var(--text-primary); border-color: var(--border-hover); background: rgba(255,255,255,0.06); }
+
+        /* Activity Heatmap Mock */
+        .heatmap-grid {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+        }
+        .heatmap-cell {
+            aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,0.05);
+        }
+        .heatmap-cell.level-1 { background: rgba(16, 185, 129, 0.3); }
+        .heatmap-cell.level-2 { background: rgba(16, 185, 129, 0.6); }
+        .heatmap-cell.level-3 { background: rgba(16, 185, 129, 0.9); }
+        
+        .heatmap-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+
+        /* Badges / Achievements */
+        .badges-list { display: flex; flex-direction: column; gap: 16px; }
+        .badge-item { display: flex; align-items: center; gap: 12px; }
+        .badge-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--bg-hover); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-faint); }
+        .badge-icon.gold { color: #FBBF24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2); }
+        .badge-icon.blue { color: #3B82F6; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
+        .badge-info { display: flex; flex-direction: column; }
+        .badge-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .badge-desc { font-size: 12px; color: var(--text-secondary); }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Responsiveness --- */
+        @media (max-width: 960px) {
+            .profile-container { grid-template-columns: 1fr; padding-bottom: 60px; }
+            .profile-sidebar { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .profile-banner { height: 160px; }
+            .profile-header-top { flex-direction: column; align-items: flex-start; }
+            .avatar-large { width: 100px; height: 100px; margin-top: -50px; }
+            .profile-actions { width: 100%; margin-top: 24px; }
+            .btn-follow { flex: 1; justify-content: center; }
+            .profile-sidebar { grid-template-columns: 1fr; }
+            
+            .card { flex-direction: column; }
+            .card-cover-wrapper { width: 100%; height: 160px; border-right: none; border-bottom: 1px solid var(--border-faint); }
+            .card-footer { flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Simplified Header -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="brand">
+                <div class="brand-icon"><i data-lucide="terminal" style="width: 14px;"></i></div> DevSolved
+            </a>
+            <nav class="header-center">
+                <a href="index.html" class="nav-link">Feed</a>
+                <a href="#" class="nav-link">Incidents</a>
+            </nav>
+            <div class="header-right">
+                <button class="avatar-btn"></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Profile Banner -->
+    <div class="profile-banner"></div>
+
+    <!-- Main Profile Container -->
+    <main class="profile-container">
+        
+        <!-- Left Column (Profile Info & Feed) -->
+        <div class="profile-main">
+            
+            <div class="profile-header">
+                <div class="profile-header-top">
+                    <!-- Custom Avatar (Simulated) -->
+                    <img src="https://ui-avatars.com/api/?name=Prasanna&background=4F46E5&color=fff&size=300" alt="Prasanna" class="avatar-large">
+                    
+                    <div class="profile-actions">
+                        <button class="btn-icon" aria-label="Share Profile" title="Share"><i data-lucide="share-2" style="width: 18px;"></i></button>
+                        <button class="btn-icon" aria-label="More" title="More Options"><i data-lucide="more-horizontal" style="width: 18px;"></i></button>
+                        <button class="btn-follow" id="followBtn" onclick="toggleFollow()">
+                            <i data-lucide="user-plus" style="width: 16px;" id="followIcon"></i> 
+                            <span id="followText">Follow</span>
+                        </button>
+                    </div>
+                </div>
+
+                <h1 class="profile-name">
+                    Prasanna <span class="badge-pro">PRO</span>
+                </h1>
+                <h2 class="profile-handle">@prasanna</h2>
+                
+                <p class="profile-bio">
+                    Full-stack developer from India. Currently building Vidyari and mapping skill gaps. Documenting my war stories with AWS, Node.js, and React hydration errors.
+                </p>
+
+                <div class="profile-meta">
+                    <div class="meta-item"><i data-lucide="map-pin" style="width: 16px;"></i> Bengaluru, India</div>
+                    <div class="meta-item"><i data-lucide="link" style="width: 16px;"></i> <a href="#" style="color: var(--accent-info); text-decoration: none;">vidyari.com</a></div>
+                    <div class="meta-item"><i data-lucide="calendar" style="width: 16px;"></i> Joined Aug 2025</div>
+                </div>
+
+                <div class="profile-socials">
+                    <a href="#" class="social-link" title="GitHub"><i data-lucide="github" style="width: 16px;"></i></a>
+                    <a href="#" class="social-link" title="Twitter"><i data-lucide="twitter" style="width: 16px;"></i></a>
+                    <a href="#" class="social-link" title="LinkedIn"><i data-lucide="linkedin" style="width: 16px;"></i></a>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="profile-tabs">
+                <button class="tab active">Incidents <span class="tab-count">14</span></button>
+                <button class="tab">Upvoted</button>
+                <button class="tab">Saved <span class="tab-count">42</span></button>
+            </div>
+
+            <!-- Feed -->
+            <div class="incident-feed">
+                
+                <!-- Card 1 -->
+                <a href="#" class="card">
+                    <div class="card-cover-wrapper">
+                        <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=600" alt="Server Racks" class="card-cover">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <div class="status-badge resolved"><i data-lucide="check" style="width: 14px;"></i></div>
+                            <span style="font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Jul 19, 2026</span>
+                        </div>
+                        <h3 class="card-title">Website taking exactly 20 seconds to load initially</h3>
+                        <p class="card-excerpt">Whenever I visited my deployed website for the first time, the browser would hang for exactly 20 seconds before downloading assets. Turned out to be a stale DNS A-record causing a TCP SYN timeout...</p>
+                        
+                        <div class="card-footer">
+                            <div class="card-tags">
+                                <span class="tag">#dns</span>
+                                <span class="tag">#networking</span>
+                                <span class="tag">#aws</span>
+                            </div>
+                            <div class="metrics">
+                                <span class="metric"><i data-lucide="arrow-up" style="width: 14px;"></i> 1.2k</span>
+                                <span class="metric"><i data-lucide="message-square" style="width: 14px;"></i> 48</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Card 2 -->
+                <a href="#" class="card">
+                    <div class="card-cover-wrapper">
+                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=600" alt="Code" class="card-cover">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-header">
+                            <div class="status-badge resolved"><i data-lucide="check" style="width: 14px;"></i></div>
+                            <span style="font-size: 13px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Feb 12, 2026</span>
+                        </div>
+                        <h3 class="card-title">S3 Multipart Uploads failing silently on large files</h3>
+                        <p class="card-excerpt">We were building Vidyari's material upload feature. Files under 5MB worked perfectly, but anything larger would silently fail without throwing an error in the Node.js backend. Turns out...</p>
+                        
+                        <div class="card-footer">
+                            <div class="card-tags">
+                                <span class="tag">#aws-s3</span>
+                                <span class="tag">#nodejs</span>
+                            </div>
+                            <div class="metrics">
+                                <span class="metric"><i data-lucide="arrow-up" style="width: 14px;"></i> 854</span>
+                                <span class="metric"><i data-lucide="message-square" style="width: 14px;"></i> 22</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Right Column (Sidebar) -->
+        <aside class="profile-sidebar">
+            
+            <!-- Tech Stack -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title"><i data-lucide="layers"></i> Tech Stack</h3>
+                <div class="tech-tags">
+                    <span class="tech-tag"><i data-lucide="hexagon" style="width: 14px;"></i> React</span>
+                    <span class="tech-tag"><i data-lucide="box" style="width: 14px;"></i> Node.js</span>
+                    <span class="tech-tag"><i data-lucide="cloud" style="width: 14px;"></i> AWS S3</span>
+                    <span class="tech-tag"><i data-lucide="database" style="width: 14px;"></i> MongoDB</span>
+                    <span class="tech-tag"><i data-lucide="server" style="width: 14px;"></i> DynamoDB</span>
+                </div>
+            </div>
+
+            <!-- Activity Heatmap -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title"><i data-lucide="activity"></i> Activity</h3>
+                <div class="heatmap-grid">
+                    <!-- Simulated Grid Cells -->
+                    <div class="heatmap-cell"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell"></div><div class="heatmap-cell"></div>
+                    <div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell"></div>
+                    <div class="heatmap-cell"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-1"></div>
+                    <div class="heatmap-cell level-2"></div><div class="heatmap-cell"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div><div class="heatmap-cell level-1"></div><div class="heatmap-cell"></div>
+                </div>
+                <div class="heatmap-meta">
+                    <span>142 contributions</span>
+                    <span>Last 30 days</span>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title"><i data-lucide="award"></i> Achievements</h3>
+                <div class="badges-list">
+                    <div class="badge-item">
+                        <div class="badge-icon gold"><i data-lucide="flame"></i></div>
+                        <div class="badge-info">
+                            <span class="badge-name">Top Solver</span>
+                            <span class="badge-desc">Ranked top 1% in May 2026</span>
+                        </div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-icon blue"><i data-lucide="zap"></i></div>
+                        <div class="badge-info">
+                            <span class="badge-name">10k Reputation</span>
+                            <span class="badge-desc">Reached 10,000 community rep</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Follow Toggle Logic
+        function toggleFollow() {
+            const btn = document.getElementById('followBtn');
+            const icon = document.getElementById('followIcon');
+            const text = document.getElementById('followText');
+            
+            btn.classList.toggle('following');
+            
+            if (btn.classList.contains('following')) {
+                text.innerText = 'Following';
+                icon.setAttribute('data-lucide', 'user-check');
+            } else {
+                text.innerText = 'Follow';
+                icon.setAttribute('data-lucide', 'user-plus');
+            }
+            
+            lucide.createIcons({ nameAttr: 'data-lucide', attrs: { class: 'lucide' } });
+        }
+    </script>
+</body>
+</html>

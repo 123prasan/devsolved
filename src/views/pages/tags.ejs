@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', { useAnime: true }) %>
+    <style>
+        :root { --bg-base: #000000; --bg-surface: #0A0A0C; --ds-bg-elevated: #111114; --ds-bg-hover: rgba(255,255,255,0.04); --ds-border-faint: rgba(255,255,255,0.08); --ds-border-hover: rgba(255,255,255,0.16); --ds-border-focus: rgba(255,255,255,0.3); --ds-text-main: #FFFFFF; --ds-text-secondary: #a1a1aa; --ds-text-muted: #71717a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #000; color: #FFF; min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .ds-directory-wrapper { position: relative; min-height: 100vh; padding-bottom: 120px; }
+        .ds-hero-section { padding: 120px 24px 80px; display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: 1px solid var(--ds-border-faint); position: relative; overflow: hidden; width: 100%; background: radial-gradient(circle at 50% 100%, rgba(59,130,246,0.08) 0%, transparent 60%); }
+        .ds-particles-container { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .ds-particle { position: absolute; border-radius: 50%; background: #FFFFFF; box-shadow: 0 0 10px 2px rgba(255,255,255,0.4); opacity: 0; }
+        .ds-hero-content { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; animation: ds-fade-down 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .ds-hero-chip { background: rgba(255,255,255,0.05); border: 1px solid var(--ds-border-faint); color: var(--ds-text-secondary); padding: 6px 14px; border-radius: 99px; font-size: 13px; font-weight: 500; margin-bottom: 24px; display: inline-flex; align-items: center; gap: 6px; backdrop-filter: blur(8px); }
+        .ds-hero-title { font-size: 52px; font-weight: 700; letter-spacing: -1.5px; color: var(--ds-text-main); margin-bottom: 16px; line-height: 1.1; }
+        .ds-text-gradient { background: linear-gradient(135deg, #FFFFFF 0%, #71717a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ds-hero-subtitle { font-size: 18px; color: var(--ds-text-secondary); max-width: 600px; margin-bottom: 48px; line-height: 1.6; }
+        .ds-search-container { position: relative; width: 100%; max-width: 640px; margin: 0 auto; }
+        .ds-search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--ds-text-muted); display: flex; align-items: center; }
+        .ds-search-input { width: 100%; background: rgba(10,10,12,0.8); border: 1px solid var(--ds-border-hover); color: var(--ds-text-main); padding: 20px 20px 20px 56px; border-radius: 16px; font-family: inherit; font-size: 16px; outline: none; transition: all 0.2s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.6); backdrop-filter: blur(16px); }
+        .ds-search-input:focus { border-color: var(--ds-border-focus); background: rgba(255,255,255,0.04); }
+        .ds-search-input::placeholder { color: var(--ds-text-muted); }
+        .ds-directory-container { max-width: 1240px; margin: 0 auto; padding: 48px 24px 0; animation: ds-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.1s; opacity: 0; }
+        .ds-category-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; justify-content: center; }
+        .ds-filter-btn { background: transparent; border: 1px solid var(--ds-border-faint); color: var(--ds-text-secondary); padding: 8px 16px; border-radius: 99px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+        .ds-filter-btn:hover { border-color: var(--ds-border-hover); color: var(--ds-text-main); background: var(--ds-bg-hover); }
+        .ds-filter-btn.ds-active { background: var(--ds-text-main); color: var(--bg-base); border-color: var(--ds-text-main); }
+        .ds-tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+        .ds-tag-card { background: var(--bg-surface); border: 1px solid var(--ds-border-faint); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; text-decoration: none; transition: all 0.3s cubic-bezier(0.16,1,0.3,1); position: relative; overflow: hidden; }
+        .ds-tag-card:hover { border-color: var(--ds-border-hover); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.6); background: var(--ds-bg-elevated); }
+        .ds-tag-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .ds-tag-brand { display: flex; align-items: center; gap: 12px; }
+        .ds-tag-icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--ds-border-faint); display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .ds-tag-icon svg { width: 24px; height: 24px; fill: var(--brand-color); transition: transform 0.3s; }
+        .ds-tag-card:hover .ds-tag-icon { border-color: var(--brand-color); box-shadow: 0 0 15px var(--brand-color); opacity: 0.8; }
+        .ds-tag-card:hover .ds-tag-icon svg { transform: scale(1.1); }
+        .ds-tag-name-box { display: flex; flex-direction: column; gap: 2px; }
+        .ds-tag-name { font-size: 18px; font-weight: 600; color: var(--ds-text-main); font-family: 'JetBrains Mono', monospace; }
+        .ds-tag-count { font-size: 13px; color: var(--ds-text-muted); }
+        .ds-btn-follow { background: transparent; border: 1px solid var(--ds-border-hover); color: var(--ds-text-secondary); padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .ds-btn-follow:hover { background: var(--ds-text-main); color: var(--bg-base); border-color: var(--ds-text-main); }
+        .ds-tag-desc { font-size: 14px; color: var(--ds-text-secondary); line-height: 1.5; margin-bottom: 24px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+        .ds-sparkline { display: flex; align-items: flex-end; gap: 4px; height: 24px; margin-bottom: 20px; opacity: 0.4; transition: opacity 0.3s; }
+        .ds-tag-card:hover .ds-sparkline { opacity: 0.8; }
+        .ds-spark-bar { flex: 1; background: var(--ds-text-secondary); border-radius: 2px 2px 0 0; min-height: 4px; transition: background 0.3s; }
+        .ds-tag-card:hover .ds-spark-bar { background: var(--brand-color); }
+        .ds-tag-card-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--ds-border-faint); }
+        .ds-avatars-group { display: flex; }
+        .ds-avatar-mini { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--bg-surface); background: var(--ds-bg-hover); margin-left: -8px; }
+        .ds-avatar-mini:first-child { margin-left: 0; }
+        .ds-top-solvers-text { font-size: 12px; color: var(--ds-text-muted); }
+        .no-tags { text-align: center; padding: 80px 24px; color: var(--ds-text-secondary); grid-column: 1/-1; }
+        @keyframes ds-fade-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes ds-fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .ds-hero-section { padding: 60px 20px 40px; } .ds-hero-title { font-size: 36px; } .ds-category-filters { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; scrollbar-width: none; } .ds-category-filters::-webkit-scrollbar { display: none; } .ds-tags-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="ds-directory-wrapper">
+        <section class="ds-hero-section" id="heroSection">
+            <div class="ds-particles-container" id="particlesContainer"></div>
+            <div class="ds-hero-content">
+                <div class="ds-hero-chip"><i data-lucide="layers" style="width:14px;height:14px;"></i> <%= tags.length.toLocaleString() %>+ technologies mapped</div>
+                <h1 class="ds-hero-title">Explore the <span class="ds-text-gradient">Developer Matrix</span></h1>
+                <p class="ds-hero-subtitle">Discover war stories, postmortems, and exact architectural solutions across thousands of databases, frameworks, and cloud services.</p>
+                <div class="ds-search-container">
+                    <div class="ds-search-icon"><i data-lucide="search" style="width:20px;height:20px;"></i></div>
+                    <input type="text" class="ds-search-input" id="tagSearch" placeholder="Search for #aws, #nodejs, #docker...">
+                </div>
+            </div>
+        </section>
+
+        <main class="ds-directory-container">
+            <div class="ds-category-filters">
+                <button class="ds-filter-btn <%= activeCategory === 'all' ? 'ds-active' : '' %>" onclick="filterTags('all')">All Tags</button>
+                <button class="ds-filter-btn <%= activeCategory === 'cloud' ? 'ds-active' : '' %>" onclick="filterTags('cloud')"><i data-lucide="cloud" style="width:14px;"></i> Cloud</button>
+                <button class="ds-filter-btn <%= activeCategory === 'database' ? 'ds-active' : '' %>" onclick="filterTags('database')"><i data-lucide="database" style="width:14px;"></i> Databases</button>
+                <button class="ds-filter-btn <%= activeCategory === 'devops' ? 'ds-active' : '' %>" onclick="filterTags('devops')"><i data-lucide="server" style="width:14px;"></i> DevOps</button>
+                <button class="ds-filter-btn <%= activeCategory === 'frontend' ? 'ds-active' : '' %>" onclick="filterTags('frontend')"><i data-lucide="layout" style="width:14px;"></i> Frontend</button>
+                <button class="ds-filter-btn <%= activeCategory === 'language' ? 'ds-active' : '' %>" onclick="filterTags('language')"><i data-lucide="code" style="width:14px;"></i> Languages</button>
+            </div>
+
+            <div class="ds-tags-grid" id="tagsGrid">
+                <% if (tags && tags.length > 0) { %>
+                    <% tags.forEach(tag => { %>
+                    <a href="/?tag=<%= tag.name %>" class="ds-tag-card" style="--brand-color: <%= tag.color || '#A1A1AA' %>;">
+                        <div class="ds-tag-card-top">
+                            <div class="ds-tag-brand">
+                                <div class="ds-tag-icon">
+                                    <% if (tag.iconSvg) { %>
+                                        <svg viewBox="0 0 24 24"><%- tag.iconSvg %></svg>
+                                    <% } else { %>
+                                        <i data-lucide="hash" style="width:24px; color:<%= tag.color || '#A1A1AA' %>;"></i>
+                                    <% } %>
+                                </div>
+                                <div class="ds-tag-name-box">
+                                    <span class="ds-tag-name">#<%= tag.name %></span>
+                                    <span class="ds-tag-count"><%= (tag.incidentCount || 0).toLocaleString() %> incidents</span>
+                                </div>
+                            </div>
+                            <button class="ds-btn-follow" onclick="event.preventDefault()">Follow</button>
+                        </div>
+                        <p class="ds-tag-desc"><%= tag.description || 'Explore incidents and war stories related to ' + tag.displayName + '.' %></p>
+                        <div class="ds-sparkline" id="spark-<%= tag._id %>"></div>
+                        <div class="ds-tag-card-bottom">
+                            <div class="ds-avatars-group">
+                                <% (tag.topSolvers || []).slice(0, 3).forEach(solver => { %>
+                                <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(solver.displayName || solver.username) %>&background=4F46E5&color=fff&size=48" class="ds-avatar-mini" alt="<%= solver.displayName || '' %>">
+                                <% }) %>
+                                <% if (!tag.topSolvers || tag.topSolvers.length === 0) { %>
+                                <img src="https://ui-avatars.com/api/?name=U&background=10B981&color=fff&size=48" class="ds-avatar-mini" alt="">
+                                <img src="https://ui-avatars.com/api/?name=V&background=EC4899&color=fff&size=48" class="ds-avatar-mini" alt="">
+                                <% } %>
+                            </div>
+                            <span class="ds-top-solvers-text">Top Solvers</span>
+                        </div>
+                    </a>
+                    <% }) %>
+                <% } else { %>
+                <div class="no-tags">
+                    <i data-lucide="tag" style="width:48px;height:48px;color:var(--ds-text-muted);margin-bottom:16px;display:block;"></i>
+                    <p>No tags found. Run <code style="font-family:'JetBrains Mono'; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px;">npm run seed</code> to populate tags.</p>
+                </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        lucide.createIcons();
+
+        // Anime.js particles
+        function initParticles() {
+            const container = document.getElementById('particlesContainer');
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.classList.add('ds-particle');
+                const size = Math.random() * 3 + 1;
+                p.style.width = `${size}px`; p.style.height = `${size}px`;
+                p.style.left = `${Math.random() * 100}%`; p.style.top = `${Math.random() * 100}%`;
+                const colors = ['#FFFFFF', '#3B82F6', '#8B5CF6'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                p.style.backgroundColor = color;
+                p.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px 1px ${color}`;
+                container.appendChild(p);
+                anime({ targets: p, translateX: () => anime.random(-100,100), translateY: () => anime.random(-100,100), scale: () => anime.random(0.5,2), opacity: [{value: anime.random(0.1,0.6), duration: anime.random(1000,3000)},{value: 0, duration: anime.random(1000,3000)}], duration: () => anime.random(4000,8000), easing: 'easeInOutQuad', direction: 'alternate', loop: true });
+            }
+        }
+        initParticles();
+
+        // Generate sparklines
+        document.querySelectorAll('.ds-sparkline').forEach(el => {
+            let html = '';
+            for (let i = 0; i < 7; i++) {
+                const h = Math.floor(Math.random() * 60) + 40;
+                html += `<div class="ds-spark-bar" style="height:${h}%;"></div>`;
+            }
+            el.innerHTML = html;
+        });
+
+        // Tag search filter
+        document.getElementById('tagSearch').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.ds-tag-card').forEach(card => {
+                const name = card.querySelector('.ds-tag-name')?.textContent.toLowerCase() || '';
+                const desc = card.querySelector('.ds-tag-desc')?.textContent.toLowerCase() || '';
+                card.style.display = (name.includes(q) || desc.includes(q)) ? '' : 'none';
+            });
+        });
+
+        // Category filter
+        function filterTags(cat) {
+            window.location.href = '/tags' + (cat !== 'all' ? '?category=' + cat : '');
+        }
+    </script>
+</body>
+</html>

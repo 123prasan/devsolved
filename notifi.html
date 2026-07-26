@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            /* ── Premium Material Dark Theme - Strict Black & White Mode ───────── */
+            :root {
+                --bg-base: #000000;
+                --bg-surface: #121214;
+                --bg-surface-elevated: #1A1A1E;
+                --bg-hover: rgba(255, 255, 255, 0.08);
+                --bg-active: rgba(255, 255, 255, 0.12);
+                --border-faint: #27272A;
+                --border-hover: #3F3F46;
+                --text-primary: #FFFFFF;
+                --text-secondary: #A1A1AA;
+                --text-muted: #71717A;
+
+                /* Pure White Premium Button Theme */
+                --brand-primary: #FFFFFF;
+                --brand-hover: #E4E4E7;
+                --brand-text: #000000;
+
+                --accent-success: #10B981;
+                --accent-info: #3B82F6;
+                --accent-warning: #F59E0B;
+                --accent-error: #EA4335;
+
+                --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+                --font-mono: 'JetBrains Mono', monospace;
+                --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: var(--font-sans);
+                background: var(--bg-base);
+                color: var(--text-primary);
+                -webkit-font-smoothing: antialiased;
+                min-height: 100vh;
+            }
+
+            /* ── Page Grid Layout ─────────────────────────────────────────────── */
+            .notif-layout {
+                display: grid;
+                grid-template-columns: 280px minmax(0, 1fr);
+                max-width: 1360px;
+                margin: 0 auto;
+                min-height: calc(100vh - 64px);
+            }
+
+            /* ── Left Sidebar Navigation ───────────────────────────────────────── */
+            .sidebar {
+                border-right: 1px solid var(--border-faint);
+                padding: 36px 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                position: sticky;
+                top: 64px;
+                height: calc(100vh - 64px);
+                overflow-y: auto;
+                background: var(--bg-base);
+            }
+
+            .sidebar-section-title {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                letter-spacing: 0.8px;
+                padding: 12px 14px 8px;
+                font-family: var(--font-mono);
+            }
+
+            .sidebar-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 11px 14px;
+                border-radius: 12px;
+                cursor: pointer;
+                color: var(--text-secondary);
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid transparent;
+                background: transparent;
+                text-align: left;
+                width: 100%;
+                font-family: var(--font-sans);
+            }
+
+            .sidebar-item:hover {
+                background: var(--bg-hover);
+                color: var(--text-primary);
+                border-color: rgba(255, 255, 255, 0.04);
+            }
+
+            .sidebar-item.active {
+                background: var(--bg-surface-elevated);
+                color: var(--brand-primary);
+                font-weight: 600;
+                border-color: var(--border-faint);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar-item i {
+                width: 18px;
+                height: 18px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-count {
+                margin-left: auto;
+                font-size: 11px;
+                font-family: var(--font-mono);
+                background: var(--bg-hover);
+                padding: 2px 8px;
+                border-radius: 20px;
+                color: var(--text-secondary);
+                transition: all 0.2s;
+            }
+
+            .sidebar-item.active .sidebar-count {
+                background: var(--brand-primary);
+                color: var(--brand-text);
+                font-weight: 700;
+            }
+
+            .sidebar-footer-card {
+                margin-top: auto;
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 16px;
+                padding: 18px;
+                text-align: left;
+            }
+
+            .sidebar-footer-card h4 {
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 6px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .sidebar-footer-card p {
+                font-size: 12px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                margin-bottom: 14px;
+            }
+
+            .btn-settings-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--brand-primary);
+                text-decoration: none;
+                background: rgba(255, 255, 255, 0.05);
+                padding: 8px 14px;
+                border-radius: 8px;
+                border: 1px solid var(--border-faint);
+                width: 100%;
+                justify-content: center;
+                transition: all 0.2s;
+            }
+
+            .btn-settings-link:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-hover);
+                transform: translateY(-1px);
+            }
+
+            /* ── Main Feed Content ────────────────────────────────────────────── */
+            .main-content {
+                padding: 36px 48px 120px;
+                overflow-x: hidden;
+            }
+
+            .content-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 24px;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .header-title-box {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .content-title {
+                font-size: 30px;
+                font-weight: 700;
+                letter-spacing: -0.8px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: var(--text-primary);
+            }
+
+            .content-subtitle {
+                font-size: 14px;
+                color: var(--text-secondary);
+            }
+
+            .live-telemetry-badge {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                font-weight: 600;
+                background: rgba(16, 185, 129, 0.12);
+                color: var(--accent-success);
+                border: 1px solid rgba(16, 185, 129, 0.3);
+                padding: 4px 10px;
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                letter-spacing: 0.5px;
+            }
+
+            .live-telemetry-badge .dot {
+                width: 6px;
+                height: 6px;
+                background: var(--accent-success);
+                border-radius: 50%;
+                box-shadow: 0 0 6px var(--accent-success);
+                animation: ping 2s infinite;
+            }
+
+            @keyframes ping {
+
+                0%,
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+
+                50% {
+                    transform: scale(1.4);
+                    opacity: 0.6;
+                }
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            /* Premium White & Black Buttons */
+            .btn-white {
+                background: var(--brand-primary);
+                color: var(--brand-text);
+                border: 1px solid var(--brand-primary);
+                padding: 9px 18px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                font-family: var(--font-sans);
+                box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+                text-decoration: none;
+            }
+
+            .btn-white:hover {
+                background: var(--brand-hover);
+                border-color: var(--brand-hover);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
+            }
+
+            .btn-outline {
+                background: transparent;
+                color: var(--text-primary);
+                border: 1px solid var(--border-faint);
+                padding: 9px 18px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                font-family: var(--font-sans);
+                text-decoration: none;
+            }
+
+            .btn-outline:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-hover);
+            }
+
+            /* ── Search & Filter Control Row ─────────────────────────────────── */
+            .controls-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 24px;
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 16px;
+                padding: 12px 20px;
+            }
+
+            .search-input-box {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+            }
+
+            .search-input-box input {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: var(--text-primary);
+                font-size: 14px;
+                width: 100%;
+                font-family: var(--font-sans);
+            }
+
+            .search-input-box input::placeholder {
+                color: var(--text-muted);
+            }
+
+            .filter-stats {
+                font-size: 12px;
+                font-family: var(--font-mono);
+                color: var(--text-secondary);
+                background: var(--bg-hover);
+                padding: 4px 10px;
+                border-radius: 12px;
+                white-space: nowrap;
+            }
+
+            /* ── Mobile Tab Navigation ────────────────────────────────────────── */
+            .mobile-tabs {
+                display: none;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 8px;
+                margin-bottom: 20px;
+                scrollbar-width: none;
+            }
+
+            .mobile-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .mobile-tab-pill {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                color: var(--text-secondary);
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 500;
+                white-space: nowrap;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .mobile-tab-pill.active {
+                background: var(--brand-primary);
+                color: var(--brand-text);
+                font-weight: 700;
+                border-color: var(--brand-primary);
+            }
+
+            .mobile-tab-pill .pill-badge {
+                font-size: 11px;
+                background: rgba(0, 0, 0, 0.15);
+                padding: 1px 6px;
+                border-radius: 10px;
+                font-family: var(--font-mono);
+            }
+
+            .mobile-tab-pill.active .pill-badge {
+                background: #000000;
+                color: #FFFFFF;
+            }
+
+            /* ── Notifications Feed & Cards ───────────────────────────────────── */
+            .notifications-feed {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .notif-card {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 18px;
+                padding: 24px;
+                display: grid;
+                grid-template-columns: 52px minmax(0, 1fr) auto;
+                gap: 20px;
+                align-items: start;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                position: relative;
+            }
+
+            .notif-card:hover {
+                border-color: var(--border-hover);
+                background: var(--bg-surface-elevated);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-card);
+            }
+
+            /* Unread State Custom Styling */
+            .notif-card.is-unread {
+                border-left: 3px solid var(--brand-primary);
+                background: rgba(255, 255, 255, 0.03);
+            }
+
+            .notif-card.is-unread:hover {
+                background: rgba(255, 255, 255, 0.06);
+            }
+
+            .card-avatar-col {
+                position: relative;
+                display: flex;
+                justify-content: center;
+            }
+
+            .notif-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid var(--border-faint);
+                background: #18181B;
+            }
+
+            .category-icon-badge {
+                position: absolute;
+                bottom: -4px;
+                right: -4px;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: var(--bg-surface-elevated);
+                border: 2px solid var(--bg-surface);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+            }
+
+            .category-icon-badge i {
+                width: 13px;
+                height: 13px;
+            }
+
+            /* Center Content Area */
+            .card-content-col {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                min-width: 0;
+            }
+
+            .notif-header-meta {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .notif-type-tag {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                font-weight: 700;
+                text-transform: uppercase;
+                padding: 2px 8px;
+                border-radius: 6px;
+                letter-spacing: 0.5px;
+                background: var(--bg-hover);
+            }
+
+            .notif-time {
+                font-size: 12px;
+                color: var(--text-muted);
+                font-family: var(--font-mono);
+            }
+
+            .unread-indicator-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--brand-primary);
+                box-shadow: 0 0 6px #FFFFFF;
+            }
+
+            .notif-title {
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--text-primary);
+                line-height: 1.4;
+            }
+
+            .notif-target-title {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--brand-hover);
+                text-decoration: none;
+                display: inline-block;
+                transition: color 0.2s;
+            }
+
+            .notif-target-title:hover {
+                text-decoration: underline;
+                color: #FFFFFF;
+            }
+
+            .notif-quote-box {
+                background: #000000;
+                border-left: 2px solid var(--border-hover);
+                border-radius: 0 8px 8px 0;
+                padding: 12px 16px;
+                font-size: 13px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                font-style: italic;
+            }
+
+            /* Inline Interactive Action Toolbar */
+            .interactive-toolbar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 4px;
+            }
+
+            .btn-inline-action {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                background: var(--bg-hover);
+                border: 1px solid var(--border-faint);
+                color: var(--text-primary);
+                padding: 6px 14px;
+                border-radius: 16px;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-family: var(--font-sans);
+            }
+
+            .btn-inline-action:hover {
+                background: rgba(255, 255, 255, 0.15);
+                border-color: var(--text-primary);
+                transform: scale(1.02);
+            }
+
+            .btn-inline-action.success-state {
+                background: rgba(16, 185, 129, 0.15);
+                border-color: rgba(16, 185, 129, 0.4);
+                color: #10B981;
+                pointer-events: none;
+            }
+
+            .custom-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                font-size: 11px;
+                font-weight: 600;
+                font-family: var(--font-mono);
+                padding: 4px 10px;
+                border-radius: 20px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid var(--border-faint);
+            }
+
+            /* Right Action Tools */
+            .card-actions-col {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 12px;
+                min-height: 100%;
+            }
+
+            .action-link-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                color: #000000;
+                background: #FFFFFF;
+                border: 1px solid #FFFFFF;
+                padding: 7px 14px;
+                border-radius: 20px;
+                text-decoration: none;
+                transition: all 0.2s;
+                white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+            }
+
+            .action-link-btn:hover {
+                background: #E4E4E7;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(255, 255, 255, 0.25);
+            }
+
+            .tool-btn-group {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .tool-btn {
+                background: transparent;
+                border: 1px solid var(--border-faint);
+                color: var(--text-muted);
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .tool-btn:hover {
+                background: var(--bg-hover);
+                color: var(--text-primary);
+                border-color: var(--border-hover);
+            }
+
+            .tool-btn.delete-btn:hover {
+                color: var(--accent-error);
+                background: rgba(234, 67, 53, 0.12);
+                border-color: rgba(234, 67, 53, 0.3);
+            }
+
+            /* ── Zero / Empty State ────────────────────────────────────────────── */
+            .zero-state-card {
+                background: var(--bg-surface);
+                border: 1px dashed var(--border-faint);
+                border-radius: 24px;
+                padding: 80px 32px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                max-width: 600px;
+                margin: 20px auto;
+            }
+
+            .zero-icon-wrapper {
+                width: 72px;
+                height: 72px;
+                border-radius: 50%;
+                background: var(--bg-hover);
+                border: 1px solid var(--border-faint);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20px;
+                color: var(--text-secondary);
+            }
+
+            .zero-state-card h3 {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                color: var(--text-primary);
+            }
+
+            .zero-state-card p {
+                font-size: 14px;
+                color: var(--text-secondary);
+                line-height: 1.6;
+                max-width: 420px;
+                margin-bottom: 24px;
+            }
+
+            /* ── Quick Reply Modal ────────────────────────────────────────────── */
+            .modal-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                backdrop-filter: blur(8px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 3000;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+                padding: 20px;
+            }
+
+            .modal-backdrop.open {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .reply-modal {
+                background: var(--bg-surface-elevated);
+                border: 1px solid var(--border-hover);
+                border-radius: 20px;
+                width: 100%;
+                max-width: 540px;
+                padding: 28px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+                transform: scale(0.95);
+                transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .modal-backdrop.open .reply-modal {
+                transform: scale(1);
+            }
+
+            .modal-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .modal-close-btn {
+                background: transparent;
+                border: none;
+                color: var(--text-muted);
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 6px;
+                transition: all 0.2s;
+            }
+
+            .modal-close-btn:hover {
+                background: var(--bg-hover);
+                color: #fff;
+            }
+
+            .reply-textarea {
+                width: 100%;
+                height: 140px;
+                background: #000000;
+                border: 1px solid var(--border-faint);
+                border-radius: 12px;
+                padding: 14px;
+                color: var(--text-primary);
+                font-family: var(--font-mono);
+                font-size: 13px;
+                line-height: 1.5;
+                resize: none;
+                outline: none;
+                margin-bottom: 20px;
+                transition: border-color 0.2s;
+            }
+
+            .reply-textarea:focus {
+                border-color: #FFFFFF;
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            }
+
+            .modal-footer {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 12px;
+            }
+
+            /* ── Toast Component ───────────────────────────────────────────────── */
+            .notif-toast {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: var(--bg-surface-elevated);
+                border: 1px solid var(--border-hover);
+                color: var(--text-primary);
+                padding: 14px 22px;
+                border-radius: 14px;
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 4000;
+                transform: translateY(100px);
+                opacity: 0;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                pointer-events: none;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            .notif-toast.show {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            @keyframes fadeSlideOut {
+                to {
+                    opacity: 0;
+                    transform: translateX(40px) scale(0.95);
+                    max-height: 0;
+                    padding-top: 0;
+                    padding-bottom: 0;
+                    margin-bottom: 0;
+                    border: none;
+                }
+            }
+
+            .card-removing {
+                animation: fadeSlideOut 0.3s forwards;
+                overflow: hidden;
+                pointer-events: none;
+            }
+
+            @media (max-width: 960px) {
+                .notif-layout {
+                    grid-template-columns: 240px minmax(0, 1fr);
+                }
+
+                .main-content {
+                    padding: 32px 32px 100px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .notif-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .sidebar {
+                    display: none;
+                }
+
+                .mobile-tabs {
+                    display: flex;
+                }
+
+                .main-content {
+                    padding: 24px 16px 100px;
+                }
+
+                .notif-card {
+                    grid-template-columns: 44px minmax(0, 1fr);
+                    gap: 14px;
+                    padding: 18px;
+                }
+
+                .card-actions-col {
+                    grid-column: 2 / 3;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                    width: 100%;
+                    margin-top: 8px;
+                    padding-top: 12px;
+                    border-top: 1px solid var(--border-faint);
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <div class="notif-layout">
+            <!-- Left Sidebar Navigation -->
+            <nav class="sidebar">
+                <span class="sidebar-section-title">Feed Telemetry</span>
+
+                <button class="sidebar-item active" data-filter="all">
+                    <i data-lucide="bell"></i> All Notifications
+                    <span class="sidebar-count" id="count-all">
+                        <%= notifications.length %>
+                    </span>
+                </button>
+
+                <button class="sidebar-item" data-filter="unread">
+                    <i data-lucide="inbox"></i> Unread Alerts
+                    <span class="sidebar-count" id="count-unread"
+                        style="background: var(--brand-primary); color: #000; font-weight: 700;">
+                        <%= unreadCount %>
+                    </span>
+                </button>
+
+                <button class="sidebar-item" data-filter="comment">
+                    <i data-lucide="message-square"></i> Comments & Mentions
+                    <span class="sidebar-count" id="count-comment">
+                        <%= notifications.filter(n=> n.category === 'comment').length %>
+                    </span>
+                </button>
+
+                <button class="sidebar-item" data-filter="solution">
+                    <i data-lucide="check-circle-2"></i> Solutions & Milestones
+                    <span class="sidebar-count" id="count-solution">
+                        <%= notifications.filter(n=> n.category === 'solution').length %>
+                    </span>
+                </button>
+
+                <button class="sidebar-item" data-filter="system">
+                    <i data-lucide="shield-alert"></i> System & Security
+                    <span class="sidebar-count" id="count-system">
+                        <%= notifications.filter(n=> n.category === 'system').length %>
+                    </span>
+                </button>
+
+                <span class="sidebar-section-title" style="margin-top: 16px;">Telemetry Settings</span>
+
+                <div class="sidebar-footer-card">
+                    <h4><i data-lucide="sliders" style="width:16px;"></i> Digest Triage</h4>
+                    <p>Customize email alert frequencies and disable high-volume telemetry noise in your workspace.</p>
+                    <a href="/settings" class="btn-settings-link">
+                        <span>Manage Preferences</span>
+                        <i data-lucide="arrow-right" style="width:14px;"></i>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main Feed Content -->
+            <main class="main-content">
+                <div class="content-header">
+                    <div class="header-title-box">
+                        <h1 class="content-title">
+                            <span>Notifications</span>
+                            <span class="live-telemetry-badge">
+                                <span class="dot"></span> LIVE TELEMETRY
+                            </span>
+                        </h1>
+                        <p class="content-subtitle">Real-time developer dispatches, war story mentions, and resolution
+                            telemetry.</p>
+                    </div>
+
+                    <div class="header-actions">
+                        <% if (unreadCount> 0) { %>
+                            <button class="btn-white" id="markAllReadBtn">
+                                <i data-lucide="check-check" style="width:16px;"></i>
+                                <span>Mark All Read</span>
+                            </button>
+                            <% } else { %>
+                                <button class="btn-outline" id="markAllReadBtn" disabled
+                                    style="opacity: 0.5; cursor: not-allowed;">
+                                    <i data-lucide="check-check" style="width:16px;"></i>
+                                    <span>All Read</span>
+                                </button>
+                                <% } %>
+                    </div>
+                </div>
+
+                <!-- Mobile Scrolling Filter Tabs -->
+                <div class="mobile-tabs">
+                    <button class="mobile-tab-pill active" data-filter="all">
+                        <span>All</span>
+                        <span class="pill-badge" id="mcount-all">
+                            <%= notifications.length %>
+                        </span>
+                    </button>
+                    <button class="mobile-tab-pill" data-filter="unread">
+                        <span>Unread</span>
+                        <span class="pill-badge" id="mcount-unread">
+                            <%= unreadCount %>
+                        </span>
+                    </button>
+                    <button class="mobile-tab-pill" data-filter="comment">
+                        <span>Mentions</span>
+                        <span class="pill-badge" id="mcount-comment">
+                            <%= notifications.filter(n=> n.category === 'comment').length %>
+                        </span>
+                    </button>
+                    <button class="mobile-tab-pill" data-filter="solution">
+                        <span>Solutions</span>
+                        <span class="pill-badge" id="mcount-solution">
+                            <%= notifications.filter(n=> n.category === 'solution').length %>
+                        </span>
+                    </button>
+                    <button class="mobile-tab-pill" data-filter="system">
+                        <span>System</span>
+                        <span class="pill-badge" id="mcount-system">
+                            <%= notifications.filter(n=> n.category === 'system').length %>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Search Controls Row -->
+                <div class="controls-row">
+                    <div class="search-input-box">
+                        <i data-lucide="search" style="width:18px; color: var(--text-muted);"></i>
+                        <input type="text" id="notifSearchInput"
+                            placeholder="Filter alerts by developer name, war story title, or keyword..."
+                            autocomplete="off">
+                        <button id="clearSearchBtn"
+                            style="display:none; background:transparent; border:none; color:var(--text-muted); cursor:pointer;">
+                            <i data-lucide="x" style="width:16px;"></i>
+                        </button>
+                    </div>
+                    <div class="filter-stats" id="filterStatsText">
+                        Showing <%= notifications.length %> items
+                    </div>
+                </div>
+
+                <!-- Notifications Feed Grid -->
+                <div class="notifications-feed" id="notificationsFeed">
+                    <% notifications.forEach((item)=> { %>
+                        <article class="notif-card <%= item.unread ? 'is-unread' : '' %>" data-id="<%= item.id %>"
+                            data-category="<%= item.category %>" data-unread="<%= item.unread ? 'true' : 'false' %>">
+                            <!-- Left Avatar & Icon -->
+                            <div class="card-avatar-col">
+                                <img src="<%= item.avatar %>" alt="Avatar" class="notif-avatar">
+                                <div class="category-icon-badge" style="color: <%= item.badgeColor || '#fff' %>;">
+                                    <i data-lucide="<%= item.icon || 'bell' %>"></i>
+                                </div>
+                            </div>
+
+                            <!-- Center Body -->
+                            <div class="card-content-col">
+                                <div class="notif-header-meta">
+                                    <% if (item.unread) { %>
+                                        <span class="unread-indicator-dot" title="Unread alert"></span>
+                                        <% } %>
+                                            <span class="notif-type-tag"
+                                                style="border: 1px solid <%= item.badgeColor %>33; color: <%= item.badgeColor %>;">
+                                                <%= item.typeLabel %>
+                                            </span>
+                                            <span class="notif-time">
+                                                <%= item.timestamp %>
+                                            </span>
+                                </div>
+
+                                <div class="notif-title">
+                                    <%= item.title %>:
+                                        <a href="<%= item.link || '/' %>" class="notif-target-title">
+                                            <%= item.targetTitle %>
+                                        </a>
+                                </div>
+
+                                <div class="notif-quote-box">
+                                    <%= item.content %>
+                                </div>
+
+                                <!-- Inline Interactive Action Toolbar -->
+                                <div class="interactive-toolbar">
+                                    <span class="custom-badge" style="color: <%= item.badgeColor %>;">
+                                        <i data-lucide="<%= item.icon %>" style="width: 13px;"></i>
+                                        <%= item.badgeText %>
+                                    </span>
+
+                                    <!-- Dedicated interactive action buttons for each notification type! -->
+                                    <% if (item.interactiveType==='reply' ) { %>
+                                        <button class="btn-inline-action"
+                                            onclick="openReplyModal('<%= item.id %>', '<%= item.targetUser %>')">
+                                            <i data-lucide="corner-down-left" style="width: 13px;"></i>
+                                            <span>Quick Reply</span>
+                                        </button>
+                                        <% } else if (item.interactiveType==='claim_rep' ) { %>
+                                            <button class="btn-inline-action"
+                                                onclick="claimRepAction(this, '<%= item.id %>')">
+                                                <i data-lucide="gift" style="width: 13px; color: #10B981;"></i>
+                                                <span>Claim Rep & Badge</span>
+                                            </button>
+                                            <% } else if (item.interactiveType==='leaderboard' ) { %>
+                                                <a href="/leaderboard" class="btn-inline-action"
+                                                    style="text-decoration:none;">
+                                                    <i data-lucide="trophy" style="width: 13px; color: #F59E0B;"></i>
+                                                    <span>View Leaderboard Ranking</span>
+                                                </a>
+                                                <% } else if (item.interactiveType==='digest' ) { %>
+                                                    <button class="btn-inline-action"
+                                                        onclick="saveDigestAction(this, '<%= item.id %>')">
+                                                        <i data-lucide="bookmark" style="width: 13px;"></i>
+                                                        <span>Save Digest to Workspace</span>
+                                                    </button>
+                                                    <% } else if (item.interactiveType==='follow_back' ) { %>
+                                                        <button class="btn-inline-action"
+                                                            onclick="followBackAction(this, '<%= item.id %>', '<%= item.targetUser %>')">
+                                                            <i data-lucide="user-plus"
+                                                                style="width: 13px; color: #6366F1;"></i>
+                                                            <span>Follow Back @<%= item.targetUser %></span>
+                                                        </button>
+                                                        <% } else if (item.interactiveType==='security_verify' ) { %>
+                                                            <button class="btn-inline-action"
+                                                                onclick="verifySecurityAction(this, '<%= item.id %>')">
+                                                                <i data-lucide="shield-check"
+                                                                    style="width: 13px; color: #10B981;"></i>
+                                                                <span>Acknowledge Device</span>
+                                                            </button>
+                                                            <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Right Action Column -->
+                            <div class="card-actions-col">
+                                <a href="<%= item.link || '/' %>" class="action-link-btn">
+                                    <span>
+                                        <%= item.actionText || 'View' %>
+                                    </span>
+                                    <i data-lucide="chevron-right" style="width:14px;"></i>
+                                </a>
+
+                                <div class="tool-btn-group">
+                                    <button class="tool-btn toggle-read-btn"
+                                        title="<%= item.unread ? 'Mark as read' : 'Mark as unread' %>"
+                                        onclick="toggleReadState(this, '<%= item.id %>')">
+                                        <i data-lucide="<%= item.unread ? 'mail-open' : 'mail' %>"></i>
+                                    </button>
+                                    <button class="tool-btn delete-btn" title="Remove notification"
+                                        onclick="deleteNotification(this, '<%= item.id %>')">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                        <% }); %>
+                </div>
+
+                <!-- Zero State -->
+                <div id="zeroState" class="zero-state-card" style="display: none;">
+                    <div class="zero-icon-wrapper">
+                        <i data-lucide="bell-off" style="width: 36px; height: 36px;"></i>
+                    </div>
+                    <h3>All Telemetry Clear</h3>
+                    <p id="zeroStateDesc">You have zero alerts matching your current filter. You are fully caught up on
+                        developer war stories!</p>
+                    <button class="btn-white" id="resetFiltersBtn" style="margin-top: 10px;">
+                        <i data-lucide="rotate-ccw" style="width:16px;"></i>
+                        <span>Reset Feed Filters</span>
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Quick Reply Interactive Modal -->
+        <div class="modal-backdrop" id="replyModalBackdrop">
+            <div class="reply-modal">
+                <div class="modal-header">
+                    <span class="modal-title">
+                        <i data-lucide="message-square" style="color: #3B82F6;"></i>
+                        <span id="replyModalTitle">Reply in Thread</span>
+                    </span>
+                    <button class="modal-close-btn" onclick="closeReplyModal()">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Transmit an immediate
+                    resolution hint to the developer discussion thread:</p>
+                <textarea class="reply-textarea" id="replyInputText"
+                    placeholder="Write your technical insight or solution script here... (e.g. tuning ndots:5 or dnsPolicy: ClusterFirstWithHostNet)"></textarea>
+                <div class="modal-footer">
+                    <button class="btn-outline" onclick="closeReplyModal()">Cancel</button>
+                    <button class="btn-white" onclick="submitQuickReply()">
+                        <i data-lucide="send" style="width: 14px;"></i>
+                        <span>Transmit Reply</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Banner -->
+        <div class="notif-toast" id="notifToast">
+            <i data-lucide="sparkles" style="width:20px; color: #10B981;"></i>
+            <span id="toastText">Action completed successfully</span>
+        </div>
+
+        <%- include('../partials/footer') %>
+
+            <!-- ── Interactive Client-Side JavaScript ──────────────────────────────── -->
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                    let activeFilter = 'all';
+                    let searchQuery = '';
+                    let currentReplyNotifId = null;
+                    let currentReplyTargetUser = '';
+
+                    const feedContainer = document.getElementById('notificationsFeed');
+                    const cards = Array.from(document.querySelectorAll('.notif-card'));
+                    const zeroState = document.getElementById('zeroState');
+                    const zeroDesc = document.getElementById('zeroStateDesc');
+                    const statsText = document.getElementById('filterStatsText');
+                    const searchInput = document.getElementById('notifSearchInput');
+                    const clearBtn = document.getElementById('clearSearchBtn');
+                    const resetBtn = document.getElementById('resetFiltersBtn');
+                    const markAllBtn = document.getElementById('markAllReadBtn');
+
+                    // --- 1. Filter & Search Logic ---
+                    function updateFeedDisplay() {
+                        let visibleCount = 0;
+                        cards.forEach(card => {
+                            if (!card.parentElement) return;
+                            const isUnread = card.dataset.unread === 'true';
+                            const category = card.dataset.category;
+                            const cardText = card.innerText.toLowerCase();
+
+                            let matchesTab = (activeFilter === 'all') || (activeFilter === 'unread' && isUnread) || (category === activeFilter);
+                            let matchesSearch = !searchQuery || cardText.includes(searchQuery);
+
+                            if (matchesTab && matchesSearch) {
+                                card.style.display = 'grid';
+                                visibleCount++;
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        if (statsText) statsText.innerText = `Showing ${visibleCount} ${visibleCount === 1 ? 'item' : 'items'}`;
+
+                        if (visibleCount === 0) {
+                            feedContainer.style.display = 'none';
+                            zeroState.style.display = 'flex';
+                            zeroDesc.innerText = searchQuery
+                                ? `No alerts matching "${searchQuery}" in this view. Try broadening your criteria.`
+                                : (activeFilter === 'unread' ? `Zero unread alerts in your terminal. You're completely caught up!` : `Zero notifications found under the "${activeFilter}" collection.`);
+                        } else {
+                            feedContainer.style.display = 'flex';
+                            zeroState.style.display = 'none';
+                        }
+
+                        recalculateSideCounters();
+                    }
+
+                    // --- 2. Counters Updater ---
+                    function recalculateSideCounters() {
+                        const existing = cards.filter(c => c.parentElement);
+                        const countAll = existing.length;
+                        const countUnread = existing.filter(c => c.dataset.unread === 'true').length;
+                        const countComment = existing.filter(c => c.dataset.category === 'comment').length;
+                        const countSol = existing.filter(c => c.dataset.category === 'solution').length;
+                        const countSys = existing.filter(c => c.dataset.category === 'system').length;
+
+                        ['count', 'mcount'].forEach(prefix => {
+                            if (document.getElementById(`${prefix}-all`)) document.getElementById(`${prefix}-all`).innerText = countAll;
+                            if (document.getElementById(`${prefix}-unread`)) document.getElementById(`${prefix}-unread`).innerText = countUnread;
+                            if (document.getElementById(`${prefix}-comment`)) document.getElementById(`${prefix}-comment`).innerText = countComment;
+                            if (document.getElementById(`${prefix}-solution`)) document.getElementById(`${prefix}-solution`).innerText = countSol;
+                            if (document.getElementById(`${prefix}-system`)) document.getElementById(`${prefix}-system`).innerText = countSys;
+                        });
+
+                        const headerBadge = document.querySelector('.notification-badge');
+                        if (headerBadge) headerBadge.style.display = countUnread > 0 ? 'block' : 'none';
+
+                        if (markAllBtn) {
+                            if (countUnread > 0) {
+                                markAllBtn.className = 'btn-white';
+                                markAllBtn.disabled = false;
+                                markAllBtn.style.opacity = '1';
+                                markAllBtn.style.cursor = 'pointer';
+                                markAllBtn.querySelector('span').innerText = 'Mark All Read';
+                            } else {
+                                markAllBtn.className = 'btn-outline';
+                                markAllBtn.disabled = true;
+                                markAllBtn.style.opacity = '0.5';
+                                markAllBtn.style.cursor = 'not-allowed';
+                                markAllBtn.querySelector('span').innerText = 'All Read';
+                            }
+                        }
+                    }
+
+                    // --- 3. Sidebar & Mobile Clicks ---
+                    document.querySelectorAll('.sidebar-item, .mobile-tab-pill').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.sidebar-item, .mobile-tab-pill').forEach(el => el.classList.remove('active'));
+                            activeFilter = btn.dataset.filter;
+                            document.querySelectorAll(`[data-filter="${activeFilter}"]`).forEach(el => el.classList.add('active'));
+                            updateFeedDisplay();
+                        });
+                    });
+
+                    // --- 4. Search Bar Input ---
+                    if (searchInput) {
+                        searchInput.addEventListener('input', () => {
+                            searchQuery = searchInput.value.trim().toLowerCase();
+                            clearBtn.style.display = searchQuery ? 'block' : 'none';
+                            updateFeedDisplay();
+                        });
+                    }
+
+                    if (clearBtn) {
+                        clearBtn.addEventListener('click', () => {
+                            searchInput.value = ''; searchQuery = ''; clearBtn.style.display = 'none'; updateFeedDisplay(); searchInput.focus();
+                        });
+                    }
+
+                    if (resetBtn) {
+                        resetBtn.addEventListener('click', () => {
+                            if (searchInput) searchInput.value = '';
+                            searchQuery = ''; activeFilter = 'all';
+                            document.querySelectorAll('.sidebar-item, .mobile-tab-pill').forEach(el => el.classList.remove('active'));
+                            document.querySelectorAll(`[data-filter="all"]`).forEach(el => el.classList.add('active'));
+                            updateFeedDisplay();
+                            showToast('✨ Filters reset to default view');
+                        });
+                    }
+
+                    // --- 5. Mark All Read ---
+                    if (markAllBtn) {
+                        markAllBtn.addEventListener('click', async () => {
+                            cards.forEach(card => {
+                                if (card.dataset.unread === 'true') {
+                                    card.dataset.unread = 'false';
+                                    card.classList.remove('is-unread');
+                                    const dot = card.querySelector('.unread-indicator-dot');
+                                    if (dot) dot.remove();
+                                    const readBtn = card.querySelector('.toggle-read-btn');
+                                    if (readBtn) { readBtn.title = 'Mark as unread'; readBtn.innerHTML = `<i data-lucide="mail"></i>`; }
+                                }
+                            });
+                            if (typeof lucide !== 'undefined') lucide.createIcons();
+                            updateFeedDisplay();
+                            showToast('✨ All telemetry alerts marked as read');
+                            try { await fetch('/notifications/mark-all-read', { method: 'POST' }); } catch (e) { }
+                        });
+                    }
+
+                    // --- 6. Interactive Action Handlers for all 6 types! ---
+                    window.openReplyModal = function (notifId, targetUser) {
+                        currentReplyNotifId = notifId;
+                        currentReplyTargetUser = targetUser;
+                        document.getElementById('replyModalTitle').innerText = `Replying to ${targetUser}`;
+                        document.getElementById('replyModalBackdrop').classList.add('open');
+                        setTimeout(() => document.getElementById('replyInputText').focus(), 100);
+                    };
+
+                    window.closeReplyModal = function () {
+                        document.getElementById('replyModalBackdrop').classList.remove('open');
+                        document.getElementById('replyInputText').value = '';
+                    };
+
+                    window.submitQuickReply = async function () {
+                        const text = document.getElementById('replyInputText').value.trim();
+                        if (!text) { showToast('⚠️ Please enter a reply solution before transmitting'); return; }
+
+                        // Mark card as read if unread
+                        const card = document.querySelector(`.notif-card[data-id="${currentReplyNotifId}"]`);
+                        if (card && card.dataset.unread === 'true') {
+                            markSingleCardRead(card);
+                        }
+
+                        closeReplyModal();
+                        showToast(`🚀 Quick reply successfully transmitted to ${currentReplyTargetUser}!`);
+
+                        try {
+                            await fetch('/notifications/reply', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ notificationId: currentReplyNotifId, replyText: text, targetUser: currentReplyTargetUser })
+                            });
+                        } catch (e) { }
+                    };
+
+                    window.claimRepAction = async function (btn, notifId) {
+                        btn.innerHTML = `<i data-lucide="check" style="width:13px;"></i><span>✓ Rep & Badge Claimed</span>`;
+                        btn.classList.add('success-state');
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                        const card = btn.closest('.notif-card');
+                        if (card && card.dataset.unread === 'true') markSingleCardRead(card);
+
+                        showToast('🎉 +50 Reputation and Bug Slayer badge synced to your account!');
+                        try {
+                            await fetch('/notifications/action', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ notificationId: notifId, actionType: 'claim_rep' })
+                            });
+                        } catch (e) { }
+                    };
+
+                    window.saveDigestAction = function (btn, notifId) {
+                        btn.innerHTML = `<i data-lucide="check" style="width:13px;"></i><span>✓ Saved to Workspace</span>`;
+                        btn.classList.add('success-state');
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        showToast('📑 Weekly Digest bookmarked to your Saved Investigations!');
+                    };
+
+                    window.followBackAction = async function (btn, notifId, targetUser) {
+                        btn.innerHTML = `<i data-lucide="check" style="width:13px;"></i><span>✓ Following @${targetUser}</span>`;
+                        btn.classList.add('success-state');
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        showToast(`✨ You are now mutually connected with @${targetUser}!`);
+                        try {
+                            await fetch('/notifications/action', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ notificationId: notifId, actionType: 'follow_back', target: targetUser })
+                            });
+                        } catch (e) { }
+                    };
+
+                    window.verifySecurityAction = async function (btn, notifId) {
+                        btn.innerHTML = `<i data-lucide="check" style="width:13px;"></i><span>✓ Device Verified</span>`;
+                        btn.classList.add('success-state');
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        showToast('🔒 Session IP 192.168.1.1 acknowledged as trusted developer terminal.');
+                        try {
+                            await fetch('/notifications/action', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ notificationId: notifId, actionType: 'security_verify' })
+                            });
+                        } catch (e) { }
+                    };
+
+                    function markSingleCardRead(card) {
+                        card.dataset.unread = 'false';
+                        card.classList.remove('is-unread');
+                        const dot = card.querySelector('.unread-indicator-dot');
+                        if (dot) dot.remove();
+                        const readBtn = card.querySelector('.toggle-read-btn');
+                        if (readBtn) { readBtn.title = 'Mark as unread'; readBtn.innerHTML = `<i data-lucide="mail"></i>`; }
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        updateFeedDisplay();
+                    }
+
+                    // --- 7. Toggle Read & Delete ---
+                    window.toggleReadState = async function (btn, id) {
+                        const card = btn.closest('.notif-card');
+                        if (!card) return;
+                        const nextState = card.dataset.unread !== 'true';
+                        card.dataset.unread = nextState ? 'true' : 'false';
+
+                        if (nextState) {
+                            card.classList.add('is-unread');
+                            btn.title = 'Mark as read';
+                            btn.innerHTML = `<i data-lucide="mail-open"></i>`;
+                            const meta = card.querySelector('.notif-header-meta');
+                            if (meta && !meta.querySelector('.unread-indicator-dot')) {
+                                const dot = document.createElement('span');
+                                dot.className = 'unread-indicator-dot'; dot.title = 'Unread alert';
+                                meta.prepend(dot);
+                            }
+                            showToast('Alert marked as unread');
+                        } else {
+                            card.classList.remove('is-unread');
+                            btn.title = 'Mark as unread';
+                            btn.innerHTML = `<i data-lucide="mail"></i>`;
+                            const dot = card.querySelector('.unread-indicator-dot');
+                            if (dot) dot.remove();
+                            showToast('✨ Alert marked as read');
+                        }
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        updateFeedDisplay();
+                        try {
+                            await fetch(`/notifications/${id}/toggle-read`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ unread: nextState })
+                            });
+                        } catch (e) { }
+                    };
+
+                    window.deleteNotification = async function (btn, id) {
+                        const card = btn.closest('.notif-card');
+                        if (!card) return;
+                        card.classList.add('card-removing');
+                        setTimeout(() => { card.remove(); updateFeedDisplay(); showToast('🗑️ Alert dismissed from telemetry feed'); }, 300);
+                        try { await fetch(`/notifications/${id}`, { method: 'DELETE' }); } catch (e) { }
+                    };
+
+                    // Keyboard shortcut to close reply modal
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && document.getElementById('replyModalBackdrop').classList.contains('open')) {
+                            closeReplyModal();
+                        }
+                    });
+
+                    // --- 8. Toast Notifier ---
+                    function showToast(message) {
+                        const toast = document.getElementById('notifToast');
+                        const text = document.getElementById('toastText');
+                        if (!toast || !text) return;
+                        text.innerText = message;
+                        toast.classList.add('show');
+                        clearTimeout(window._toastTimeout);
+                        window._toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3500);
+                    }
+
+                    updateFeedDisplay();
+                });
+            </script>
+</body>
+
+</html>

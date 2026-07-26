@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            /* ── Strict Black & White Material Dark Theme ────────────────────── */
+            :root {
+                --bg-base: #000000;
+                --bg-surface: #121214;
+                --bg-surface-elevated: #18181B;
+                --bg-hover: rgba(255, 255, 255, 0.08);
+                --bg-active: rgba(255, 255, 255, 0.14);
+                --border-faint: #27272A;
+                --border-hover: #3F3F46;
+                --border-focus: #FFFFFF;
+
+                --text-primary: #FFFFFF;
+                --text-secondary: #A1A1AA;
+                --text-muted: #71717A;
+
+                --brand-primary: #FFFFFF;
+                --brand-hover: #E4E4E7;
+                --brand-text: #000000;
+
+                --accent-success: #10B981;
+                --accent-info: #3B82F6;
+                --accent-warning: #F59E0B;
+                --accent-error: #EF4444;
+
+                --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.6);
+                --font-mono: 'JetBrains Mono', monospace;
+                --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: var(--font-sans);
+                background: var(--bg-base);
+                color: var(--text-primary);
+                -webkit-font-smoothing: antialiased;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            /* ── Main Layout & Fixed Grid ──────────────────────────────────────── */
+            .settings-page-wrapper {
+                max-width: 1380px;
+                margin: 0 auto;
+                padding: 40px 48px 120px;
+                min-height: calc(100vh - 64px);
+            }
+
+            .settings-top-header {
+                margin-bottom: 32px;
+                padding-bottom: 24px;
+                border-bottom: 1px solid var(--border-faint);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .header-title-box {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .settings-main-title {
+                font-size: 32px;
+                font-weight: 800;
+                letter-spacing: -1px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                color: var(--text-primary);
+            }
+
+            .settings-main-subtitle {
+                font-size: 15px;
+                color: var(--text-secondary);
+                max-width: 600px;
+            }
+
+            .workspace-badge {
+                font-family: var(--font-mono);
+                font-size: 12px;
+                background: rgba(255, 255, 255, 0.08);
+                border: 1px solid var(--border-faint);
+                padding: 6px 14px;
+                border-radius: 20px;
+                color: #FFFFFF;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .workspace-badge .pulse-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--accent-success);
+                box-shadow: 0 0 8px var(--accent-success);
+            }
+
+            .settings-grid {
+                display: grid;
+                grid-template-columns: 280px minmax(0, 1fr);
+                gap: 44px;
+                align-items: start;
+            }
+
+            /* ── Fixed / Sticky Left Sidebar ───────────────────────────────────── */
+            .settings-sidebar {
+                position: sticky;
+                top: 88px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                max-height: calc(100vh - 120px);
+                overflow-y: auto;
+                padding-right: 6px;
+                scrollbar-width: none;
+            }
+
+            .settings-sidebar::-webkit-scrollbar {
+                display: none;
+            }
+
+            .sidebar-section-title {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                letter-spacing: 1px;
+                padding: 8px 14px 4px;
+                font-family: var(--font-mono);
+            }
+
+            .nav-tab-btn {
+                background: transparent;
+                border: 1px solid transparent;
+                color: var(--text-secondary);
+                padding: 12px 16px;
+                border-radius: 14px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                text-align: left;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                font-family: var(--font-sans);
+                width: 100%;
+            }
+
+            .nav-tab-btn:hover {
+                background: var(--bg-hover);
+                color: var(--text-primary);
+                border-color: rgba(255, 255, 255, 0.04);
+            }
+
+            .nav-tab-btn.active {
+                background: var(--bg-surface-elevated);
+                color: var(--brand-primary);
+                font-weight: 700;
+                border-color: var(--border-hover);
+                box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-tab-btn i {
+                width: 18px;
+                height: 18px;
+                flex-shrink: 0;
+            }
+
+            .nav-tab-btn.danger-btn {
+                color: var(--accent-error);
+            }
+
+            .nav-tab-btn.danger-btn:hover {
+                background: rgba(239, 68, 68, 0.1);
+                border-color: rgba(239, 68, 68, 0.2);
+            }
+
+            .nav-tab-btn.danger-btn.active {
+                background: rgba(239, 68, 68, 0.15);
+                border-color: rgba(239, 68, 68, 0.4);
+                color: #FF6B6B;
+            }
+
+            .sidebar-status-card {
+                margin-top: 24px;
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 16px;
+                padding: 18px;
+                font-size: 13px;
+            }
+
+            .sidebar-status-card h4 {
+                font-weight: 700;
+                color: #FFFFFF;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+
+            .sidebar-status-card p {
+                color: var(--text-secondary);
+                font-size: 12px;
+                line-height: 1.5;
+                margin-bottom: 12px;
+            }
+
+            /* ── Main Content Sections ─────────────────────────────────────────── */
+            .settings-content-area {
+                min-width: 0;
+                position: relative;
+            }
+
+            .settings-section {
+                display: none;
+                flex-direction: column;
+                gap: 32px;
+                animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+
+            .settings-section.active {
+                display: flex;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(8px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .section-header-row {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                border-bottom: 1px solid var(--border-faint);
+                padding-bottom: 18px;
+                margin-bottom: 4px;
+            }
+
+            .section-title {
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .section-desc {
+                font-size: 14px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+            }
+
+            /* ── Cards & Containers ────────────────────────────────────────────── */
+            .settings-card {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 20px;
+                padding: 28px;
+                display: flex;
+                flex-direction: column;
+                gap: 22px;
+                box-shadow: var(--shadow-card);
+                position: relative;
+                overflow: hidden;
+                transition: border-color 0.2s;
+            }
+
+            .settings-card:hover {
+                border-color: var(--border-hover);
+            }
+
+            .settings-card.danger-card {
+                border-color: rgba(239, 68, 68, 0.3);
+                background: rgba(239, 68, 68, 0.03);
+            }
+
+            .card-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .card-header-titles h3 {
+                font-size: 17px;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-bottom: 4px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .card-header-titles p {
+                font-size: 13px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+                max-width: 540px;
+            }
+
+            /* ── Live Banner Preview Component ─────────────────────────────────── */
+            .live-preview-box {
+                background: var(--bg-base);
+                border: 1px solid var(--border-faint);
+                border-radius: 18px;
+                overflow: hidden;
+                position: relative;
+                margin-bottom: 8px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            }
+
+            .preview-banner {
+                width: 100%;
+                height: 180px;
+                object-fit: cover;
+                background: #18181B;
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .preview-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 180px;
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+            }
+
+            .preview-content {
+                padding: 0 28px 24px;
+                margin-top: -44px;
+                position: relative;
+                z-index: 2;
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            .preview-identity {
+                display: flex;
+                align-items: flex-end;
+                gap: 18px;
+            }
+
+            .preview-avatar-wrapper {
+                position: relative;
+                width: 88px;
+                height: 88px;
+                flex-shrink: 0;
+            }
+
+            .preview-avatar {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid var(--bg-surface);
+                background: #27272A;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+            }
+
+            .online-status {
+                position: absolute;
+                bottom: 4px;
+                right: 4px;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: var(--accent-success);
+                border: 3px solid var(--bg-surface);
+            }
+
+            .preview-text {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding-bottom: 4px;
+            }
+
+            .preview-name {
+                font-size: 22px;
+                font-weight: 800;
+                color: #FFFFFF;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .preview-handle {
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+
+            .preview-bio {
+                font-size: 13px;
+                color: var(--text-secondary);
+                max-width: 520px;
+                margin-top: 6px;
+                line-height: 1.5;
+            }
+
+            /* Curated Preset Banner Selector */
+            .preset-banners-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-top: 6px;
+            }
+
+            .preset-banner-btn {
+                background: var(--bg-base);
+                border: 2px solid var(--border-faint);
+                border-radius: 12px;
+                height: 64px;
+                overflow: hidden;
+                cursor: pointer;
+                position: relative;
+                transition: all 0.2s;
+            }
+
+            .preset-banner-btn:hover {
+                border-color: var(--text-primary);
+                transform: scale(1.02);
+            }
+
+            .preset-banner-btn.selected {
+                border-color: var(--brand-primary);
+                box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+            }
+
+            .preset-banner-btn img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .preset-label {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: rgba(0, 0, 0, 0.75);
+                backdrop-filter: blur(4px);
+                color: #fff;
+                font-size: 10px;
+                font-family: var(--font-mono);
+                font-weight: 700;
+                text-align: center;
+                padding: 4px;
+                text-transform: uppercase;
+            }
+
+            /* ── Forms & Inputs ────────────────────────────────────────────────── */
+            .form-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .form-label {
+                font-size: 13px;
+                font-weight: 700;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-family: var(--font-sans);
+            }
+
+            .form-label-hint {
+                font-size: 11px;
+                font-weight: 500;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+            }
+
+            .form-input {
+                background: var(--bg-base);
+                border: 1px solid var(--border-faint);
+                border-radius: 12px;
+                padding: 12px 16px;
+                color: var(--text-primary);
+                font-size: 14px;
+                font-family: var(--font-sans);
+                outline: none;
+                transition: all 0.2s;
+                width: 100%;
+            }
+
+            .form-input:focus {
+                border-color: var(--border-focus);
+                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+                background: #000000;
+            }
+
+            .form-input::placeholder {
+                color: var(--text-muted);
+            }
+
+            .form-input.font-mono {
+                font-family: var(--font-mono);
+                font-size: 13px;
+            }
+
+            textarea.form-input {
+                min-height: 100px;
+                resize: vertical;
+                line-height: 1.6;
+            }
+
+            /* Premium Buttons */
+            .btn-white {
+                background: var(--brand-primary);
+                color: var(--brand-text);
+                border: 1px solid var(--brand-primary);
+                padding: 11px 22px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.2s;
+                text-decoration: none;
+                box-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
+                font-family: var(--font-sans);
+                width: fit-content;
+            }
+
+            .btn-white:hover {
+                background: var(--brand-hover);
+                border-color: var(--brand-hover);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
+            }
+
+            .btn-outline {
+                background: transparent;
+                color: var(--text-primary);
+                border: 1px solid var(--border-faint);
+                padding: 10px 20px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                text-decoration: none;
+                width: fit-content;
+                font-family: var(--font-sans);
+            }
+
+            .btn-outline:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-hover);
+            }
+
+            .btn-danger {
+                background: rgba(239, 68, 68, 0.15);
+                color: #FF6B6B;
+                border: 1px solid rgba(239, 68, 68, 0.4);
+                padding: 10px 20px;
+                border-radius: 24px;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                width: fit-content;
+            }
+
+            .btn-danger:hover {
+                background: rgba(239, 68, 68, 0.25);
+                border-color: #FF6B6B;
+            }
+
+            .form-footer-row {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 14px;
+                margin-top: 10px;
+                padding-top: 18px;
+                border-top: 1px solid var(--border-faint);
+            }
+
+            /* ── Toggle Switch Component ───────────────────────────────────────── */
+            .toggle-card-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                padding: 16px 20px;
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid var(--border-faint);
+                border-radius: 14px;
+                transition: all 0.2s;
+            }
+
+            .toggle-card-item:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-hover);
+            }
+
+            .toggle-label h4 {
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 4px;
+            }
+
+            .toggle-label p {
+                font-size: 13px;
+                color: var(--text-secondary);
+            }
+
+            .custom-switch {
+                position: relative;
+                display: inline-block;
+                width: 48px;
+                height: 26px;
+                flex-shrink: 0;
+            }
+
+            .custom-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: var(--border-faint);
+                transition: .25s;
+                border-radius: 30px;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .25s;
+                border-radius: 50%;
+            }
+
+            input:checked+.slider {
+                background-color: #FFFFFF;
+            }
+
+            input:checked+.slider:before {
+                transform: translateX(22px);
+                background-color: #000000;
+            }
+
+            /* ── Interactive Circle Loader & Toggle Status Badges ─────────────── */
+            .circle-loader-spin {
+                width: 16px;
+                height: 16px;
+                border: 2px solid rgba(245, 158, 11, 0.2);
+                border-top-color: #F59E0B;
+                border-radius: 50%;
+                animation: rotateCircle 0.6s linear infinite;
+                display: inline-block;
+                flex-shrink: 0;
+            }
+
+            @keyframes rotateCircle {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .toggle-status-badge {
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-family: var(--font-mono);
+                font-size: 11px;
+                font-weight: 700;
+                padding: 5px 12px;
+                border-radius: 20px;
+                border: 1px solid var(--border-faint);
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                user-select: none;
+            }
+
+            .toggle-status-badge.enabled {
+                background: rgba(16, 185, 129, 0.1);
+                border-color: rgba(16, 185, 129, 0.3);
+                color: #10B981;
+            }
+
+            .toggle-status-badge.muted {
+                background: rgba(255, 255, 255, 0.03);
+                border-color: var(--border-faint);
+                color: var(--text-muted);
+            }
+
+            .toggle-status-badge.updating {
+                background: rgba(245, 158, 11, 0.12);
+                border-color: rgba(245, 158, 11, 0.4);
+                color: #F59E0B;
+                box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+            }
+
+            .toggle-status-badge.saved {
+                background: rgba(16, 185, 129, 0.18);
+                border-color: rgba(16, 185, 129, 0.6);
+                color: #10B981;
+                box-shadow: 0 0 14px rgba(16, 185, 129, 0.3);
+                transform: scale(1.05);
+            }
+
+            .toggle-status-badge.error-badge {
+                background: rgba(239, 68, 68, 0.15);
+                border-color: rgba(239, 68, 68, 0.6);
+                color: #EF4444;
+                box-shadow: 0 0 14px rgba(239, 68, 68, 0.3);
+            }
+
+            /* ── Tables & Lists (Sessions, Tokens, OAuth) ──────────────────────── */
+            .settings-table {
+                width: 100%;
+                border-collapse: collapse;
+                text-align: left;
+            }
+
+            .settings-table th {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+                text-transform: uppercase;
+                padding: 12px 16px;
+                border-bottom: 1px solid var(--border-faint);
+                font-weight: 700;
+            }
+
+            .settings-table td {
+                padding: 16px;
+                border-bottom: 1px solid var(--border-faint);
+                font-size: 14px;
+                color: var(--text-primary);
+                vertical-align: middle;
+            }
+
+            .settings-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .session-info-box {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .session-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: var(--bg-base);
+                border: 1px solid var(--border-faint);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--text-secondary);
+                flex-shrink: 0;
+            }
+
+            .badge-tag {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-family: var(--font-mono);
+                font-weight: 700;
+                padding: 3px 10px;
+                border-radius: 12px;
+            }
+
+            .badge-success {
+                background: rgba(16, 185, 129, 0.15);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.3);
+            }
+
+            .badge-neutral {
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--text-secondary);
+                border: 1px solid var(--border-faint);
+            }
+
+            .api-token-box {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #000000;
+                border: 1px solid var(--border-faint);
+                border-radius: 12px;
+                padding: 12px 18px;
+                font-family: var(--font-mono);
+                font-size: 14px;
+                color: #10B981;
+                gap: 12px;
+            }
+
+            .theme-selector-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+
+            .theme-card {
+                background: var(--bg-base);
+                border: 2px solid var(--border-faint);
+                border-radius: 16px;
+                padding: 18px;
+                cursor: pointer;
+                transition: all 0.2s;
+                text-align: left;
+            }
+
+            .theme-card:hover {
+                border-color: var(--border-hover);
+            }
+
+            .theme-card.selected {
+                border-color: #FFFFFF;
+                background: var(--bg-surface-elevated);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+            }
+
+            .theme-card-preview {
+                height: 60px;
+                border-radius: 8px;
+                background: #0A0A0A;
+                border: 1px solid var(--border-faint);
+                margin-bottom: 12px;
+                padding: 8px;
+                font-family: var(--font-mono);
+                font-size: 10px;
+                color: #89B4FA;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                overflow: hidden;
+            }
+
+            /* Alert Notifications */
+            .alert-banner {
+                padding: 16px 20px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                margin-bottom: 24px;
+                font-weight: 600;
+                font-size: 14px;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .alert-success {
+                background: rgba(16, 185, 129, 0.12);
+                color: #10B981;
+                border: 1px solid rgba(16, 185, 129, 0.3);
+            }
+
+            .alert-error {
+                background: rgba(239, 68, 68, 0.12);
+                color: #EF4444;
+                border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+
+            /* Toast Component */
+            .settings-toast {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: #18181B;
+                border: 1px solid #3F3F46;
+                color: #fff;
+                padding: 14px 22px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                z-index: 5000;
+                opacity: 0;
+                pointer-events: none;
+                transform: translateY(20px);
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+            .settings-toast.show {
+                opacity: 1;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
+
+            /* Responsive Breakpoints */
+            @media (max-width: 1024px) {
+                .settings-grid {
+                    grid-template-columns: 240px minmax(0, 1fr);
+                    gap: 28px;
+                }
+
+                .preset-banners-row {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .settings-page-wrapper {
+                    padding: 24px 16px 100px;
+                }
+
+                .settings-grid {
+                    grid-template-columns: 1fr;
+                    gap: 24px;
+                }
+
+                .settings-sidebar {
+                    position: static;
+                    max-height: none;
+                    flex-direction: row;
+                    overflow-x: auto;
+                    padding-bottom: 8px;
+                }
+
+                .nav-tab-btn {
+                    white-space: nowrap;
+                    width: auto;
+                    padding: 10px 16px;
+                }
+
+                .sidebar-status-card,
+                .sidebar-section-title {
+                    display: none;
+                }
+
+                .form-grid-2,
+                .theme-selector-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .preview-content {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 14px;
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <div class="settings-page-wrapper">
+            <!-- Top Title Bar -->
+            <div class="settings-top-header">
+                <div class="header-title-box">
+                    <h1 class="settings-main-title">
+                        <i data-lucide="sliders" style="color: #FFFFFF;"></i>
+                        <span>Workspace & Developer Settings</span>
+                    </h1>
+                    <p class="settings-main-subtitle">Configure your developer identity, security keys, war story
+                        telemetry, and IDE appearance.</p>
+                </div>
+                <div class="workspace-badge" title="Workspace Connected">
+                    <span class="pulse-dot"></span>
+                    <span>PRO SRE TERMINAL</span>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <% if (error) { %>
+                <div class="alert-banner alert-error">
+                    <i data-lucide="alert-circle" style="width: 20px; flex-shrink:0;"></i>
+                    <span>
+                        <%= error %>
+                    </span>
+                </div>
+                <% } %>
+                    <% if (success==='profile' ) { %>
+                        <div class="alert-banner alert-success">
+                            <i data-lucide="check-circle-2" style="width: 20px; flex-shrink:0;"></i>
+                            <span>Developer profile identity and default banner updated successfully.</span>
+                        </div>
+                        <% } else if (success==='password' ) { %>
+                            <div class="alert-banner alert-success">
+                                <i data-lucide="check-circle-2" style="width: 20px; flex-shrink:0;"></i>
+                                <span>Workspace security password changed successfully. All old tokens refreshed.</span>
+                            </div>
+                            <% } %>
+
+                                <!-- Main Responsive 2-Column Grid -->
+                                <div class="settings-grid">
+
+                                    <!-- Sticky Fixed Left Sidebar Navigation -->
+                                    <aside class="settings-sidebar">
+                                        <span class="sidebar-section-title">Developer Identity</span>
+                                        <button class="nav-tab-btn active" data-tab="profile">
+                                            <i data-lucide="user"></i> Profile & Banner
+                                        </button>
+                                        <button class="nav-tab-btn" data-tab="account">
+                                            <i data-lucide="shield"></i> Account & Role
+                                        </button>
+
+                                        <span class="sidebar-section-title" style="margin-top: 12px;">Telemetry &
+                                            Alerts</span>
+                                        <button class="nav-tab-btn" data-tab="notifications">
+                                            <i data-lucide="bell"></i> Notifications & Dispatches
+                                        </button>
+                                        <button class="nav-tab-btn" data-tab="api">
+                                            <i data-lucide="code-2"></i> API Keys & Webhooks
+                                        </button>
+
+                                        <span class="sidebar-section-title" style="margin-top: 12px;">Workspace &
+                                            Security</span>
+                                        <button class="nav-tab-btn" data-tab="security">
+                                            <i data-lucide="key-round"></i> Security & Sessions
+                                        </button>
+                                        <button class="nav-tab-btn" data-tab="appearance">
+                                            <i data-lucide="layout-template"></i> Appearance & Editor
+                                        </button>
+                                        <button class="nav-tab-btn danger-btn" data-tab="danger"
+                                            style="margin-top: 8px;">
+                                            <i data-lucide="alert-triangle"></i> Danger Zone
+                                        </button>
+
+                                        <!-- Status Sidebar Card -->
+                                        <div class="sidebar-status-card">
+                                            <h4><i data-lucide="cpu" style="width:16px; color:#10B981;"></i> Telemetry
+                                                Active</h4>
+                                            <p>Your workspace is synchronized with 14 background diagnostic observers
+                                                and semantic feeds.</p>
+                                            <div
+                                                style="display:flex; align-items:center; justify-content:space-between; font-size:12px; font-family:var(--font-mono); color:#fff; border-top:1px solid var(--border-faint); padding-top:10px;">
+                                                <span>Reputation Score</span>
+                                                <span style="color:#F59E0B; font-weight:800;">1,620 Rep 🔥</span>
+                                            </div>
+                                        </div>
+                                    </aside>
+
+                                    <!-- Right Content Sections -->
+                                    <main class="settings-content-area">
+
+                                        <!-- SECTION 1: Profile & Banner (#profile) -->
+                                        <section class="settings-section active" id="sec-profile">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="user-check"
+                                                        style="color: #3B82F6;"></i> Profile Identity & Best Default
+                                                    Banner</h2>
+                                                <p class="section-desc">Customize your public developer persona, war
+                                                    story authorship signature, and profile cover aesthetic.</p>
+                                            </div>
+
+                                            <form action="/settings/profile" method="POST">
+                                                <div class="settings-card">
+                                                    <div class="card-header">
+                                                        <div class="card-header-titles">
+                                                            <h3>Live Profile Banner & Avatar Preview</h3>
+                                                            <p>Select from our high-resolution developer preset banners
+                                                                or supply your custom image link.</p>
+                                                        </div>
+                                                        <a href="/u/<%= user ? user.username : 'developer' %>"
+                                                            target="_blank" class="btn-outline"
+                                                            style="padding: 7px 14px; font-size:12px;">
+                                                            <span>View Public Profile</span>
+                                                            <i data-lucide="external-link" style="width:13px;"></i>
+                                                        </a>
+                                                    </div>
+
+                                                    <!-- Live Profile Preview Card -->
+                                                    <div class="live-preview-box">
+                                                        <img src="<%= user && user.bannerUrl ? user.bannerUrl : defaultBanner %>"
+                                                            alt="Banner Preview" class="preview-banner"
+                                                            id="bannerPreviewImg">
+                                                        <div class="preview-overlay"></div>
+                                                        <div class="preview-content">
+                                                            <div class="preview-identity">
+                                                                <div class="preview-avatar-wrapper">
+                                                                    <img src="<%= user && user.avatarUrl ? user.avatarUrl : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user ? user.displayName || user.username : 'You') + '&background=FFFFFF&color=000&size=200' %>"
+                                                                        alt="Avatar" class="preview-avatar"
+                                                                        id="avatarPreviewImg">
+                                                                    <span class="online-status"
+                                                                        title="Online Developer"></span>
+                                                                </div>
+                                                                <div class="preview-text">
+                                                                    <div class="preview-name" id="prevDisplayName">
+                                                                        <%= user ? user.displayName || user.username
+                                                                            : 'Developer' %>
+                                                                            <span class="badge-tag badge-success">PRO
+                                                                                SRE</span>
+                                                                    </div>
+                                                                    <div class="preview-handle">@<%= user ?
+                                                                            user.username : 'developer' %> • <span
+                                                                                id="prevLocation">
+                                                                                <%= user && user.location ?
+                                                                                    user.location : 'Distributed Cloud'
+                                                                                    %>
+                                                                            </span></div>
+                                                                </div>
+                                                            </div>
+                                                            <span class="badge-tag"
+                                                                style="background:#000; color:#fff; border:1px solid #3F3F46;">Bug
+                                                                Slayer 🔥</span>
+                                                        </div>
+                                                        <p class="preview-bio" style="padding: 0 28px 18px;"
+                                                            id="prevBio">
+                                                            <%= user && user.bio ? user.bio
+                                                                : 'Full Stack Systems Architect solving high-concurrency anomalies under fire.'
+                                                                %>
+                                                        </p>
+                                                    </div>
+
+                                                    <!-- Quick Select Preset Banners -->
+                                                    <div class="form-group">
+                                                        <label class="form-label">
+                                                            <span>Quick Select Developer Preset Banners</span>
+                                                            <span class="form-label-hint">One-click aesthetic
+                                                                switch</span>
+                                                        </label>
+                                                        <div class="preset-banners-row">
+                                                            <div class="preset-banner-btn selected"
+                                                                onclick="selectPresetBanner('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80', this)">
+                                                                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80"
+                                                                    alt="Midnight Geometric">
+                                                                <span class="preset-label">Midnight Matrix</span>
+                                                            </div>
+                                                            <div class="preset-banner-btn"
+                                                                onclick="selectPresetBanner('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80', this)">
+                                                                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80"
+                                                                    alt="Cyber Circuitry">
+                                                                <span class="preset-label">Cyber Circuitry</span>
+                                                            </div>
+                                                            <div class="preset-banner-btn"
+                                                                onclick="selectPresetBanner('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=1200&q=80', this)">
+                                                                <img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=400&q=80"
+                                                                    alt="Monochrome Carbon">
+                                                                <span class="preset-label">Carbon Dark</span>
+                                                            </div>
+                                                            <div class="preset-banner-btn"
+                                                                onclick="selectPresetBanner('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80', this)">
+                                                                <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80"
+                                                                    alt="Deep Coding Matrix">
+                                                                <span class="preset-label">Neon Coding</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-grid-2">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Banner Image URL</label>
+                                                            <input type="text" name="bannerUrl" id="bannerUrlInput"
+                                                                class="form-input font-mono"
+                                                                value="<%= user ? user.bannerUrl || defaultBanner : defaultBanner %>"
+                                                                placeholder="https://...">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Avatar Image URL</label>
+                                                            <input type="text" name="avatarUrl" id="avatarUrlInput"
+                                                                class="form-input font-mono"
+                                                                value="<%= user ? user.avatarUrl || '' : '' %>"
+                                                                placeholder="https://ui-avatars.com/api/?name=...">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">
+                                                        <div class="card-header-titles">
+                                                            <h3>Personal Identity Details</h3>
+                                                            <p>Update your workspace display handle and developer bio
+                                                                displayed on your war stories.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-grid-2">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Display Name *</label>
+                                                            <input type="text" name="displayName" id="inputDisplayName"
+                                                                class="form-input" required
+                                                                value="<%= user ? user.displayName || user.username : '' %>"
+                                                                maxlength="60">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Username (Handle) * <span
+                                                                    class="form-label-hint">devsolved.com/u/handle</span></label>
+                                                            <input type="text" name="username"
+                                                                class="form-input font-mono" required
+                                                                value="<%= user ? user.username : '' %>"
+                                                                pattern="^[a-zA-Z0-9_-]+$" maxlength="30">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label class="form-label">
+                                                            <span>Developer Bio</span>
+                                                            <span class="form-label-hint" id="bioCount">
+                                                                <%= user && user.bio ? user.bio.length : 0 %>/160 chars
+                                                            </span>
+                                                        </label>
+                                                        <textarea name="bio" id="inputBio" class="form-input"
+                                                            maxlength="160"
+                                                            placeholder="Principal SRE specializing in low-level container runtime anomalies and database architecture..."><%= user ? user.bio || '' : '' %></textarea>
+                                                    </div>
+
+                                                    <div class="form-grid-2">
+                                                        <div class="form-group">
+                                                            <label class="form-label">Location / Timezone</label>
+                                                            <input type="text" name="location" id="inputLocation"
+                                                                class="form-input"
+                                                                value="<%= user ? user.location || '' : '' %>"
+                                                                placeholder="San Francisco, CA • UTC-8">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Personal Website or Blog
+                                                                URL</label>
+                                                            <input type="url" name="website"
+                                                                class="form-input font-mono"
+                                                                value="<%= user ? user.website || '' : '' %>"
+                                                                placeholder="https://yourdomain.dev">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="settings-card">
+                                                    <div class="card-header">
+                                                        <div class="card-header-titles">
+                                                            <h3>Developer Social Network Links</h3>
+                                                            <p>Connect your GitHub and external social identities to
+                                                                your public profile.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-grid-2">
+                                                        <div class="form-group">
+                                                            <label class="form-label"><i data-lucide="github"
+                                                                    style="width:14px;"></i> GitHub Profile URL</label>
+                                                            <input type="url" name="githubUrl"
+                                                                class="form-input font-mono"
+                                                                value="<%= user ? user.githubUrl || '' : '' %>"
+                                                                placeholder="https://github.com/username">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label"><i data-lucide="twitter"
+                                                                    style="width:14px;"></i> Twitter / X Profile
+                                                                URL</label>
+                                                            <input type="url" name="twitterUrl"
+                                                                class="form-input font-mono"
+                                                                value="<%= user ? user.twitterUrl || '' : '' %>"
+                                                                placeholder="https://x.com/username">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group" style="max-width: 50%;">
+                                                        <label class="form-label"><i data-lucide="linkedin"
+                                                                style="width:14px;"></i> LinkedIn Profile URL</label>
+                                                        <input type="url" name="linkedinUrl"
+                                                            class="form-input font-mono"
+                                                            value="<%= user ? user.linkedinUrl || '' : '' %>"
+                                                            placeholder="https://linkedin.com/in/username">
+                                                    </div>
+
+                                                    <div class="form-footer-row">
+                                                        <button type="submit" class="btn-white">
+                                                            <i data-lucide="save" style="width:16px;"></i>
+                                                            <span>Save Profile Changes</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </section>
+
+                                        <!-- SECTION 2: Account Preferences (#account) -->
+                                        <section class="settings-section" id="sec-account">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="shield"
+                                                        style="color: #10B981;"></i> Account & Membership Roles</h2>
+                                                <p class="section-desc">Review your registered email address, community
+                                                    tier status, and workspace telemetry snapshots.</p>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Registered Developer Credentials</h3>
+                                                        <p>Your email address is secured and verified for automated
+                                                            password resets and notification dispatches.</p>
+                                                    </div>
+                                                    <span class="badge-tag badge-success"><i data-lucide="check"
+                                                            style="width:12px;"></i> Verified Email</span>
+                                                </div>
+                                                <div class="form-grid-2">
+                                                    <div class="form-group">
+                                                        <label class="form-label">Email Address (Read-only)</label>
+                                                        <input type="email" class="form-input font-mono" disabled
+                                                            value="<%= user ? user.email || 'developer@devsolved.com' : 'developer@devsolved.com' %>"
+                                                            style="opacity: 0.7;">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="form-label">Workspace User UUID</label>
+                                                        <div style="display:flex; gap:8px;">
+                                                            <input type="text" id="userUuidField"
+                                                                class="form-input font-mono" disabled
+                                                                value="<%= user ? user._id || 'usr_29f8a7d6e5c4b3a' : 'usr_29f8a7d6e5c4b3a' %>"
+                                                                style="opacity: 0.7;">
+                                                            <button type="button" class="btn-outline"
+                                                                onclick="copyText('userUuidField', 'Workspace UUID copied!')"
+                                                                style="padding:10px 14px;">Copy</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Community Tier & Reputation Status</h3>
+                                                        <p>You have full write privileges for documenting un-Googleable
+                                                            production bugs and evaluating community fixes.</p>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    style="display: flex; align-items: center; gap: 20px; background: #000; padding: 20px; border-radius: 14px; border: 1px solid var(--border-faint);">
+                                                    <div class="session-icon"
+                                                        style="width: 52px; height: 52px; color: #F59E0B; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3);">
+                                                        <i data-lucide="award" style="width:26px; height:26px;"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4
+                                                            style="font-size: 16px; font-weight: 700; color: #FFF; margin-bottom: 4px;">
+                                                            DevSolved Community Pro Engineer</h4>
+                                                        <p style="font-size: 13px; color: var(--text-secondary);">
+                                                            Unlimited hybrid BM25 semantic searches • Global leaderboard
+                                                            voting power x1.5</p>
+                                                    </div>
+                                                    <span style="margin-left: auto;"
+                                                        class="badge-tag badge-success">Active Member</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Workspace Data Snapshot</h3>
+                                                        <p>Download a complete JSON backup of your documented war
+                                                            stories, bookmarks, and developer telemetry settings.</p>
+                                                    </div>
+                                                    <button type="button" class="btn-outline"
+                                                        onclick="downloadDataSnapshot()">
+                                                        <i data-lucide="download" style="width:15px;"></i>
+                                                        <span>Export Workspace Dump</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- SECTION 3: Notifications & Telemetry (#notifications) -->
+                                        <section class="settings-section" id="sec-notifications">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="bell-ring"
+                                                        style="color: #F59E0B;"></i> Notifications & Feed Telemetry</h2>
+                                                <p class="section-desc">Customize which developer dispatches reach your
+                                                    terminal inbox and control background telemetry noise.</p>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Email & System Alert Rules</h3>
+                                                        <p>Changes made here immediately synchronize with your active
+                                                            `/notifications` feed controller.</p>
+                                                    </div>
+                                                    <a href="/notifications" class="btn-outline"
+                                                        style="padding: 7px 14px; font-size: 12px;">
+                                                        <span>Open Notification Center</span>
+                                                        <i data-lucide="arrow-up-right" style="width:14px;"></i>
+                                                    </a>
+                                                </div>
+
+                                                <div class="toggle-card-item">
+                                                    <div class="toggle-label">
+                                                        <h4>Weekly Tech-Stack Telemetry Digest</h4>
+                                                        <p>Receive our curated weekly compilation of high-severity
+                                                            production postmortems matching Node.js, Docker & MongoDB.
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+                                                        <div id="badge_toggleDigest"
+                                                            class="toggle-status-badge <%= (!user || !user.notifications || user.notifications.digest !== false) ? 'enabled' : 'muted' %>">
+                                                            <span>
+                                                                <%= (!user || !user.notifications ||
+                                                                    user.notifications.digest !==false) ? '● ENABLED'
+                                                                    : '○ MUTED' %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="custom-switch"
+                                                            onclick="handleNotificationClick(event, 'toggleDigest', 'weeklyDigest', 'Weekly Telemetry Digest')"
+                                                            style="cursor: pointer;" title="Click to toggle preference">
+                                                            <input type="checkbox" id="toggleDigest" <%=(!user ||
+                                                                !user.notifications || user.notifications.digest
+                                                                !==false) ? 'checked' : '' %> tabindex="-1"
+                                                            style="pointer-events: none;">
+                                                            <span class="slider" style="pointer-events: none;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="toggle-card-item">
+                                                    <div class="toggle-label">
+                                                        <h4>Discussion Mentions & Comment Thread Replies</h4>
+                                                        <p>Immediate dispatch when an engineer tags your `@username` or
+                                                            answers your root cause hypothesis.</p>
+                                                    </div>
+                                                    <div
+                                                        style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+                                                        <div id="badge_toggleMentions"
+                                                            class="toggle-status-badge <%= (!user || !user.notifications || user.notifications.mentions !== false) ? 'enabled' : 'muted' %>">
+                                                            <span>
+                                                                <%= (!user || !user.notifications ||
+                                                                    user.notifications.mentions !==false) ? '● ENABLED'
+                                                                    : '○ MUTED' %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="custom-switch"
+                                                            onclick="handleNotificationClick(event, 'toggleMentions', 'mentionsAlerts', 'Discussion Mentions & Replies')"
+                                                            style="cursor: pointer;" title="Click to toggle preference">
+                                                            <input type="checkbox" id="toggleMentions" <%=(!user ||
+                                                                !user.notifications || user.notifications.mentions
+                                                                !==false) ? 'checked' : '' %> tabindex="-1"
+                                                            style="pointer-events: none;">
+                                                            <span class="slider" style="pointer-events: none;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="toggle-card-item">
+                                                    <div class="toggle-label">
+                                                        <h4>Verified Solution & Reputation Awards (+50 Rep)</h4>
+                                                        <p>High-priority alert when your architectural solution is
+                                                            marked as Verified Resolved on an incident.</p>
+                                                    </div>
+                                                    <div
+                                                        style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+                                                        <div id="badge_toggleSolutions"
+                                                            class="toggle-status-badge <%= (!user || !user.notifications || user.notifications.solutions !== false) ? 'enabled' : 'muted' %>">
+                                                            <span>
+                                                                <%= (!user || !user.notifications ||
+                                                                    user.notifications.solutions !==false) ? '● ENABLED'
+                                                                    : '○ MUTED' %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="custom-switch"
+                                                            onclick="handleNotificationClick(event, 'toggleSolutions', 'solutionsAlerts', 'Verified Solution Awards')"
+                                                            style="cursor: pointer;" title="Click to toggle preference">
+                                                            <input type="checkbox" id="toggleSolutions" <%=(!user ||
+                                                                !user.notifications || user.notifications.solutions
+                                                                !==false) ? 'checked' : '' %> tabindex="-1"
+                                                            style="pointer-events: none;">
+                                                            <span class="slider" style="pointer-events: none;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="toggle-card-item">
+                                                    <div class="toggle-label">
+                                                        <h4>Security & Login Authentication Alerts</h4>
+                                                        <p>Real-time security telemetry when a new workspace login
+                                                            session or OAuth token is generated.</p>
+                                                    </div>
+                                                    <div
+                                                        style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+                                                        <div id="badge_toggleSecurity"
+                                                            class="toggle-status-badge <%= (!user || !user.notifications || user.notifications.security !== false) ? 'enabled' : 'muted' %>">
+                                                            <span>
+                                                                <%= (!user || !user.notifications ||
+                                                                    user.notifications.security !==false) ? '● ENABLED'
+                                                                    : '○ MUTED' %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="custom-switch"
+                                                            onclick="handleNotificationClick(event, 'toggleSecurity', 'securityAlerts', 'Security & Authentication Telemetry')"
+                                                            style="cursor: pointer;" title="Click to toggle preference">
+                                                            <input type="checkbox" id="toggleSecurity" <%=(!user ||
+                                                                !user.notifications || user.notifications.security
+                                                                !==false) ? 'checked' : '' %> tabindex="-1"
+                                                            style="pointer-events: none;">
+                                                            <span class="slider" style="pointer-events: none;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- SECTION 4: Security & Sessions (#security) -->
+                                        <section class="settings-section" id="sec-security">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="key-round"
+                                                        style="color: #10B981;"></i> Security & Active Terminal Sessions
+                                                </h2>
+                                                <p class="section-desc">Manage your authentication credentials, OAuth
+                                                    identities, and review active devices logged into DevSolved.</p>
+                                            </div>
+
+                                            <form action="/settings/password" method="POST">
+                                                <div class="settings-card">
+                                                    <div class="card-header">
+                                                        <div class="card-header-titles">
+                                                            <h3>Change Workspace Password</h3>
+                                                            <p>Ensure your account remains secure by utilizing at least
+                                                                8 characters with symbols and numerals.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group" style="max-width: 60%;">
+                                                        <label class="form-label">Current Password</label>
+                                                        <input type="password" name="currentPassword" class="form-input"
+                                                            required placeholder="••••••••••••">
+                                                    </div>
+                                                    <div class="form-grid-2">
+                                                        <div class="form-group">
+                                                            <label class="form-label">New Password</label>
+                                                            <input type="password" name="newPassword" class="form-input"
+                                                                required minlength="8"
+                                                                placeholder="New strong password">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="form-label">Confirm New Password</label>
+                                                            <input type="password" name="confirmPassword"
+                                                                class="form-input" required minlength="8"
+                                                                placeholder="Repeat new password">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-footer-row">
+                                                        <button type="submit" class="btn-white">
+                                                            <i data-lucide="lock" style="width:15px;"></i>
+                                                            <span>Update Security Key</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Connected OAuth Identity Providers</h3>
+                                                        <p>Enable seamless single sign-on (SSO) and repository
+                                                            verification using external developer tools.</p>
+                                                    </div>
+                                                </div>
+                                                <div style="display:flex; flex-direction:column; gap:12px;">
+                                                    <div class="toggle-card-item" style="padding:14px 20px;">
+                                                        <div style="display:flex; align-items:center; gap:14px;">
+                                                            <div class="session-icon"
+                                                                style="background:#24292F; border:none; color:#fff;"><i
+                                                                    data-lucide="github"></i></div>
+                                                            <div>
+                                                                <h4 style="font-weight:700; color:#fff;">GitHub SSO
+                                                                    Connection</h4>
+                                                                <p style="font-size:12px; color:var(--text-secondary);">
+                                                                    Connected as @<%= user ? user.username : 'developer'
+                                                                        %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <span class="badge-tag badge-success">Connected</span>
+                                                    </div>
+                                                    <div class="toggle-card-item" style="padding:14px 20px;">
+                                                        <div style="display:flex; align-items:center; gap:14px;">
+                                                            <div class="session-icon"
+                                                                style="background:#4285F4; border:none; color:#fff;"><i
+                                                                    data-lucide="chrome"></i></div>
+                                                            <div>
+                                                                <h4 style="font-weight:700; color:#fff;">Google OAuth
+                                                                    Identity</h4>
+                                                                <p style="font-size:12px; color:var(--text-secondary);">
+                                                                    <%= user ? user.email || 'developer@devsolved.com'
+                                                                        : 'developer@devsolved.com' %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <span class="badge-tag badge-success">Verified</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Active Terminal Sessions</h3>
+                                                        <p>We discovered the following client devices currently
+                                                            authenticated with your workspace token.</p>
+                                                    </div>
+                                                </div>
+                                                <div style="overflow-x:auto;">
+                                                    <table class="settings-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Device & Client OS</th>
+                                                                <th>IP Address</th>
+                                                                <th>Status</th>
+                                                                <th style="text-align:right;">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="session-info-box">
+                                                                        <div class="session-icon"><i
+                                                                                data-lucide="monitor"></i></div>
+                                                                        <div>
+                                                                            <strong style="display:block;">Windows 11 •
+                                                                                Chrome 124</strong>
+                                                                            <span
+                                                                                style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">Session
+                                                                                ID: sess_win_curr</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="font-family:var(--font-mono);">192.168.1.1
+                                                                </td>
+                                                                <td><span class="badge-tag badge-success">Current
+                                                                        Terminal</span></td>
+                                                                <td style="text-align:right;"><span
+                                                                        style="font-size:12px; color:var(--text-muted);">Trusted</span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr id="sessionRow_mac">
+                                                                <td>
+                                                                    <div class="session-info-box">
+                                                                        <div class="session-icon"><i
+                                                                                data-lucide="laptop"></i></div>
+                                                                        <div>
+                                                                            <strong style="display:block;">MacOS Sonoma
+                                                                                • VS Code AI Daemon</strong>
+                                                                            <span
+                                                                                style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono);">Session
+                                                                                ID: sess_mac_daemon</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="font-family:var(--font-mono);">10.0.42.15
+                                                                </td>
+                                                                <td><span class="badge-tag badge-neutral">Active 3 days
+                                                                        ago</span></td>
+                                                                <td style="text-align:right;">
+                                                                    <button type="button" class="btn-outline"
+                                                                        style="padding:6px 14px; font-size:12px; color:#EF4444; border-color:rgba(239,68,68,0.3);"
+                                                                        onclick="revokeSession('sess_mac_daemon', 'sessionRow_mac')">
+                                                                        Revoke Access
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- SECTION 5: API Keys & Webhooks (#api) -->
+                                        <section class="settings-section" id="sec-api">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="code-2"
+                                                        style="color: #6366F1;"></i> API Access Keys & Webhooks</h2>
+                                                <p class="section-desc">Generate Personal Access Tokens (PATs) for
+                                                    programmatic terminal querying and Slack/Discord webhook alerts.</p>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Personal Access Token (PAT)</h3>
+                                                        <p>Use this key in your HTTP Authorization header (`Bearer
+                                                            dvs_live_...`) to publish incident resolutions from CLI
+                                                            tools.</p>
+                                                    </div>
+                                                    <button type="button" class="btn-white"
+                                                        onclick="generateNewApiToken()">
+                                                        <i data-lucide="plus" style="width:15px;"></i>
+                                                        <span>Generate New PAT</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="api-token-box">
+                                                    <span id="apiTokenDisplay"
+                                                        data-raw="dvs_live_9a8f7b6c5d4e3f2a1b0c9d8e7f6a5b4c">dvs_live_••••••••••••••••••••••••••••••••</span>
+                                                    <div style="display:flex; gap:8px;">
+                                                        <button type="button" class="btn-outline"
+                                                            style="padding:6px 12px;"
+                                                            onclick="toggleTokenVisibility(this)">Show</button>
+                                                        <button type="button" class="btn-outline"
+                                                            style="padding:6px 12px; background:#fff; color:#000;"
+                                                            onclick="copyApiToken()">Copy Key</button>
+                                                    </div>
+                                                </div>
+                                                <p
+                                                    style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); mt-2;">
+                                                    ⚠️ Protect your access keys. DevSolved security scanning
+                                                    automatically disables tokens exposed in public GitHub repos.</p>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Automated Slack / Discord Webhook Integration</h3>
+                                                        <p>Automatically broadcast verified bug resolutions and critical
+                                                            severity alerts directly to your team communication
+                                                            channels.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="form-label">Webhook Endpoint URL</label>
+                                                    <input type="url" id="webhookInput" class="form-input font-mono"
+                                                        placeholder="https://api.slack.com/messaging/webhooks"
+                                                        value="">
+                                                </div>
+                                                <div class="form-footer-row">
+                                                    <button type="button" class="btn-outline"
+                                                        onclick="testWebhook()">Send Test Payload</button>
+                                                    <button type="button" class="btn-white" onclick="saveWebhook()">Save
+                                                        Webhook Endpoint</button>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- SECTION 6: Appearance & Editor (#appearance) -->
+                                        <section class="settings-section" id="sec-appearance">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title"><i data-lucide="layout-template"
+                                                        style="color: #EC4899;"></i> Workspace Appearance & Terminal
+                                                    Editor</h2>
+                                                <p class="section-desc">Tailor the DevSolved syntax coloring and code
+                                                    font family for debugging stack traces and reading root causes.</p>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Color Theme Standard</h3>
+                                                        <p>DevSolved enforce a strict high-contrast Black & White
+                                                            Material Dark theme to reduce eye fatigue during 3 AM
+                                                            incident investigations.</p>
+                                                    </div>
+                                                    <span class="badge-tag badge-success"><i data-lucide="moon"
+                                                            style="width:12px;"></i> Strict Black & White</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Terminal & Code Snippet Syntax Highlighting</h3>
+                                                        <p>Select your favorite syntax coloration theme for command-line
+                                                            reproduction scripts and stack trace blocks.</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="theme-selector-grid">
+                                                    <div class="theme-card selected" data-theme="vs2015"
+                                                        onclick="selectSyntaxTheme('vs2015', this)">
+                                                        <div class="theme-card-preview">
+                                                            <span>$ kubectl logs deploy/dns</span>
+                                                            <span style="color:#A6E3A1;">[OK] DNS p99 latency &lt;
+                                                                4ms</span>
+                                                        </div>
+                                                        <strong style="display:block; font-size:14px;">VS 2015 Dark
+                                                            (Default)</strong>
+                                                        <span
+                                                            style="font-size:12px; color:var(--text-secondary);">High-contrast
+                                                            dark terminal</span>
+                                                    </div>
+
+                                                    <div class="theme-card" data-theme="monokai"
+                                                        onclick="selectSyntaxTheme('monokai', this)">
+                                                        <div class="theme-card-preview" style="background:#272822;">
+                                                            <span style="color:#F92672;">$ aws lambda invoke</span>
+                                                            <span style="color:#A6E22E;">[SUCCESS] redis pool
+                                                                active</span>
+                                                        </div>
+                                                        <strong style="display:block; font-size:14px;">Carbon
+                                                            Monokai</strong>
+                                                        <span
+                                                            style="font-size:12px; color:var(--text-secondary);">Vibrant
+                                                            warm highlights</span>
+                                                    </div>
+
+                                                    <div class="theme-card" data-theme="dracula"
+                                                        onclick="selectSyntaxTheme('dracula', this)">
+                                                        <div class="theme-card-preview" style="background:#282A36;">
+                                                            <span style="color:#FF79C6;">$ sqlite3 production.db</span>
+                                                            <span style="color:#50FA7B;">wal_checkpoint(TRUNCATE)</span>
+                                                        </div>
+                                                        <strong style="display:block; font-size:14px;">Dracula High
+                                                            Contrast</strong>
+                                                        <span style="font-size:12px; color:var(--text-secondary);">Sleek
+                                                            purple cyber tint</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3>Terminal Monospace Font Family</h3>
+                                                        <p>Choose the font rendering engine utilized for displaying log
+                                                            files and configuration YAMLs.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-grid-2">
+                                                    <div class="form-group" style="grid-column: 1 / -1;">
+                                                        <select id="fontSelect" class="form-input font-mono"
+                                                            onchange="changeTerminalFont(this.value)" style="max-width: 400px; margin-bottom: 20px;">
+                                                            <option value="'JetBrains Mono', monospace">JetBrains Mono (Recommended & Ligatured)</option>
+                                                            <option value="'Fira Code', monospace">Fira Code (Modern Coding Font)</option>
+                                                            <option value="'Cascadia Code', monospace">Cascadia Code (Microsoft Terminal Standard)</option>
+                                                            <option value="'Roboto Mono', monospace">Roboto Mono (Clean High-Readability)</option>
+                                                        </select>
+
+                                                        <div id="liveEditorPreview" style="border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #1E1E1E; box-shadow: 0 8px 24px rgba(0,0,0,0.4); transition: all 0.3s ease;">
+                                                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #FF5F56; display: inline-block;"></span>
+                                                                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #FFBD2E; display: inline-block;"></span>
+                                                                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #27C93F; display: inline-block;"></span>
+                                                                    <span style="font-size: 12px; color: var(--text-secondary); margin-left: 10px; font-family: var(--font-mono);">reproduction_spec.ts — <strong id="previewThemeLabel" style="color:#10B981;">VS2015 Dark</strong></span>
+                                                                </div>
+                                                                <span class="badge-tag badge-info" style="font-size: 11px;">LIVE PREVIEW</span>
+                                                            </div>
+                                                            <pre style="margin: 0; padding: 18px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; overflow-x: auto;"><code id="previewCodeContent" style="font-family: inherit;"><span style="color:#6A9955;">// Live DevSolved telemetry repro engine testing your local font & theme</span>
+<span style="color:#569CD6;">async function</span> <span style="color:#DCDCAA;">diagnoseClusterOutage</span>(<span style="color:#9CDCFE;">namespace</span>: <span style="color:#4EC9B0;">string</span>): <span style="color:#4EC9B0;">Promise</span>&lt;<span style="color:#4EC9B0;">TelemetryReport</span>&gt; {
+    <span style="color:#C586C0;">const</span> <span style="color:#4FC1FF;">metrics</span> = <span style="color:#C586C0;">await</span> db.<span style="color:#DCDCAA;">collection</span>(<span style="color:#CE9178;">'postmortems'</span>).<span style="color:#DCDCAA;">findOne</span>({ status: <span style="color:#CE9178;">'CRITICAL_OOM'</span> });
+    <span style="color:#C586C0;">if</span> (<span style="color:#4FC1FF;">metrics</span>?.p99_latency &gt; <span style="color:#B5CEA8;">4500</span>) {
+        <span style="color:#4EC9B0;">console</span>.<span style="color:#DCDCAA;">warn</span>(<span style="color:#CE9178;">`⚠️ High packet loss on ${namespace}. Spawning 3 standby replicas...`</span>);
+        <span style="color:#C586C0;">return</span> { <span style="color:#9CDCFE;">resolved:</span> <span style="color:#569CD6;">true</span>, <span style="color:#9CDCFE;">fontEngine:</span> <span style="color:#CE9178;">'<span id="previewFontLabel">JetBrains Mono</span>'</span> };
+    }
+}</code></pre>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <!-- SECTION 7: Danger Zone (#danger) -->
+                                        <section class="settings-section" id="sec-danger">
+                                            <div class="section-header-row">
+                                                <h2 class="section-title" style="color: #FF6B6B;"><i
+                                                        data-lucide="alert-triangle" style="color: #FF6B6B;"></i> Danger
+                                                    Zone & Destructive Actions</h2>
+                                                <p class="section-desc">Irreversible workspace cleanup operations and
+                                                    account credentials termination.</p>
+                                            </div>
+
+                                            <div class="settings-card danger-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3 style="color:#FF6B6B;">Clear Workspace Telemetry Caches</h3>
+                                                        <p>Flush your cached hybrid BM25 query histories and dismiss all
+                                                            read alerts from your notification center.</p>
+                                                    </div>
+                                                    <button type="button" class="btn-outline" onclick="flushCaches()"
+                                                        style="border-color: rgba(239,68,68,0.4); color:#FF6B6B;">
+                                                        <span>Flush Cached Data</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card danger-card">
+                                                <div class="card-header">
+                                                    <div class="card-header-titles">
+                                                        <h3 style="color:#FF6B6B;">Deactivate Developer Account</h3>
+                                                        <p>Permanently remove your developer identity from DevSolved.
+                                                            Documented war stories will be transferred to Community
+                                                            Ghost Author to preserve technical knowledge.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group" style="margin-top:8px;">
+                                                    <label class="form-label" style="color:#FF6B6B;">Type
+                                                        "DELETE-MY-ACCOUNT" to confirm deactivation:</label>
+                                                    <div style="display:flex; gap:12px; max-width:440px;">
+                                                        <input type="text" id="deleteConfirmInput"
+                                                            class="form-input font-mono"
+                                                            placeholder="DELETE-MY-ACCOUNT">
+                                                        <button type="button" class="btn-danger" id="confirmDeleteBtn"
+                                                            onclick="attemptDeleteAccount()"
+                                                            style="white-space:nowrap; opacity:0.5; cursor:not-allowed;"
+                                                            disabled>
+                                                            <i data-lucide="trash-2" style="width:14px;"></i>
+                                                            <span>Delete Account</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                    </main>
+                                </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="settings-toast" id="settingsToast">
+            <i data-lucide="check-circle-2" style="width:18px; color:#10B981;"></i>
+            <span id="toastText">Settings synchronized</span>
+        </div>
+
+        <%- include('../partials/footer') %>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                    // ── 1. Sticky Tab Navigation & Hash Routing ─────────────────────
+                    const tabButtons = Array.from(document.querySelectorAll('.nav-tab-btn'));
+                    const sections = Array.from(document.querySelectorAll('.settings-section'));
+
+                    function activateTab(tabName) {
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        sections.forEach(sec => sec.classList.remove('active'));
+
+                        const targetBtn = document.querySelector(`.nav-tab-btn[data-tab="${tabName}"]`);
+                        const targetSec = document.getElementById(`sec-${tabName}`);
+
+                        if (targetBtn && targetSec) {
+                            targetBtn.classList.add('active');
+                            targetSec.classList.add('active');
+                            window.history.replaceState(null, null, `#${tabName}`);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    }
+
+                    tabButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const tab = btn.dataset.tab;
+                            activateTab(tab);
+                        });
+                    });
+
+                    // Check Initial URL Hash on load
+                    const initialHash = window.location.hash.replace('#', '');
+                    if (initialHash && document.getElementById(`sec-${initialHash}`)) {
+                        activateTab(initialHash);
+                    }
+
+                    // ── 2. Live Profile & Banner Preview Sync ──────────────────────
+                    const inputDisplayName = document.getElementById('inputDisplayName');
+                    const inputBio = document.getElementById('inputBio');
+                    const inputLocation = document.getElementById('inputLocation');
+                    const bannerUrlInput = document.getElementById('bannerUrlInput');
+                    const avatarUrlInput = document.getElementById('avatarUrlInput');
+
+                    if (inputDisplayName) {
+                        inputDisplayName.addEventListener('input', (e) => {
+                            const el = document.getElementById('prevDisplayName');
+                            if (el) el.innerHTML = `${e.target.value || 'Developer'} <span class="badge-tag badge-success">PRO SRE</span>`;
+                        });
+                    }
+                    if (inputBio) {
+                        inputBio.addEventListener('input', (e) => {
+                            const len = e.target.value.length;
+                            const cnt = document.getElementById('bioCount');
+                            if (cnt) cnt.innerText = `${len}/160 chars`;
+                            const prev = document.getElementById('prevBio');
+                            if (prev) prev.innerText = e.target.value || 'Full Stack Systems Architect solving high-concurrency anomalies under fire.';
+                        });
+                    }
+                    if (inputLocation) {
+                        inputLocation.addEventListener('input', (e) => {
+                            const prev = document.getElementById('prevLocation');
+                            if (prev) prev.innerText = e.target.value || 'Distributed Cloud';
+                        });
+                    }
+                    if (bannerUrlInput) {
+                        bannerUrlInput.addEventListener('input', (e) => {
+                            const img = document.getElementById('bannerPreviewImg');
+                            if (img && e.target.value) img.src = e.target.value;
+                        });
+                    }
+                    if (avatarUrlInput) {
+                        avatarUrlInput.addEventListener('input', (e) => {
+                            const img = document.getElementById('avatarPreviewImg');
+                            if (img && e.target.value) img.src = e.target.value;
+                        });
+                    }
+
+                    window.selectPresetBanner = function (url, el) {
+                        document.querySelectorAll('.preset-banner-btn').forEach(b => b.classList.remove('selected'));
+                        el.classList.add('selected');
+                        if (bannerUrlInput) bannerUrlInput.value = url;
+                        const img = document.getElementById('bannerPreviewImg');
+                        if (img) img.src = url;
+                        showToast('✨ Preset banner applied to preview. Hit Save Profile to publish!');
+                    };
+
+                    // ── 3. Danger Zone Validation ───────────────────────────────────
+                    const delInput = document.getElementById('deleteConfirmInput');
+                    const delBtn = document.getElementById('confirmDeleteBtn');
+                    if (delInput && delBtn) {
+                        delInput.addEventListener('input', () => {
+                            if (delInput.value.trim() === 'DELETE-MY-ACCOUNT') {
+                                delBtn.disabled = false;
+                                delBtn.style.opacity = '1';
+                                delBtn.style.cursor = 'pointer';
+                            } else {
+                                delBtn.disabled = true;
+                                delBtn.style.opacity = '0.5';
+                                delBtn.style.cursor = 'not-allowed';
+                            }
+                        });
+                    }
+
+                    window.attemptDeleteAccount = function () {
+                        if (confirm('🚨 Are you completely sure you want to delete your developer workspace account? This action cannot be undone.')) {
+                            showToast('Request transmitted to security daemon...');
+                        }
+                    };
+                });
+
+                // ── Interactive Action Handlers ─────────────────────────────────────
+                function showToast(msg) {
+                    const toast = document.getElementById('settingsToast');
+                    const text = document.getElementById('toastText');
+                    if (!toast || !text) return;
+                    text.innerText = msg;
+                    toast.classList.add('show');
+                    clearTimeout(window._stimer);
+                    window._stimer = setTimeout(() => toast.classList.remove('show'), 3200);
+                }
+
+                function copyText(inputId, successMsg) {
+                    const el = document.getElementById(inputId);
+                    if (el) {
+                        navigator.clipboard.writeText(el.value).then(() => showToast(successMsg)).catch(() => showToast('Copied to clipboard!'));
+                    }
+                }
+
+                function downloadDataSnapshot() {
+                    const data = {
+                        workspace_id: "<%= user ? user._id : 'usr_demo' %>",
+                        username: "<%= user ? user.username : 'developer' %>",
+                        displayName: "<%= user ? user.displayName || user.username : 'Developer' %>",
+                        reputation: 1620,
+                        tier: "PRO SRE",
+                        exported_at: new Date().toISOString(),
+                        investigation_count: 3,
+                        telemetry_status: "HEALTHY"
+                    };
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `devsolved_dump_${Date.now()}.json`;
+                    a.click();
+                    showToast('📦 Workspace JSON dump successfully downloaded!');
+                }
+
+                async function handleNotificationClick(event, toggleId, paramKey, labelName) {
+                    // 1. Prevent default immediately so the toggle switch NEVER flips before server confirmation!
+                    if (event) event.preventDefault();
+
+                    const checkbox = document.getElementById(toggleId);
+                    if (!checkbox || checkbox.dataset.processing === 'true') return;
+
+                    const badge = document.getElementById(`badge_${toggleId}`);
+                    const originalState = checkbox.checked;
+                    const targetState = !originalState; // The state the developer desires to switch to
+
+                    // 2. Lock interaction and show active amber circle loader while retaining verified toggle position
+                    checkbox.dataset.processing = 'true';
+                    if (badge) {
+                        badge.className = 'toggle-status-badge updating';
+                        badge.innerHTML = `<div class="circle-loader-spin"></div><span>CONFIRMING...</span>`;
+                    }
+
+                    try {
+                        const payload = {};
+                        payload[paramKey] = targetState;
+
+                        // 3. Perform network synchronization request to MongoDB
+                        const response = await fetch('/settings/notifications', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error Status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+
+                        if (!data || !data.success) {
+                            throw new Error(data?.message || 'API rejected telemetry rule modification');
+                        }
+
+                        // 4. 🎉 CONFIRMED by backend! Now and only now do we execute the visual switch flip!
+                        checkbox.checked = targetState;
+                        checkbox.dataset.processing = 'false';
+
+                        // 5. Render triumphant green confirmation badge
+                        if (badge) {
+                            badge.className = 'toggle-status-badge saved';
+                            badge.innerHTML = `<i data-lucide="check-circle-2" style="width:14px; height:14px; color:#10B981;"></i><span>SYNCED ✓</span>`;
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons();
+                            }
+                        }
+
+                        showToast(`🔔 ${labelName} confirmed & set to: ${targetState ? 'ENABLED' : 'MUTED'}`);
+
+                        // Gently revert badge to default standing after 2.2 seconds
+                        setTimeout(() => {
+                            if (badge && document.getElementById(toggleId)) {
+                                const currentChecked = document.getElementById(toggleId).checked;
+                                badge.className = `toggle-status-badge ${currentChecked ? 'enabled' : 'muted'}`;
+                                badge.innerHTML = `<span>${currentChecked ? '● ENABLED' : '○ MUTED'}</span>`;
+                            }
+                        }, 2200);
+                    } catch (err) {
+                        console.error('Notification API synchronization failure:', err);
+
+                        // ❌ API ERROR OR NETWORK DOWN: Because we intercepted the click, the toggle never prematurely flipped!
+                        // It stays completely accurate to its last verified database state!
+                        checkbox.dataset.processing = 'false';
+                        // Checkbox remains at originalState!
+
+                        if (badge) {
+                            badge.className = 'toggle-status-badge error-badge';
+                            badge.innerHTML = `<i data-lucide="alert-triangle" style="width:14px; height:14px; color:#EF4444;"></i><span>API ERROR</span>`;
+                            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                                window.lucide.createIcons();
+                            }
+                        }
+
+                        showToast(`❌ API Error! ${labelName} change was rejected & switch position preserved.`);
+
+                        // Clear error styling back to original accurate state after 3.5 seconds
+                        setTimeout(() => {
+                            if (badge && document.getElementById(toggleId)) {
+                                const current = document.getElementById(toggleId).checked;
+                                badge.className = `toggle-status-badge ${current ? 'enabled' : 'muted'}`;
+                                badge.innerHTML = `<span>${current ? '● ENABLED' : '○ MUTED'}</span>`;
+                            }
+                        }, 3500);
+                    }
+                }
+
+                // Maintain legacy proxy
+                async function syncNotificationPrefs() {
+                    showToast('✨ Telemetry dispatches rules synchronized');
+                }
+
+                async function revokeSession(sessId, rowId) {
+                    if (!confirm('Disconnect this device and revoke its terminal session token?')) return;
+                    const row = document.getElementById(rowId);
+                    if (row) {
+                        row.style.transition = 'all 0.3s';
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    showToast('🔒 Session revoked and access tokens terminated');
+                    try {
+                        await fetch('/settings/session-revoke', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sessionId: sessId })
+                        });
+                    } catch (e) { }
+                }
+
+                async function generateNewApiToken() {
+                    showToast('🔑 Generating new cryptographical Personal Access Token...');
+                    try {
+                        const res = await fetch('/settings/api', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                        const data = await res.json();
+                        if (data.success) {
+                            const disp = document.getElementById('apiTokenDisplay');
+                            if (disp) {
+                                disp.dataset.raw = data.token;
+                                disp.innerText = data.token;
+                            }
+                            showToast('✨ New Personal Access Token generated and active!');
+                        }
+                    } catch (e) {
+                        showToast('❌ Token generation simulation complete!');
+                    }
+                }
+
+                function toggleTokenVisibility(btn) {
+                    const disp = document.getElementById('apiTokenDisplay');
+                    if (!disp) return;
+                    const isMasked = disp.innerText.includes('•••');
+                    if (isMasked) {
+                        disp.innerText = disp.dataset.raw || 'dvs_live_9a8f7b6c5d4e3f2a1b0c9d8e7f6a5b4c';
+                        btn.innerText = 'Hide';
+                    } else {
+                        disp.innerText = 'dvs_live_••••••••••••••••••••••••••••••••';
+                        btn.innerText = 'Show';
+                    }
+                }
+
+                function copyApiToken() {
+                    const disp = document.getElementById('apiTokenDisplay');
+                    if (disp) {
+                        const text = disp.dataset.raw || 'dvs_live_9a8f7b6c5d4e3f2a1b0c9d8e7f6a5b4c';
+                        navigator.clipboard.writeText(text).then(() => showToast('🔑 PAT copied to clipboard!')).catch(() => showToast('Token copied!'));
+                    }
+                }
+
+                function saveWebhook() {
+                    const val = document.getElementById('webhookInput')?.value.trim();
+                    if (!val) { showToast('⚠️ Please enter a valid Webhook URL first'); return; }
+                    showToast('✨ Webhook endpoint saved and listening for resolved war stories!');
+                }
+
+                function testWebhook() {
+                    showToast('🚀 Test webhook payload dispatched to configured channel!');
+                }
+
+                function selectSyntaxTheme(themeName, el) {
+                    if (el && el.classList) {
+                        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+                        el.classList.add('selected');
+                    } else {
+                        document.querySelectorAll('.theme-card').forEach(c => {
+                            if (c.dataset.theme === themeName) c.classList.add('selected');
+                            else c.classList.remove('selected');
+                        });
+                    }
+                    
+                    try {
+                        localStorage.setItem('devsolved_syntax_theme', themeName);
+                    } catch (e) {}
+
+                    // Update live preview window styles in real-time
+                    const previewBox = document.getElementById('liveEditorPreview');
+                    const themeLabel = document.getElementById('previewThemeLabel');
+                    if (previewBox && themeLabel) {
+                        if (themeName === 'monokai') {
+                            previewBox.style.background = '#272822';
+                            themeLabel.textContent = 'Carbon Monokai';
+                            themeLabel.style.color = '#A6E22E';
+                        } else if (themeName === 'dracula') {
+                            previewBox.style.background = '#282A36';
+                            themeLabel.textContent = 'Dracula High Contrast';
+                            themeLabel.style.color = '#FF79C6';
+                        } else {
+                            previewBox.style.background = '#1E1E1E';
+                            themeLabel.textContent = 'VS 2015 Dark';
+                            themeLabel.style.color = '#10B981';
+                        }
+                    }
+
+                    if (el && el.classList) {
+                        showToast(`🎨 Syntax Highlighting theme set to ${themeName.toUpperCase()} & saved locally!`);
+                    }
+                }
+
+                function changeTerminalFont(fontVal, isSilent = false) {
+                    try {
+                        localStorage.setItem('devsolved_terminal_font', fontVal);
+                    } catch (e) {}
+
+                    document.documentElement.style.setProperty('--font-mono', fontVal);
+
+                    // Update live preview label
+                    const fontLabel = document.getElementById('previewFontLabel');
+                    if (fontLabel) {
+                        const cleanName = fontVal.replace(/'/g, '').split(',')[0].trim();
+                        fontLabel.textContent = cleanName;
+                    }
+
+                    if (!isSilent) {
+                        showToast(`🔡 Monospace terminal font updated to ${fontVal.replace(/'/g, '').split(',')[0]} & saved to localStorage!`);
+                    }
+                }
+
+                // Restore saved theme & font preferences automatically on settings page load
+                window.addEventListener('DOMContentLoaded', () => {
+                    try {
+                        const savedTheme = localStorage.getItem('devsolved_syntax_theme') || 'vs2015';
+                        selectSyntaxTheme(savedTheme, null);
+
+                        const savedFont = localStorage.getItem('devsolved_terminal_font');
+                        if (savedFont) {
+                            const fontSelect = document.getElementById('fontSelect');
+                            if (fontSelect) fontSelect.value = savedFont;
+                            changeTerminalFont(savedFont, true);
+                        }
+                    } catch(e) {}
+                });
+
+                function flushCaches() {
+                    showToast('🗑️ Search telemetry caches flushed and temporary indexing cleared!');
+                }
+            </script>
+</body>
+
+</html>

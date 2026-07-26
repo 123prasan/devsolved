@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        
+        .faq-item {
+            margin-bottom: 32px;
+        }
+        .faq-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFF;
+            margin-bottom: 8px;
+        }
+        .faq-answer {
+            color: #A1A1AA;
+        }
+        .faq-answer a { color: #3B82F6; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Help Center</h1>
+        <div class="doc-meta">DevSolved Support</div>
+        <div class="doc-content">
+            
+            <div class="faq-item">
+                <div class="faq-question">How is my reputation calculated?</div>
+                <div class="faq-answer">
+                    Your reputation is a dynamic score driven by the community. You earn points when your incidents receive upvotes and when you post verified solutions to other engineers' outages.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">How do I report abusive or harmful content?</div>
+                <div class="faq-answer">
+                    If you encounter a postmortem that violates our ethical guidelines (e.g., contains unredacted PII or personally attacks a developer), please click the "Report" flag on the post. Our moderation team reviews these within 24 hours.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Can I export my published incidents?</div>
+                <div class="faq-answer">
+                    Yes. We believe you own your data. You can export all your published and drafted incidents as markdown files from your account settings panel.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">I lost access to my account. What do I do?</div>
+                <div class="faq-answer">
+                    Please email our support team at <a href="mailto:support@devsolved.com">support@devsolved.com</a> from the original email address you used to register.
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

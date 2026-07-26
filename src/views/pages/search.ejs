@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head') %>
+    <style>
+        :root {
+            --bg-base: #000000;
+            --bg-surface: #0B0B0E;
+            --bg-surface-elevated: #131318;
+            --bg-card: linear-gradient(145deg, rgba(20, 20, 26, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%);
+            --bg-card-hover: linear-gradient(145deg, rgba(28, 28, 36, 0.95) 0%, rgba(14, 14, 20, 1) 100%);
+            --border-faint: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.25);
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #62626C;
+            --accent-primary: #3B82F6;
+            --accent-success: #10B981;
+            --accent-warning: #F59E0B;
+            --accent-critical: #EF4444;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 40% 0%, rgba(59, 130, 246, 0.12), transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.07), transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Hero Search Section ───────────────────────────────────────────── */
+        .search-hero {
+            padding: 36px 24px 20px;
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .search-bar-container {
+            display: flex;
+            align-items: center;
+            background: var(--bg-surface-elevated);
+            border: 1.5px solid var(--border-faint);
+            border-radius: 16px;
+            padding: 6px 12px 6px 20px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .search-bar-container:focus-within {
+            border-color: #3B82F6;
+            box-shadow: 0 20px 52px rgba(0, 0, 0, 0.9), 0 0 32px rgba(59, 130, 246, 0.22);
+            transform: translateY(-2px);
+        }
+
+        .search-bar-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #FFFFFF;
+            font-size: 17px;
+            font-weight: 500;
+            padding: 12px 14px;
+            min-width: 0;
+        }
+        .search-bar-input::placeholder { color: var(--text-muted); font-weight: 400; }
+
+        .search-clear-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-faint);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+        .search-clear-btn:hover { background: rgba(255,255,255,0.15); color: #FFF; border-color: var(--border-hover); }
+        .search-bar-input:not(:placeholder-shown) + .search-clear-btn { display: flex; }
+
+        .search-submit-btn {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .search-submit-btn:hover { background: #E4E4E7; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,255,255,0.2); }
+
+        /* Quick Stack Filter Strip */
+        .quick-topics-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 16px 4px 6px;
+            scrollbar-width: none;
+        }
+        .quick-topics-row::-webkit-scrollbar { display: none; }
+        .topic-pill {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-faint);
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .topic-pill i { width: 13px; height: 13px; color: #3B82F6; }
+        .topic-pill:hover { background: rgba(255,255,255,0.08); color: #FFF; border-color: var(--border-hover); }
+        .topic-pill.active { background: #FFFFFF; color: #000000; border-color: #FFFFFF; font-weight: 700; box-shadow: 0 4px 12px rgba(255,255,255,0.15); }
+        .topic-pill.active i { color: #000000; }
+
+        /* ── Toolbar & Collapsible Filters ─────────────────────────────────── */
+        .search-main {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .toolbar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-faint);
+            border-radius: 14px;
+            padding: 14px 20px;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .results-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--text-primary);
+            flex-wrap: wrap;
+        }
+        .status-tag-count {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(59, 130, 246, 0.15);
+            color: #3B82F6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 2px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.4px;
+        }
+
+        .toolbar-actions { display: flex; align-items: center; gap: 12px; }
+
+        .filter-toggle-btn {
+            background: var(--bg-surface-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-faint);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .filter-toggle-btn:hover, .filter-toggle-btn.active {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--border-hover);
+            color: #FFF;
+        }
+        .filter-badge {
+            background: #3B82F6;
+            color: #FFF;
+            font-size: 11px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            padding: 1px 7px;
+            border-radius: 10px;
+            display: none;
+        }
+        .filter-badge.show { display: inline-block; }
+
+        .sort-dropdown {
+            background: var(--bg-surface-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-faint);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+        .sort-dropdown:hover { border-color: var(--border-hover); }
+        .sort-dropdown option { background: #131318; color: #FFF; }
+
+        /* Collapsible Filter Accordion Drawer */
+        .collapsible-filters {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-hover);
+            border-radius: 16px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 28px;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+        }
+        .collapsible-filters.open {
+            max-height: 800px;
+            opacity: 1;
+            pointer-events: auto;
+            padding: 24px;
+            margin-bottom: 8px;
+        }
+
+        .filter-group { display: flex; flex-direction: column; gap: 12px; }
+        .filter-group-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            border-bottom: 1px solid var(--border-faint);
+            padding-bottom: 8px;
+        }
+        .filter-list { display: flex; flex-direction: column; gap: 10px; }
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+        }
+        .filter-checkbox input { accent-color: #3B82F6; width: 15px; height: 15px; cursor: pointer; border-radius: 4px; }
+
+        .filter-actions-col { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; }
+        .btn-apply {
+            background: #FFFFFF; color: #000000; border: none;
+            padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-apply:hover { background: #E4E4E7; transform: translateY(-1px); }
+        .btn-reset {
+            background: rgba(255,255,255,0.04); color: var(--text-secondary); border: 1px solid var(--border-faint);
+            padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none;
+        }
+        .btn-reset:hover { color: #FFF; border-color: var(--border-hover); }
+
+        /* ── World-Class Premium Card Grid Architecture ────────────────────── */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            width: 100%;
+        }
+
+        .incident-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-faint);
+            border-radius: 18px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+        .incident-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 44px rgba(0, 0, 0, 0.8), 0 0 20px rgba(59, 130, 246, 0.08);
+        }
+        .incident-card:hover .card-title { color: #3B82F6; }
+
+        .card-inner {
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        /* Card Top Header: Author & Resolution Status */
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .card-author-meta {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 0;
+        }
+        .avatar-xs { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-hover); object-fit: cover; flex-shrink: 0; }
+        .author-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px; color: #E4E4E7; }
+        .time-dot { color: var(--text-muted); font-weight: 400; }
+        .post-time { color: var(--text-muted); font-size: 12px; font-weight: 500; font-family: var(--font-mono); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+        .status-pill.resolved { background: rgba(16, 185, 129, 0.12); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 0 10px rgba(16, 185, 129, 0.15); }
+        .status-pill.investigating { background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); box-shadow: 0 0 10px rgba(245, 158, 11, 0.15); }
+
+        /* Card Main Content: Title & Diagnostic Box */
+        .card-main-content { display: flex; flex-direction: column; gap: 12px; }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
+            line-height: 1.38;
+            letter-spacing: -0.4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.2s;
+        }
+
+        .diagnostic-capsule {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .capsule-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .capsule-header-left { display: flex; align-items: center; gap: 6px; color: #3B82F6; }
+        .severity-badge-mini {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-faint);
+        }
+        .severity-badge-mini.critical { color: #EF4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+        .severity-badge-mini.high { color: #F97316; border-color: rgba(249, 115, 22, 0.3); background: rgba(249, 115, 22, 0.1); }
+
+        .capsule-text {
+            font-size: 13px;
+            color: #D4D4D8;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Card Footer Row: Stack Pills & Lucide Stats */
+        .card-footer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-faint);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .stack-tags { display: flex; gap: 6px; flex-wrap: wrap; max-width: 60%; }
+        .stack-chip {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-faint);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .incident-card:hover .stack-chip { border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.07); color: #FFF; }
+
+        .card-stats { display: flex; align-items: center; gap: 14px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-muted); }
+        .stat-item { display: inline-flex; align-items: center; gap: 5px; }
+        .stat-item i { width: 14px; height: 14px; color: var(--text-muted); transition: color 0.2s; }
+        .incident-card:hover .stat-item.upvotes i { color: #10B981; }
+        .incident-card:hover .stat-item.comments i { color: #3B82F6; }
+
+        .empty-state-card {
+            text-align: center;
+            padding: 80px 24px;
+            background: var(--bg-surface);
+            border: 1px dashed var(--border-faint);
+            border-radius: 18px;
+            color: var(--text-secondary);
+            width: 100%;
+        }
+        .empty-state-card h3 { font-size: 20px; color: #FFF; margin: 16px 0 8px; font-weight: 700; }
+
+        /* ── Strict Mobile & Touch Optimization ──────────────────────────── */
+        @media (max-width: 768px) {
+            .search-hero { padding: 24px 16px 16px; }
+            .search-bar-container { padding: 4px 8px 4px 14px; border-radius: 14px; }
+            .search-bar-input { font-size: 16px; padding: 10px 6px; }
+            .search-submit-btn span { display: none; }
+            .search-submit-btn { padding: 10px 16px; border-radius: 10px; }
+            
+            .search-main { padding: 0 16px 80px; gap: 16px; }
+            .toolbar-header { flex-direction: column; align-items: flex-start; padding: 14px; gap: 12px; }
+            .toolbar-actions { width: 100%; justify-content: space-between; }
+            .filter-toggle-btn, .sort-dropdown { flex: 1; justify-content: center; text-align: center; }
+            
+            .collapsible-filters { grid-template-columns: 1fr; gap: 20px; padding: 16px; }
+            .results-grid { grid-template-columns: 1fr; gap: 16px; }
+            .card-inner { padding: 16px 18px; gap: 14px; }
+            .card-footer-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .stack-tags { max-width: 100%; }
+            .card-stats { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SEO Semantic H1 -->
+    <h1 style="position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;">
+        <%= query ? `Search Results for "${query}"` : 'Search Developer War Stories & Outage Solutions' %>
+    </h1>
+
+    <%- include('../partials/header') %>
+
+    <!-- Command Hero -->
+    <div class="search-hero">
+        <form action="/search" method="GET" id="searchForm">
+            <div class="search-bar-container">
+                <i data-lucide="search" style="width: 20px; color: var(--text-secondary); flex-shrink:0;"></i>
+                <input type="text" name="q" id="searchQueryInput" value="<%= typeof query !== 'undefined' ? query : '' %>" placeholder="Search developer war stories, error signatures, or stack tags..." class="search-bar-input" autocomplete="off" autofocus>
+                <button type="button" class="search-clear-btn" id="clearBtn" title="Clear search">
+                    <i data-lucide="x" style="width: 16px;"></i>
+                </button>
+                <button type="submit" class="search-submit-btn">
+                    <i data-lucide="search" style="width: 15px;"></i>
+                    <span>Search</span>
+                </button>
+            </div>
+
+            <!-- Quick Stack Topic Strip -->
+            <div class="quick-topics-row">
+                <a href="/search" class="topic-pill <%= !activeTag && !query ? 'active' : '' %>">
+                    <i data-lucide="layers"></i> All Stacks
+                </a>
+                <% (typeof trendingTags !== 'undefined' ? trendingTags.slice(0, 8) : []).forEach(t => { %>
+                    <a href="/search?tag=<%= encodeURIComponent(t.name) %>" class="topic-pill <%= activeTag && activeTag.toLowerCase() === t.name.toLowerCase() ? 'active' : '' %>">
+                        <i data-lucide="hash"></i> <%= t.name %>
+                    </a>
+                <% }) %>
+            </div>
+        </form>
+    </div>
+
+    <!-- Main Results Section -->
+    <main class="search-main">
+        
+        <!-- Interactive Control Toolbar -->
+        <div class="toolbar-header">
+            <div class="results-status">
+                <% if (typeof isDefaultTrending !== 'undefined' && isDefaultTrending && (!query || !query.trim())) { %>
+                    <span style="display:inline-flex; align-items:center; gap:8px;">
+                        <i data-lucide="trending-up" style="width:18px; color:#10B981;"></i>
+                        <strong style="color:#FFF;">Trending War Stories</strong>
+                        <span style="color:var(--text-muted); font-size:13px;">(Top community postmortems)</span>
+                    </span>
+                <% } else { %>
+                    <span style="display:inline-flex; align-items:center; gap:8px;">
+                        <i data-lucide="file-text" style="width:18px; color:#3B82F6;"></i>
+                        <span>Results for <strong style="color:#FFF;">"<%= query || activeTag || 'Filtered Incidents' %>"</strong></span>
+                    </span>
+                <% } %>
+                <span class="status-tag-count"><%= posts ? posts.length : 0 %> SOLUTIONS</span>
+            </div>
+
+            <div class="toolbar-actions">
+                <button type="button" class="filter-toggle-btn" id="toggleFilterDrawer">
+                    <i data-lucide="sliders-horizontal" style="width:15px;"></i>
+                    <span>Filters</span>
+                    <span class="filter-badge <%= (activeStatus || activeSeverity || activeTag) ? 'show' : '' %>" id="filterBadgeCount">
+                        <%= [activeStatus, activeSeverity, activeTag].filter(Boolean).length %>
+                    </span>
+                    <i data-lucide="chevron-down" id="drawerChevron" style="width:14px; transition: transform 0.2s;"></i>
+                </button>
+
+                <select class="sort-dropdown" id="sortSelect">
+                    <option value="relevance" <%= activeSort === 'relevance' ? 'selected' : '' %>>Sort by Relevance</option>
+                    <option value="upvotes" <%= activeSort === 'upvotes' ? 'selected' : '' %>>Most Upvoted</option>
+                    <option value="recent" <%= activeSort === 'recent' ? 'selected' : '' %>>Most Recent</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Collapsible Filter Accordion Drawer -->
+        <div class="collapsible-filters" id="filterDrawer">
+            <!-- Status Group -->
+            <div class="filter-group">
+                <div class="filter-group-title"><i data-lucide="check-circle" style="width:14px; color:#10B981;"></i> Resolution Status</div>
+                <div class="filter-list">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="resolved" class="drawer-status-cb" <%= (!activeStatus || activeStatus.includes('resolved')) ? 'checked' : '' %>>
+                        <span>Resolved Solutions</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="investigating" class="drawer-status-cb" <%= (!activeStatus || activeStatus.includes('investigating')) ? 'checked' : '' %>>
+                        <span>Active Investigations</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Severity Group -->
+            <div class="filter-group">
+                <div class="filter-group-title"><i data-lucide="alert-triangle" style="width:14px; color:#F59E0B;"></i> Impact Severity</div>
+                <div class="filter-list">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="critical" class="drawer-severity-cb" <%= (activeSeverity && activeSeverity.includes('critical')) ? 'checked' : '' %>>
+                        <span>Critical Outage</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="high" class="drawer-severity-cb" <%= (activeSeverity && activeSeverity.includes('high')) ? 'checked' : '' %>>
+                        <span>High Priority</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="normal" class="drawer-severity-cb" <%= (activeSeverity && activeSeverity.includes('normal')) ? 'checked' : '' %>>
+                        <span>Normal Bug</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="low" class="drawer-severity-cb" <%= (activeSeverity && activeSeverity.includes('low')) ? 'checked' : '' %>>
+                        <span>Low Severity</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="filter-actions-col">
+                <button type="button" class="btn-apply" id="applyFiltersBtn">
+                    <i data-lucide="check" style="width:16px;"></i> Apply Refinements
+                </button>
+                <a href="/search<%= typeof query !== 'undefined' && query ? '?q=' + encodeURIComponent(query) : '' %>" class="btn-reset">
+                    Reset All Filters
+                </a>
+            </div>
+        </div>
+
+        <!-- World-Class Premium Card Results Grid -->
+        <% if (posts && posts.length > 0) { %>
+            <div class="results-grid">
+                <% posts.forEach(post => { %>
+                    <a href="/incidents/<%= post.slug %>" class="incident-card">
+                        <% if (post.coverImage) { %>
+                            <div style="width:100%; height:150px; overflow:hidden; border-bottom:1px solid var(--border-faint);">
+                                <img src="<%= post.coverImage %>" alt="<%= post.title %>" style="width:100%; height:100%; object-fit:cover;" loading="lazy" decoding="async">
+                            </div>
+                        <% } %>
+                        <div class="card-inner">
+                            
+                            <!-- Top Header: Author on left, Status Badge on right -->
+                            <div class="card-top-row">
+                                <div class="card-author-meta">
+                                    <img src="<%= post.author?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.displayName || post.author?.username || 'U')}&background=3B82F6&color=fff&size=56` %>" alt="Avatar" class="avatar-xs" loading="lazy" decoding="async">
+                                    <span class="author-name-text"><%= post.author?.displayName || post.author?.username || 'Engineer' %></span>
+                                    <span class="time-dot">•</span>
+                                    <span class="post-time"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+                                </div>
+
+                                <span class="status-pill <%= post.status %>">
+                                    <i data-lucide="<%= post.status === 'resolved' ? 'check-circle-2' : 'alert-circle' %>" style="width:12px; height:12px;"></i>
+                                    <%= post.status === 'resolved' ? 'Resolved' : 'Active' %>
+                                </span>
+                            </div>
+
+                            <!-- Core Title & Diagnostic Summary Capsule -->
+                            <div class="card-main-content">
+                                <h2 class="card-title"><%= post.title %></h2>
+
+                                <div class="diagnostic-capsule">
+                                    <div class="capsule-header">
+                                        <div class="capsule-header-left">
+                                            <i data-lucide="terminal" style="width:13px; height:13px;"></i>
+                                            <span>DIAGNOSTIC TRACE</span>
+                                        </div>
+                                        <div style="display:flex; align-items:center; gap:6px;">
+                                            <% if (post.investigationHours > 0) { %>
+                                                <span style="color:var(--text-muted);"><i data-lucide="clock" style="width:11px; display:inline-block; vertical-align:middle;"></i> <%= post.investigationHours %>h spent</span>
+                                            <% } %>
+                                            <% if (post.severity) { %>
+                                                <span class="severity-badge-mini <%= post.severity %>"><%= post.severity %></span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="capsule-text">
+                                        <%= post.excerpt || 'Technical root-cause and remediation steps documented...' %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer Row: Properly Resolved Tags & Metrics -->
+                            <div class="card-footer-row">
+                                <div class="stack-tags">
+                                    <% (post.tags || []).slice(0, 4).forEach(t => { 
+                                        const tagVal = typeof t === 'string' ? t : (t.name || t.displayName || t.slug || (t._id && String(t._id).length < 20 ? t._id : null));
+                                        if (tagVal) {
+                                    %>
+                                        <span class="stack-chip">#<%= tagVal %></span>
+                                    <% } }) %>
+                                </div>
+
+                                <div class="card-stats">
+                                    <span class="stat-item upvotes" title="Upvotes">
+                                        <i data-lucide="arrow-up"></i>
+                                        <span><%= post.upvotes || 0 %></span>
+                                    </span>
+                                    <span class="stat-item comments" title="Responses">
+                                        <i data-lucide="message-square"></i>
+                                        <span><%= post.comments || 0 %></span>
+                                    </span>
+                                    <span class="stat-item" title="Views">
+                                        <i data-lucide="eye"></i>
+                                        <span><%= post.views || 0 %></span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state-card">
+                <i data-lucide="search-x" style="width: 56px; height: 56px; color: var(--text-muted); margin: 0 auto 16px; display: block;"></i>
+                <h3>No matching investigations found</h3>
+                <p style="max-width: 440px; margin: 0 auto 24px;">We couldn't find any engineering incidents matching your active search keywords or filter settings.</p>
+                <a href="/search" class="search-submit-btn" style="background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid var(--border-faint);">
+                    <i data-lucide="refresh-cw" style="width: 15px;"></i> Reset to Trending View
+                </a>
+            </div>
+        <% } %>
+
+    </main>
+
+    <%- include('../partials/footer') %>
+
+    <script>
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Clear Button Interaction
+        const searchInput = document.getElementById('searchQueryInput');
+        const clearBtn = document.getElementById('clearBtn');
+        if (searchInput && clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchInput.focus();
+                window.location.href = '/search';
+            });
+        }
+
+        // Collapsible Filter Drawer Interaction
+        const toggleDrawerBtn = document.getElementById('toggleFilterDrawer');
+        const filterDrawer = document.getElementById('filterDrawer');
+        const chevron = document.getElementById('drawerChevron');
+
+        if (toggleDrawerBtn && filterDrawer) {
+            toggleDrawerBtn.addEventListener('click', () => {
+                const isOpen = filterDrawer.classList.toggle('open');
+                toggleDrawerBtn.classList.toggle('active', isOpen);
+                if (chevron) chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        }
+
+        // Sort & Filter Submission
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort', sortSelect.value);
+                window.location.href = url.toString();
+            });
+        }
+
+        const applyBtn = document.getElementById('applyFiltersBtn');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                const statuses = Array.from(document.querySelectorAll('.drawer-status-cb:checked')).map(cb => cb.value);
+                const severities = Array.from(document.querySelectorAll('.drawer-severity-cb:checked')).map(cb => cb.value);
+                const url = new URL(window.location.href);
+
+                if (statuses.length > 0 && statuses.length < 2) {
+                    url.searchParams.set('status', statuses.join(','));
+                } else {
+                    url.searchParams.delete('status');
+                }
+
+                if (severities.length > 0 && severities.length < 4) {
+                    url.searchParams.set('severity', severities.join(','));
+                } else {
+                    url.searchParams.delete('severity');
+                }
+
+                window.location.href = url.toString();
+            });
+        }
+    </script>
+</body>
+</html>

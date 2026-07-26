@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content h3 { font-size: 18px; color: #FFF; margin: 24px 0 12px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        .doc-content ul { margin-bottom: 20px; padding-left: 24px; }
+        .doc-content li { margin-bottom: 8px; font-size: 16px; color: #D4D4D8; }
+        .doc-content a { color: #3B82F6; text-decoration: none; }
+        .doc-content a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">DevSolved Documentation</h1>
+        <div class="doc-meta">Last Updated: August 2026</div>
+        <div class="doc-content">
+            <p>Welcome to the DevSolved Documentation. Our platform is dedicated to curating high-fidelity, verified developer war stories and production outage postmortems.</p>
+            
+            <h2>Platform Ethics</h2>
+            <p>DevSolved was built by engineers, for engineers. We believe that sharing failure is the most powerful way to accelerate collective learning. When reading or writing postmortems, keep the following core tenets in mind:</p>
+            <ul>
+                <li><strong>Blameless Culture:</strong> We focus on systems, architecture, and blind spots—not pointing fingers at individuals.</li>
+                <li><strong>Data Sanctity:</strong> We do not scrape, sell, or exploit developer telemetry. Your data remains yours.</li>
+                <li><strong>Technical Rigor:</strong> We prioritize exact configuration changes, code snippets, and infrastructure diagrams over vague summaries.</li>
+            </ul>
+
+            <h2>Searching and Navigating</h2>
+            <p>The core of DevSolved is our semantic search engine. You can search by specific error signatures, stack trace fragments, or broad architectural concepts.</p>
+            <p>Use the <strong>Trending Tags</strong> directory to explore outages specific to your technology stack (e.g., Kubernetes, Node.js, PostgreSQL).</p>
+
+            <h2>Earning Reputation</h2>
+            <p>Your reputation score is a verified metric of your impact on the engineering community. It increases when your published postmortems and comments receive upvotes from peer SREs.</p>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

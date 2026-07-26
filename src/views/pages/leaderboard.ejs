@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+        <style>
+            :root {
+                --bg-base: #000000;
+                --bg-surface: #121214;
+                --bg-surface-elevated: #18181B;
+                --border-faint: #27272A;
+                --border-hover: #3F3F46;
+                --text-primary: #FFFFFF;
+                --text-secondary: #A1A1AA;
+                --text-muted: #71717A;
+                --brand-primary: #FFFFFF;
+                --brand-text: #000000;
+                --accent-warning: #F59E0B;
+                --accent-success: #10B981;
+                --accent-blue: #60A5FA;
+                --font-mono: 'JetBrains Mono', monospace;
+                --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: var(--font-sans);
+                background: var(--bg-base);
+                color: var(--text-primary);
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            /* ── Leaderboard Hero & Animations ── */
+            .leaderboard-container {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 56px 24px 140px;
+            }
+
+            .leaderboard-hero {
+                text-align: center;
+                margin-bottom: 52px;
+                position: relative;
+                z-index: 1;
+            }
+
+            .leaderboard-hero::before {
+                content: '';
+                position: absolute;
+                top: -40px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 400px;
+                height: 180px;
+                background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 80%);
+                filter: blur(40px);
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            @keyframes pulseBadge {
+
+                0%,
+                100% {
+                    box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+                }
+
+                50% {
+                    box-shadow: 0 0 25px rgba(245, 158, 11, 0.45);
+                }
+            }
+
+            .leaderboard-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-family: var(--font-mono);
+                font-size: 12px;
+                background: rgba(245, 158, 11, 0.12);
+                color: var(--accent-warning);
+                border: 1px solid rgba(245, 158, 11, 0.35);
+                padding: 6px 16px;
+                border-radius: 20px;
+                margin-bottom: 20px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                animation: pulseBadge 3s infinite ease-in-out;
+            }
+
+            .hero-title {
+                font-size: 44px;
+                font-weight: 900;
+                letter-spacing: -1.5px;
+                margin-bottom: 16px;
+                background: linear-gradient(135deg, #FFFFFF 0%, #A1A1AA 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .hero-subtitle {
+                color: var(--text-secondary);
+                font-size: 17px;
+                max-width: 640px;
+                margin: 0 auto;
+                line-height: 1.6;
+                font-weight: 400;
+            }
+
+            /* ── Interactive Navigation Tabs ── */
+            .tabs-row {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                margin-bottom: 42px;
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                color: var(--text-secondary);
+                padding: 12px 24px;
+                border-radius: 28px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                font-family: var(--font-sans);
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                outline: none;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .tab-btn i {
+                transition: transform 0.25s;
+            }
+
+            .tab-btn:hover i {
+                transform: scale(1.15);
+            }
+
+            .tab-btn.active {
+                background: var(--brand-primary);
+                color: var(--brand-text);
+                border-color: var(--brand-primary);
+                box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+                font-weight: 700;
+            }
+
+            .tab-btn:hover:not(.active) {
+                background: var(--bg-surface-elevated);
+                color: var(--text-primary);
+                border-color: var(--border-hover);
+                transform: translateY(-2px);
+            }
+
+            /* ── Rankings Container & Podium Styles ── */
+            .rankings-list {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: relative;
+                min-height: 400px;
+            }
+
+            @keyframes cardFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(16px) scale(0.98);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            .rank-card {
+                background: var(--bg-surface);
+                border: 1px solid var(--border-faint);
+                border-radius: 20px;
+                padding: 24px 32px;
+                display: grid;
+                grid-template-columns: 75px minmax(0, 1fr) auto;
+                gap: 28px;
+                align-items: center;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                position: relative;
+                animation: cardFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+                overflow: hidden;
+            }
+
+            .rank-card:hover {
+                border-color: var(--border-hover);
+                transform: translateY(-4px) scale(1.006);
+                background: var(--bg-surface-elevated);
+                box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.8);
+                z-index: 2;
+            }
+
+            .rank-card.is-user {
+                border: 2px solid var(--accent-blue);
+                background: rgba(59, 130, 246, 0.05);
+            }
+
+            /* Podium Treatments (#1 Gold, #2 Silver, #3 Bronze) */
+            .rank-card.podium-1 {
+                background: linear-gradient(135deg, rgba(252, 211, 77, 0.09) 0%, rgba(18, 18, 20, 0.96) 60%);
+                border: 1px solid rgba(252, 211, 77, 0.45);
+                box-shadow: 0 8px 32px -8px rgba(245, 158, 11, 0.25);
+            }
+
+            .rank-card.podium-1:hover {
+                border-color: #FCD34D;
+                box-shadow: 0 14px 44px -6px rgba(245, 158, 11, 0.4);
+            }
+
+            .rank-card.podium-2 {
+                background: linear-gradient(135deg, rgba(228, 228, 231, 0.07) 0%, rgba(18, 18, 20, 0.96) 60%);
+                border: 1px solid rgba(228, 228, 231, 0.35);
+            }
+
+            .rank-card.podium-2:hover {
+                border-color: #FFFFFF;
+                box-shadow: 0 12px 38px -6px rgba(228, 228, 231, 0.25);
+            }
+
+            .rank-card.podium-3 {
+                background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, rgba(18, 18, 20, 0.96) 60%);
+                border: 1px solid rgba(217, 119, 6, 0.35);
+            }
+
+            .rank-card.podium-3:hover {
+                border-color: #D97706;
+                box-shadow: 0 12px 38px -6px rgba(217, 119, 6, 0.25);
+            }
+
+            .rank-number {
+                font-size: 24px;
+                font-family: var(--font-mono);
+                font-weight: 900;
+                color: var(--text-muted);
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            .rank-number.top-1 {
+                color: #FCD34D;
+                font-size: 28px;
+                text-shadow: 0 0 16px rgba(252, 211, 77, 0.6);
+            }
+
+            .rank-number.top-2 {
+                color: #F3F4F6;
+                font-size: 26px;
+                text-shadow: 0 0 12px rgba(243, 244, 246, 0.4);
+            }
+
+            .rank-number.top-3 {
+                color: #F59E0B;
+                font-size: 25px;
+                text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+            }
+
+            .solver-info {
+                display: flex;
+                align-items: center;
+                gap: 18px;
+            }
+
+            .solver-avatar {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid var(--border-faint);
+                transition: transform 0.2s, border-color 0.2s;
+            }
+
+            .rank-card:hover .solver-avatar {
+                transform: scale(1.05);
+                border-color: var(--text-primary);
+            }
+
+            .rank-card.podium-1 .solver-avatar {
+                border: 2px solid #FCD34D;
+            }
+
+            .rank-card.podium-2 .solver-avatar {
+                border: 2px solid #E5E7EB;
+            }
+
+            .rank-card.podium-3 .solver-avatar {
+                border: 2px solid #D97706;
+            }
+
+            .solver-meta {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .solver-name {
+                font-size: 18px;
+                font-weight: 800;
+                color: var(--text-primary);
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .solver-name:hover {
+                text-decoration: underline;
+            }
+
+            .solver-role {
+                font-size: 13px;
+                color: var(--text-secondary);
+                max-width: 480px;
+                line-height: 1.4;
+            }
+
+            .trending-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                font-family: var(--font-mono);
+                background: rgba(245, 158, 11, 0.15);
+                color: var(--accent-warning);
+                padding: 4px 12px;
+                border-radius: 14px;
+                font-weight: 600;
+                width: fit-content;
+                transition: all 0.2s;
+                border: 1px solid rgba(245, 158, 11, 0.2);
+                text-decoration: none;
+                margin-top: 4px;
+            }
+
+            .trending-badge:hover {
+                background: rgba(245, 158, 11, 0.25);
+                transform: translateX(3px);
+                color: #FFFFFF;
+            }
+
+            .stats-col {
+                display: flex;
+                align-items: center;
+                gap: 32px;
+                text-align: right;
+            }
+
+            .stat-box {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .stat-val {
+                font-size: 19px;
+                font-weight: 800;
+                font-family: var(--font-mono);
+                color: var(--text-primary);
+            }
+
+            .stat-label {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .btn-view-story {
+                background: #FFFFFF;
+                color: #000000;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 22px;
+                font-size: 13px;
+                font-weight: 700;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                white-space: nowrap;
+            }
+
+            .btn-view-story i {
+                transition: transform 0.2s;
+            }
+
+            .btn-view-story:hover {
+                background: #E4E4E7;
+                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(255, 255, 255, 0.25);
+            }
+
+            .btn-view-story:hover i {
+                transform: translateX(3px);
+            }
+
+            @media (max-width: 900px) {
+                .rank-card {
+                    grid-template-columns: 50px minmax(0, 1fr);
+                    padding: 20px;
+                    gap: 16px;
+                }
+
+                .stats-col {
+                    grid-column: 2 / 3;
+                    justify-content: space-between;
+                    border-top: 1px solid var(--border-faint);
+                    padding-top: 16px;
+                    margin-top: 10px;
+                    text-align: left;
+                    gap: 16px;
+                    flex-wrap: wrap;
+                }
+
+                .solver-avatar {
+                    width: 46px;
+                    height: 46px;
+                }
+
+                .hero-title {
+                    font-size: 32px;
+                }
+            }
+        </style>
+</head>
+
+<body>
+    <%- include('../partials/header') %>
+
+        <main class="leaderboard-container">
+            <div class="leaderboard-hero">
+                <div class="leaderboard-badge">
+                    <i data-lucide="trophy" style="width: 15px;"></i>
+                    <span>GLOBAL WEEKLY TELEMETRY & INCIDENT IMPACT</span>
+                </div>
+                <h1 class="hero-title">Developer War Stories Leaderboard</h1>
+                <p class="hero-subtitle">Recognizing our highest-impact systems architects, production bug debuggers,
+                    and un-Googleable outage investigators.</p>
+            </div>
+
+            <div class="tabs-row" id="leaderboard-tabs">
+                <button
+                    class="tab-btn <%= (typeof activeTab === 'undefined' || activeTab === 'trending') ? 'active' : '' %>"
+                    data-tab="trending">
+                    <i data-lucide="flame" style="width:16px; color:#F59E0B;"></i> Weekly Trending
+                </button>
+                <button
+                    class="tab-btn <%= (typeof activeTab !== 'undefined' && activeTab === 'titans') ? 'active' : '' %>"
+                    data-tab="titans">
+                    <i data-lucide="crown" style="width:16px; color:#FCD34D;"></i> All-Time Titans
+                </button>
+                <button
+                    class="tab-btn <%= (typeof activeTab !== 'undefined' && activeTab === 'resolution') ? 'active' : '' %>"
+                    data-tab="resolution">
+                    <i data-lucide="shield-check" style="width:16px; color:#10B981;"></i> Resolution Masters
+                </button>
+            </div>
+
+            <div class="rankings-list" id="rankings-container">
+                <!-- Render initial server rankings -->
+                <% if (typeof rankings !=='undefined' && rankings.length> 0) { %>
+                    <% rankings.forEach((solver, index)=> {
+                        const podiumClass = solver.rank === 1 ? 'podium-1' : (solver.rank === 2 ? 'podium-2' : (solver.rank === 3 ? 'podium-3' : ''));
+                        const rankClass = solver.rank === 1 ? 'top-1' : (solver.rank === 2 ? 'top-2' : (solver.rank === 3 ? 'top-3' : ''));
+                        const iconSuffix = solver.rank === 1 ? ' <i data-lucide="trophy" style="width:18px; color:#FCD34D; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : (solver.rank === 2 ? ' <i data-lucide="medal" style="width:18px; color:#E5E7EB; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : (solver.rank === 3 ? ' <i data-lucide="award" style="width:18px; color:#D97706; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : ''));
+                        %>
+                        <article class="rank-card <%= podiumClass %> <%= solver.isCurrentUser ? 'is-user' : '' %>" style="animation-delay: <%= index * 0.05 %>s;">
+                            <div class="rank-number <%= rankClass %>">
+                                #<%= solver.rank %> <%- iconSuffix %>
+                            </div>
+                            <div class="solver-info">
+                                <img src="<%= solver.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(solver.displayName || solver.username) + '&background=FFFFFF&color=000&size=120' %>"
+                                    alt="<%= solver.displayName || solver.username %>" class="solver-avatar">
+                                <div class="solver-meta">
+                                    <a href="/u/<%= solver.username %>" class="solver-name">
+                                        <%= solver.displayName || solver.username %>
+                                            <span
+                                                style="font-size:11px; background:<%= solver.badgeColor || '#3B82F6' %>; color:#000000; padding:3px 10px; border-radius:12px; font-weight:700; letter-spacing:0.3px;">
+                                                <%= solver.badgeTitle || 'SRE Architect' %>
+                                            </span>
+                                    </a>
+                                    <span class="solver-role">
+                                        <%= solver.bio || 'Senior SRE Architect • Production Incident Debugger' %>
+                                    </span>
+                                    <% if (solver.topStory) { %>
+                                        <a href="/incidents/<%= solver.topStory.slug || solver.topStory._id %>" class="trending-badge">
+                                            <i data-lucide="trending-up" style="width:13px; margin-right:4px; display:inline-block; vertical-align:middle;"></i> Top Story: "<%= solver.topStory.title %>"
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="stats-col">
+                                <div class="stat-box">
+                                    <span class="stat-val">
+                                        <%= (solver.reputation || 0).toLocaleString() %>
+                                    </span>
+                                    <span class="stat-label">Reputation</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" style="color:#10B981;">
+                                        <%= solver.resolutionRate %>
+                                    </span>
+                                    <span class="stat-label">Resolution Rate</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" style="color:#60A5FA;">
+                                        <%= solver.connectedSREs %>
+                                    </span>
+                                    <span class="stat-label">Connected SREs</span>
+                                </div>
+                                <a href="<%= solver.topStory ? '/incidents/' + (solver.topStory.slug || solver.topStory._id) : '/u/' + solver.username %>"
+                                    class="btn-view-story">
+                                    View Fix <i data-lucide="arrow-right" style="width:14px;"></i>
+                                </a>
+                            </div>
+                        </article>
+                        <% }); %>
+                            <% } else { %>
+                                <div
+                                    style="text-align: center; padding: 60px 20px; color: var(--text-muted); font-size:16px;">
+                                    No developer telemetry data available yet.</div>
+                                <% } %>
+            </div>
+            <div id="rankings-data-store" style="display:none;"
+                data-json="<%= encodeURIComponent(JSON.stringify(typeof rankings !== 'undefined' ? rankings : [])) %>">
+            </div>
+        </main>
+
+        <%- include('../partials/footer') %>
+            <script>
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+
+                // ── Real-Time Instant Tab Filtering & Sorting Engine ──
+                let allEngineers = [];
+                try {
+                    const dataEl = document.getElementById('rankings-data-store');
+                    if (dataEl && dataEl.getAttribute('data-json')) {
+                        allEngineers = JSON.parse(decodeURIComponent(dataEl.getAttribute('data-json')));
+                    }
+                } catch (e) {
+                    console.error('Error loading leaderboard telemetry:', e);
+                }
+
+                document.querySelectorAll('#leaderboard-tabs .tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const currentActive = document.querySelector('#leaderboard-tabs .tab-btn.active');
+                        if (currentActive) currentActive.classList.remove('active');
+                        btn.classList.add('active');
+
+                        const targetTab = btn.getAttribute('data-tab');
+                        const container = document.getElementById('rankings-container');
+
+                        // Update browser URL silently without full page reload
+                        const url = new URL(window.location);
+                        url.searchParams.set('tab', targetTab);
+                        window.history.replaceState({}, '', url);
+
+                        // Clone and sort dataset
+                        let sorted = [...allEngineers];
+                        if (targetTab === 'titans') {
+                            sorted.sort((a, b) => (b.reputation || 0) - (a.reputation || 0));
+                        } else if (targetTab === 'resolution') {
+                            sorted.sort((a, b) => {
+                                const rateA = parseFloat(a.resolutionRate || '0');
+                                const rateB = parseFloat(b.resolutionRate || '0');
+                                return (rateB - rateA) || ((b.reputation || 0) - (a.reputation || 0));
+                            });
+                        } else {
+                            sorted.sort((a, b) => (b.trendingScore || (b.reputation * 1.5)) - (a.trendingScore || (a.reputation * 1.5)));
+                        }
+
+                        // Re-assign ranks, podium honors, and badges
+                        sorted = sorted.map((solver, idx) => {
+                            let badgeTitle = 'Systems Architect';
+                            let badgeColor = '#3B82F6';
+                            if (targetTab === 'titans') {
+                                badgeTitle = idx === 0 ? 'All-Time Titan' : (idx === 1 ? 'Principal Architect' : (idx === 2 ? 'Master Investigator' : 'Veteran SRE'));
+                                badgeColor = idx === 0 ? '#FCD34D' : (idx === 1 ? '#60A5FA' : (idx === 2 ? '#10B981' : '#A1A1AA'));
+                            } else if (targetTab === 'resolution') {
+                                badgeTitle = idx === 0 ? 'Resolution Leader' : (idx === 1 ? 'Precision Debugger' : 'Incident Closer');
+                                badgeColor = idx === 0 ? '#10B981' : (idx === 1 ? '#3B82F6' : '#F59E0B');
+                            } else {
+                                badgeTitle = idx === 0 ? 'Trending Leader' : (idx === 1 ? 'High Impact' : (idx === 2 ? 'Outage Resolver' : 'Systems Architect'));
+                                badgeColor = idx === 0 ? '#10B981' : (idx === 1 ? '#F59E0B' : (idx === 2 ? '#3B82F6' : '#A1A1AA'));
+                            }
+                            return { ...solver, rank: idx + 1, badgeTitle, badgeColor };
+                        });
+
+                        // Render newly sorted animated rankings cards
+                        if (sorted.length === 0) {
+                            container.innerHTML = `<div style="text-align: center; padding: 60px 20px; color: var(--text-muted); font-size:16px;">No developer telemetry data available yet.</div>`;
+                            return;
+                        }
+
+                        container.innerHTML = sorted.map((solver, index) => {
+                            const podiumClass = solver.rank === 1 ? 'podium-1' : (solver.rank === 2 ? 'podium-2' : (solver.rank === 3 ? 'podium-3' : ''));
+                            const rankClass = solver.rank === 1 ? 'top-1' : (solver.rank === 2 ? 'top-2' : (solver.rank === 3 ? 'top-3' : ''));
+                            const iconSuffix = solver.rank === 1 ? ' <i data-lucide="trophy" style="width:18px; color:#FCD34D; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : (solver.rank === 2 ? ' <i data-lucide="medal" style="width:18px; color:#E5E7EB; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : (solver.rank === 3 ? ' <i data-lucide="award" style="width:18px; color:#D97706; display:inline-block; vertical-align:middle; margin-left:4px;"></i>' : ''));
+                            const avatarUrl = solver.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(solver.displayName || solver.username) + '&background=FFFFFF&color=000&size=120';
+
+                            let topStoryHtml = '';
+                            if (solver.topStory) {
+                                topStoryHtml = `
+                            <a href="/incidents/${solver.topStory.slug || solver.topStory._id}" class="trending-badge">
+                                <i data-lucide="trending-up" style="width:13px; margin-right:4px; display:inline-block; vertical-align:middle;"></i> Top Story: "${solver.topStory.title}"
+                            </a>
+                        `;
+                            }
+
+                            const storyLink = solver.topStory ? '/incidents/' + (solver.topStory.slug || solver.topStory._id) : '/u/' + solver.username;
+
+                            return `
+                        <article class="rank-card ${podiumClass} ${solver.isCurrentUser ? 'is-user' : ''}" style="animation-delay: ${index * 0.05}s;">
+                            <div class="rank-number ${rankClass}">
+                                #${solver.rank}${iconSuffix}
+                            </div>
+                            <div class="solver-info">
+                                <img src="${avatarUrl}" alt="${solver.displayName || solver.username}" class="solver-avatar">
+                                <div class="solver-meta">
+                                    <a href="/u/${solver.username}" class="solver-name">
+                                        ${solver.displayName || solver.username} 
+                                        <span style="font-size:11px; background:${solver.badgeColor}; color:#000000; padding:3px 10px; border-radius:12px; font-weight:700; letter-spacing:0.3px;">
+                                            ${solver.badgeTitle}
+                                        </span>
+                                    </a>
+                                    <span class="solver-role">${solver.bio || 'Senior SRE Architect • Production Incident Debugger'}</span>
+                                    ${topStoryHtml}
+                                </div>
+                            </div>
+                            <div class="stats-col">
+                                <div class="stat-box">
+                                    <span class="stat-val">${(solver.reputation || 0).toLocaleString()}</span>
+                                    <span class="stat-label">Reputation</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" style="color:#10B981;">${solver.resolutionRate}</span>
+                                    <span class="stat-label">Resolution Rate</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" style="color:#60A5FA;">${solver.connectedSREs}</span>
+                                    <span class="stat-label">Connected SREs</span>
+                                </div>
+                                <a href="${storyLink}" class="btn-view-story">
+                                    View Fix <i data-lucide="arrow-right" style="width:14px;"></i>
+                                </a>
+                            </div>
+                        </article>
+                    `;
+                        }).join('');
+
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    });
+                });
+            </script>
+</body>
+
+</html>

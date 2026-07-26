@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head') %>
+    <style>
+        body { background: #000; color: #E4E4E7; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .doc-container { max-width: 800px; margin: 60px auto; padding: 0 24px 80px; }
+        .doc-title { font-size: 36px; font-weight: 700; color: #FFF; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .doc-meta { font-size: 14px; color: #A1A1AA; margin-bottom: 40px; border-bottom: 1px solid #27272A; padding-bottom: 24px; }
+        .doc-content h2 { font-size: 24px; color: #FFF; margin: 40px 0 16px; font-weight: 600; }
+        .doc-content p { margin-bottom: 20px; font-size: 16px; color: #D4D4D8; }
+        
+        .opt-in-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .opt-in-box input {
+            background: #000;
+            border: 1px solid #3F3F46;
+            color: #FFF;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 16px;
+        }
+        .opt-in-box button {
+            background: #FAFAFA;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../../partials/header') %>
+    <main class="doc-container">
+        <h1 class="doc-title">Developer API</h1>
+        <div class="doc-meta">Status: In Development</div>
+        <div class="doc-content">
+            <p>The DevSolved Developer API is currently in private beta. Once released, you will be able to programmatically query verified incident postmortems, extract telemetry data, and push draft reports directly from your CI/CD pipelines.</p>
+            
+            <h2>Planned Endpoints</h2>
+            <p>Our RESTful API will provide structured JSON access to:</p>
+            <ul style="padding-left: 24px; margin-bottom: 20px;">
+                <li>Search queries and hybrid-vector similarity matching.</li>
+                <li>Trending outage tags and resolution statistics.</li>
+                <li>Read/write capabilities for your personal drafts and published incidents.</li>
+            </ul>
+
+            <div class="opt-in-box">
+                <h3 style="margin: 0 0 12px; color: #FFF; font-size: 18px;">Join the API Waitlist</h3>
+                <p style="font-size: 14px; margin-bottom: 20px;">Get early access to our documentation and API keys when we launch.</p>
+                <form onsubmit="event.preventDefault(); alert('You have been added to the waitlist!');">
+                    <input type="email" placeholder="engineering@company.com" required>
+                    <br>
+                    <button type="submit">Request Access</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <%- include('../../partials/footer') %>
+</body>
+</html>

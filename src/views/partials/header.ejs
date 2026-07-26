@@ -1,0 +1,1496 @@
+<style>
+    /* Premium Material Dark Theme - Strict Black & White Mode */
+    :root {
+        --bg-base: #000000;
+        --bg-surface: #121214;
+        --bg-nav: rgba(10, 10, 12, 0.85);
+        --bg-hover: rgba(255, 255, 255, 0.08);
+        --bg-active: rgba(255, 255, 255, 0.12);
+        --border-faint: #27272A;
+        --border-hover: #3F3F46;
+
+        --text-primary: #FFFFFF;
+        --text-secondary: #A1A1AA;
+        --text-muted: #71717A;
+
+        /* White & Black Premium Button Theme */
+        --brand-primary: #FFFFFF;
+        --brand-hover: #E4E4E7;
+        --brand-text: #000000;
+
+        --shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 1px 3px 1px rgba(0, 0, 0, 0.2);
+        --shadow-modal: 0 24px 38px 3px rgba(0, 0, 0, 0.6), 0 9px 46px 8px rgba(0, 0, 0, 0.5);
+        --font-google: 'Inter', 'Google Sans', 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-base);
+        color: var(--text-primary);
+        font-family: var(--font-google);
+        margin: 0;
+    }
+
+    /* ── Header Base ───────────────────────────────────────────────────────── */
+    .header {
+        position: sticky;
+        top: 0;
+        width: 100%;
+        background: var(--bg-nav);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border-faint);
+        z-index: 1000;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        height: 64px;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+    }
+
+    /* ── Header Left & Brand ───────────────────────────────────────────────── */
+    .header-left {
+        justify-self: start;
+        display: flex;
+        align-items: center;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+
+    .brand:hover {
+        opacity: 0.85;
+    }
+
+    .brand-logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .brand:hover .brand-logo-img {
+        transform: scale(1.05);
+    }
+
+    /* ── Header Center (Navigation) ────────────────────────────────────────── */
+    .header-center {
+        justify-self: center;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-link {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 20px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .nav-link:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+    }
+
+    .nav-link.active {
+        color: var(--brand-primary);
+        background: var(--bg-active);
+        font-weight: 600;
+    }
+
+    /* ── Header Right (Actions) ────────────────────────────────────────────── */
+    .header-right {
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .search-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-faint);
+        padding: 7px 14px;
+        border-radius: 24px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+    }
+
+    .search-pill:hover {
+        border-color: var(--border-hover);
+        color: var(--text-primary);
+        background: var(--bg-hover);
+    }
+
+    .search-text {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .search-kbd {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        background: var(--bg-hover);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: var(--text-muted);
+        margin-left: 4px;
+        border: 1px solid var(--border-faint);
+    }
+
+    .btn-icon {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+        text-decoration: none;
+    }
+
+    .btn-icon:hover, .btn-icon.active {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        background: #EA4335;
+        border-radius: 50%;
+        border: 2px solid var(--bg-nav);
+    }
+
+    /* Premium White & Secondary Buttons */
+    .btn-write {
+        background: var(--brand-primary);
+        color: var(--brand-text);
+        border: 1px solid var(--brand-primary);
+        padding: 7px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+    }
+
+    .btn-write:hover {
+        background: var(--brand-hover);
+        border-color: var(--brand-hover);
+        transform: scale(1.02);
+        box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-secondary {
+        color: var(--text-primary);
+        background: transparent;
+        border: 1px solid var(--border-faint);
+        padding: 7px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-hover);
+    }
+
+    /* ── User Dropdown ─────────────────────────────────────────────────────── */
+    .user-menu-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .avatar-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid var(--border-faint);
+        background: var(--bg-hover);
+        cursor: pointer;
+        transition: all 0.2s;
+        padding: 0;
+        outline: none;
+        overflow: hidden;
+    }
+
+    .avatar-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .avatar-btn:hover,
+    .avatar-btn:focus {
+        border-color: var(--brand-primary);
+        transform: scale(1.05);
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        background: #121216;
+        border: 1px solid var(--border-faint);
+        border-radius: 14px;
+        width: 240px;
+        padding: 8px 0;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px) scale(0.98);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1100;
+    }
+
+    .dropdown-menu.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0) scale(1);
+    }
+
+    .dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-faint);
+        margin-bottom: 6px;
+    }
+
+    .dropdown-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .dropdown-email {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        font-family: 'JetBrains Mono', monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 10px 16px;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s, padding-left 0.2s;
+        text-align: left;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .dropdown-item:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        padding-left: 20px;
+    }
+
+    /* ── Mobile Menu System (Premium Obsidian UI) ───────────────────────────── */
+    .mobile-menu-toggle {
+        display: none;
+        background: transparent;
+        border: 1px solid var(--border-faint);
+        color: var(--text-secondary);
+        cursor: pointer;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .mobile-menu-toggle:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+        border-color: var(--border-hover);
+    }
+
+    .mobile-menu {
+        position: fixed;
+        inset: 0;
+        top: 64px;
+        background: rgba(10, 10, 14, 0.96);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        z-index: 990;
+        padding: 20px 20px 32px;
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(12px);
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .mobile-menu.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .mobile-menu-scroll {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-bottom: 24px;
+    }
+
+    .mobile-group-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-faint);
+        border-radius: 18px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .mobile-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+        padding-left: 4px;
+    }
+
+    .mobile-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .mobile-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        padding: 10px 12px;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mobile-nav-link:hover,
+    .mobile-nav-link.active {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+        transform: translateX(4px);
+    }
+
+    .mobile-icon-box {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-faint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-primary);
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+    .mobile-nav-link:hover .mobile-icon-box {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: var(--border-hover);
+    }
+
+    .mobile-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: auto;
+    }
+
+    .mobile-profile-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-faint);
+        border-radius: 18px;
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .mobile-profile-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .mobile-profile-info {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .mobile-profile-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mobile-profile-email {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mobile-logout-btn {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #EF4444;
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .mobile-logout-btn:hover {
+        background: #EF4444;
+        color: #FFFFFF;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    }
+
+    /* ── Search Modal Styles (Raycast / Spotlight Obsidian Edition) ─────────── */
+    .search-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 5, 8, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 11vh 20px 20px;
+        z-index: 2000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .search-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .search-modal {
+        background: #111115;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        width: 100%;
+        max-width: 700px;
+        border-radius: 24px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: scale(0.96) translateY(-16px);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        max-height: 78vh;
+    }
+
+    .search-overlay.active .search-modal {
+        transform: scale(1) translateY(0);
+    }
+
+    .search-header {
+        display: flex;
+        align-items: center;
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border-faint);
+        background: rgba(255, 255, 255, 0.02);
+        gap: 14px;
+        flex-shrink: 0;
+    }
+
+    .search-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        color: #FFFFFF;
+    }
+
+    .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-family: var(--font-google);
+        font-size: 17px;
+        font-weight: 500;
+        outline: none;
+        width: 100%;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+        font-weight: 400;
+    }
+
+    .search-clear-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s, transform 0.2s;
+    }
+
+    .search-clear-btn:hover {
+        color: var(--text-primary);
+        transform: scale(1.1);
+    }
+
+    .esc-hint {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        background: var(--bg-surface, #18181d);
+        padding: 4px 9px;
+        border-radius: 8px;
+        border: 1px solid var(--border-faint);
+        letter-spacing: 0.5px;
+    }
+
+    /* Completely Hide Side Scrollbar While Remaining Scrollable */
+    .search-content {
+        padding: 18px 20px;
+        overflow-y: auto;
+        flex: 1;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer & Edge */
+    }
+
+    .search-content::-webkit-scrollbar {
+        display: none; /* WebKit / Chrome / Safari */
+    }
+
+    .search-section {
+        margin-bottom: 22px;
+    }
+
+    .search-section:last-child {
+        margin-bottom: 4px;
+    }
+
+    .search-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding: 0 4px;
+    }
+
+    .search-section-title {
+        font-size: 11px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.8px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    /* Responsive 2-column grid for trending tags on desktop */
+    .search-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .search-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .search-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        color: var(--text-secondary);
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .search-item:hover,
+    .search-item.active {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.14);
+        color: #FFFFFF;
+        transform: translateX(4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .search-item-icon {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-faint);
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: var(--text-primary);
+        transition: all 0.2s;
+    }
+
+    .search-item:hover .search-item-icon {
+        background: #FFFFFF;
+        color: #000000;
+        border-color: #FFFFFF;
+        box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
+    }
+
+    .search-item-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-item-meta {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .search-arrow-hint {
+        width: 16px;
+        height: 16px;
+        color: var(--text-muted);
+        opacity: 0;
+        transform: translateX(-4px);
+        transition: all 0.2s;
+    }
+
+    .search-item:hover .search-arrow-hint {
+        opacity: 1;
+        transform: translateX(0);
+        color: #FFFFFF;
+    }
+
+    .search-action-pill {
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 5px 11px;
+        border-radius: 20px;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+        border: 1px solid var(--border-faint);
+        flex-shrink: 0;
+    }
+
+    .search-item:hover .search-action-pill {
+        background: #FFFFFF;
+        color: #000000;
+        border-color: #FFFFFF;
+    }
+
+    .search-see-all-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-faint);
+        color: #FFFFFF;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .search-see-all-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.02);
+    }
+
+    .search-loader {
+        text-align: center;
+        padding: 40px 24px;
+        color: var(--text-muted);
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    /* Docked Footer */
+    .search-footer {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 12px 22px;
+        border-top: 1px solid var(--border-faint);
+        background: rgba(0, 0, 0, 0.3);
+        font-size: 12px;
+        color: var(--text-secondary);
+        flex-shrink: 0;
+    }
+
+    .search-footer-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .kbd-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        background: var(--bg-surface, #1b1b22);
+        color: var(--text-primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--border-faint);
+    }
+
+    /* ── Responsive Breakpoints ────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+        .header-center {
+            display: none;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header-inner {
+            padding: 0 16px;
+            height: 60px;
+        }
+
+        .header-right {
+            gap: 8px;
+        }
+
+        /* Hide only desktop-specific elements on phone, NEVER hide Write button or Search bar */
+        .desktop-only,
+        .desktop-auth-btn,
+        .btn-icon,
+        .user-menu-wrapper {
+            display: none !important;
+        }
+
+        /* Keep Write Button and Search Pill strictly visible on phone */
+        .btn-write {
+            display: inline-flex !important;
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        .search-pill {
+            display: inline-flex !important;
+            padding: 6px 12px;
+            gap: 6px;
+            background: var(--bg-surface);
+            border-radius: 20px;
+        }
+
+        .search-kbd {
+            display: none !important;
+        }
+
+        .mobile-menu-toggle {
+            display: flex !important;
+        }
+
+        .search-overlay {
+            padding-top: 0;
+            background: var(--bg-base, #000000);
+            backdrop-filter: none;
+        }
+
+        .search-modal {
+            max-width: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        .search-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .search-footer {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-inner {
+            padding: 0 12px;
+        }
+
+        .brand {
+            gap: 8px;
+            font-size: 17px;
+        }
+
+        .brand-logo-img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .header-right {
+            gap: 6px;
+        }
+
+        .search-pill {
+            padding: 6px 10px;
+            gap: 4px;
+        }
+
+        .search-text {
+            font-size: 12px;
+        }
+
+        .btn-write {
+            padding: 6px 12px;
+            font-size: 12px;
+            gap: 5px;
+        }
+
+        .mobile-menu-toggle {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    @media (max-width: 370px) {
+        .search-text {
+            display: none;
+        }
+        .search-pill {
+            padding: 8px;
+            width: 36px;
+            height: 36px;
+            justify-content: center;
+            border-radius: 50%;
+        }
+    }
+</style>
+
+<!-- ── Header Component ────────────────────────────────────────────────────── -->
+<header class="header">
+    <div class="header-inner">
+        <div class="header-left">
+            <a href="/" class="brand" aria-label="DevSolved Home">
+                <img src="/images/devsolved.svg" width="30px" alt="DevSolved Logo" class="brand-logo-img">
+                <span>DevSolved</span>
+            </a>
+        </div>
+
+        <nav class="header-center">
+            <a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-rss">
+                    <path d="M4 11a9 9 0 0 1 9 9" />
+                    <path d="M4 4a16 16 0 0 1 16 16" />
+                    <circle cx="5" cy="19" r="1" />
+                </svg>
+                Feed
+            </a>
+            <a href="/tags" class="nav-link <%= currentPath === '/tags' ? 'active' : '' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-tags">
+                    <path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z" />
+                    <path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193" />
+                    <circle cx="10.5" cy="6.5" r=".5" fill="currentColor" />
+                </svg>
+                Tags
+            </a>
+            <a href="/leaderboard" class="nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/leaderboard' ? 'active' : '' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-podium">
+                    <path d="M12 6V2h-1" />
+                    <path d="M9 15a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1" />
+                    <path d="M9 21V11a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v10" />
+                </svg>
+                Leaderboard
+            </a>
+        </nav>
+
+        <div class="header-right">
+            <!-- Universal Search Bar (Works & scaled cleanly on both Desktop and Phone) -->
+            <div class="search-pill" onclick="typeof openSearch === 'function' ? openSearch() : null"
+                id="headerSearchPill" title="Search (Cmd+K)" aria-label="Search Incidents and Tags">
+                <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                <span class="search-text">Search...</span>
+                <span class="search-kbd">⌘K</span>
+            </div>
+
+            <!-- Universal Write Button (Always visible on Desktop & Phone, logged in or out) -->
+            <a href="/write" class="btn-write" title="Report Incident or Share War Story">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-file-pen">
+                    <path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34" />
+                    <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                    <path d="M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z" />
+                </svg>
+                <span>Write</span>
+            </a>
+
+            <% if (user) { %>
+                <a href="/notifications"
+                    class="btn-icon <%= typeof currentPath !== 'undefined' && currentPath === '/notifications' ? 'active' : '' %>"
+                    aria-label="Notifications" title="View Notifications">
+                    <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                    <span class="notification-badge" style="display: block;"></span>
+                </a>
+
+                <div class="user-menu-wrapper">
+                    <button class="avatar-btn" id="avatarBtn" aria-label="User menu">
+                        <% if (user.avatarUrl) { %>
+                            <img src="<%= user.avatarUrl %>" alt="<%= user.displayName || user.username %>">
+                        <% } else { %>
+                            <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.displayName || user.username) %>&background=FFFFFF&color=000&size=60"
+                                alt="<%= user.displayName || user.username %>">
+                        <% } %>
+                    </button>
+                    <div class="dropdown-menu" id="userMenu">
+                        <div class="dropdown-header">
+                            <div class="dropdown-name"><%= user.displayName || user.username %></div>
+                            <div class="dropdown-email"><%= user.email %></div>
+                        </div>
+                        <a href="/u/<%= user.username %>" class="dropdown-item"><i data-lucide="user" style="width:16px;"></i> Profile</a>
+                        <a href="/drafts" class="dropdown-item"><i data-lucide="file-text" style="width:16px; color:#F59E0B;"></i> Drafts</a>
+                        <a href="/saved" class="dropdown-item"><i data-lucide="bookmark" style="width:16px; color:#60A5FA;"></i> Saved Investigations</a>
+                        <a href="/settings" class="dropdown-item"><i data-lucide="settings" style="width:16px;"></i> Settings</a>
+                        <div style="height: 1px; background: var(--border-faint); margin: 6px 0;"></div>
+                        <form action="/logout" method="POST" style="margin:0">
+                            <button type="submit" class="dropdown-item" style="color: #EA4335;">
+                                <i data-lucide="log-out" style="width:16px;"></i> Sign out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Desktop Auth Controls -->
+                <a href="/login" class="btn-secondary desktop-auth-btn">Log In</a>
+                <a href="/signup" class="btn-write desktop-auth-btn" style="background:#FFFFFF; color:#000;">Sign Up</a>
+            <% } %>
+
+            <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <i data-lucide="menu" style="width: 22px; height: 22px;" id="menuIcon"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- ── Premium Obsidian Mobile Menu (Drawer) ─────────────────────────────────── -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-scroll">
+        <!-- Explore Navigation Section Card -->
+        <div class="mobile-group-card">
+            <span class="mobile-section-title">Community Feed</span>
+            <nav class="mobile-nav">
+                <a href="/" class="mobile-nav-link <%= currentPath === '/' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #F59E0B;"><i data-lucide="rss" style="width:18px;"></i></div>
+                    <span>Incidents Feed</span>
+                </a>
+                <a href="/tags" class="mobile-nav-link <%= currentPath === '/tags' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #3B82F6;"><i data-lucide="tags" style="width:18px;"></i></div>
+                    <span>Topics & Tags</span>
+                </a>
+                <a href="/leaderboard" class="mobile-nav-link <%= typeof currentPath !== 'undefined' && currentPath === '/leaderboard' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #FCD34D;"><i data-lucide="podium" style="width:18px;"></i></div>
+                    <span>War Stories Leaderboard</span>
+                </a>
+            </nav>
+        </div>
+
+        <% if (user) { %>
+        <!-- User Workspace Navigation Card -->
+        <div class="mobile-group-card">
+            <span class="mobile-section-title">Your Workspace</span>
+            <nav class="mobile-nav">
+                <a href="/u/<%= user.username %>" class="mobile-nav-link">
+                    <div class="mobile-icon-box"><i data-lucide="user" style="width:18px;"></i></div>
+                    <span>My Profile</span>
+                </a>
+                <a href="/drafts" class="mobile-nav-link <%= currentPath === '/drafts' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #F59E0B;"><i data-lucide="file-text" style="width:18px;"></i></div>
+                    <span>Your Drafts</span>
+                </a>
+                <a href="/notifications" class="mobile-nav-link <%= currentPath === '/notifications' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #10B981;"><i data-lucide="bell" style="width:18px;"></i></div>
+                    <span>Notifications</span>
+                    <span style="margin-left:auto; background:var(--brand-primary); color:#000; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px;">New</span>
+                </a>
+                <a href="/saved" class="mobile-nav-link <%= currentPath === '/saved' ? 'active' : '' %>">
+                    <div class="mobile-icon-box" style="color: #60A5FA;"><i data-lucide="bookmark" style="width:18px;"></i></div>
+                    <span>Saved Investigations</span>
+                </a>
+                <a href="/settings" class="mobile-nav-link <%= currentPath === '/settings' ? 'active' : '' %>">
+                    <div class="mobile-icon-box"><i data-lucide="settings" style="width:18px;"></i></div>
+                    <span>Account Settings</span>
+                </a>
+            </nav>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Mobile Drawer Footer Actions -->
+    <div class="mobile-actions">
+        <% if (user) { %>
+            <div class="mobile-profile-card">
+                <div class="mobile-profile-left">
+                    <div class="avatar-btn" style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink:0;">
+                        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.displayName || user.username) %>&background=FFFFFF&color=000&size=80"
+                            alt="" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <div class="mobile-profile-info">
+                        <span class="mobile-profile-name"><%= user.displayName || user.username %></span>
+                        <span class="mobile-profile-email"><%= user.email %></span>
+                    </div>
+                </div>
+                <form action="/logout" method="POST" style="margin:0">
+                    <button type="submit" class="mobile-logout-btn" title="Sign Out" aria-label="Sign Out">
+                        <i data-lucide="log-out" style="width: 18px;"></i>
+                    </button>
+                </form>
+            </div>
+        <% } else { %>
+            <!-- Mobile Drawer Auth Actions (When Logged Out) -->
+            <div class="mobile-group-card" style="gap: 12px; padding: 18px;">
+                <div style="text-align:center; margin-bottom:4px;">
+                    <h4 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0 0 4px;">Join DevSolved</h4>
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0;">Share war stories & investigate outages.</p>
+                </div>
+                <a href="/signup" class="btn-write" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px; border-radius: 14px;">
+                    <i data-lucide="user-plus" style="width: 17px;"></i> Sign Up for Free
+                </a>
+                <a href="/login" class="btn-secondary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px; border-radius: 14px; display:inline-flex; align-items:center; gap:8px;">
+                    <i data-lucide="log-in" style="width: 17px;"></i> Log In to Account
+                </a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- ── Search Overlay Modal ────────────────────────────────────────────────── -->
+<div class="search-overlay" id="searchOverlay">
+    <div class="search-modal" id="searchModal">
+        <div class="search-header">
+            <div class="search-icon-wrapper">
+                <i data-lucide="search" style="width: 20px; height: 20px;"></i>
+            </div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search incidents, war stories, errors, tags..."
+                autocomplete="off" spellcheck="false">
+            <button class="search-clear-btn" id="searchClearBtn" onclick="typeof clearSearchInput === 'function' ? clearSearchInput() : null" style="display:none;" title="Clear search">
+                <i data-lucide="x-circle" style="width: 18px; height: 18px;"></i>
+            </button>
+            <span class="esc-hint">ESC</span>
+            <button class="mobile-close-search-btn" onclick="closeSearch()" style="display:none; background:transparent; border:none; color:var(--text-secondary); cursor:pointer; padding:6px;">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="search-content" id="searchContent">
+            <!-- Search Results Or Trending Tags Inject Here -->
+        </div>
+        <div class="search-footer">
+            <div class="search-footer-item">
+                <span class="kbd-badge">↵</span> <span>Search all</span>
+            </div>
+            <div class="search-footer-item">
+                <span class="kbd-badge">ESC</span> <span>Close</span>
+            </div>
+            <div class="search-footer-item" style="margin-left:auto; color:var(--text-muted);">
+                <span>Pro tip: Type at least 2 characters</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Javascript Logic ────────────────────────────────────────────────────── -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. Dropdown & Mobile Menu Logic ---
+        const avatarBtn = document.getElementById('avatarBtn');
+        const userMenu = document.getElementById('userMenu');
+
+        if (avatarBtn && userMenu) {
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', (e) => {
+                if (userMenu.classList.contains('show') && !userMenu.contains(e.target)) {
+                    userMenu.classList.remove('show');
+                }
+            });
+        }
+
+        const mobileToggle = document.getElementById('mobileToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIcon = document.getElementById('menuIcon');
+        let isMenuOpen = false;
+
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    mobileMenu.classList.add('show');
+                    menuIcon.setAttribute('data-lucide', 'x');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    mobileMenu.classList.remove('show');
+                    menuIcon.setAttribute('data-lucide', 'menu');
+                    document.body.style.overflow = '';
+                }
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons({ nameAttr: 'data-lucide', attrs: { class: 'lucide' } });
+                }
+            });
+        }
+
+        // --- 2. Search Logic, Debounce & API Calls ---
+        const searchOverlay = document.getElementById('searchOverlay');
+        const searchInput = document.getElementById('searchInput');
+        const searchContent = document.getElementById('searchContent');
+        const searchClearBtn = document.getElementById('searchClearBtn');
+        const mobileCloseBtn = document.querySelector('.mobile-close-search-btn');
+        const escHint = document.querySelector('.esc-hint');
+
+        let searchTimer;
+        let trendingCache = null;
+
+        // Toggle elements for mobile view in search modal
+        if (window.innerWidth <= 768) {
+            if (mobileCloseBtn) mobileCloseBtn.style.display = 'block';
+            if (escHint) escHint.style.display = 'none';
+        }
+
+        function updateClearBtn() {
+            if (!searchClearBtn) return;
+            if (searchInput && searchInput.value.trim().length > 0) {
+                searchClearBtn.style.display = 'flex';
+            } else {
+                searchClearBtn.style.display = 'none';
+            }
+        }
+
+        window.clearSearchInput = function () {
+            if (!searchInput) return;
+            searchInput.value = '';
+            updateClearBtn();
+            if (trendingCache) renderTrending(trendingCache);
+            searchInput.focus();
+        };
+
+        // Fetch Trending Tags
+        async function loadTrending() {
+            if (trendingCache) return trendingCache;
+            try {
+                const res = await fetch('/api/tags/trending');
+                const data = await res.json();
+                trendingCache = data.success ? (data.tags || []) : [];
+            } catch (e) {
+                trendingCache = [];
+            }
+            return trendingCache;
+        }
+
+        // Render Trending Tags HTML
+        function renderTrending(tags) {
+            if (!tags || tags.length === 0) {
+                searchContent.innerHTML = '<div class="search-loader">Start typing to search incidents...</div>';
+                return;
+            }
+            searchContent.innerHTML = `
+                <div class="search-section">
+                    <div class="search-section-header">
+                        <span class="search-section-title"><i data-lucide="trending-up" style="width:14px; color:#10B981;"></i> Trending Topics</span>
+                        <span style="font-size:11px; color:var(--text-muted); font-family: 'JetBrains Mono', monospace;">Live stats</span>
+                    </div>
+                    <div class="search-grid-2">
+                        ${tags.slice(0, 8).map(tag => `
+                            <a href="/?tag=${encodeURIComponent(tag.name)}" class="search-item">
+                                <div class="search-item-icon"><i data-lucide="hash" style="width:16px;"></i></div>
+                                <div style="min-width:0; flex:1;">
+                                    <div class="search-item-title">#${tag.displayName || tag.name}</div>
+                                    <div class="search-item-meta">${tag.incidentCount || 0} incident${(tag.incidentCount || 0) !== 1 ? 's' : ''}</div>
+                                </div>
+                                <i data-lucide="chevron-right" class="search-arrow-hint"></i>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="search-section">
+                    <div class="search-section-header">
+                        <span class="search-section-title"><i data-lucide="zap" style="width:14px; color:#F59E0B;"></i> Quick Navigation</span>
+                    </div>
+                    <div class="search-list">
+                        <a href="/write" class="search-item">
+                            <div class="search-item-icon" style="color:#F59E0B;"><i data-lucide="file-pen" style="width:16px;"></i></div>
+                            <div style="min-width:0; flex:1;">
+                                <div class="search-item-title">Write New Incident Report</div>
+                                <div class="search-item-meta">Share a war story or postmortem solution</div>
+                            </div>
+                            <div class="search-action-pill">Create <i data-lucide="plus" style="width:14px;"></i></div>
+                        </a>
+                        <a href="/leaderboard" class="search-item">
+                            <div class="search-item-icon" style="color:#FCD34D;"><i data-lucide="podium" style="width:16px;"></i></div>
+                            <div style="min-width:0; flex:1;">
+                                <div class="search-item-title">War Stories Leaderboard</div>
+                                <div class="search-item-meta">Explore top investigators & reputation titans</div>
+                            </div>
+                            <div class="search-action-pill">View <i data-lucide="arrow-up-right" style="width:14px;"></i></div>
+                        </a>
+                    </div>
+                </div>`;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Open/Close Handlers
+        window.openSearch = async function () {
+            if (!searchOverlay) return;
+            if (isMenuOpen) mobileToggle.click(); // close mobile menu if open
+
+            searchOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => searchInput.focus(), 100);
+            updateClearBtn();
+
+            // Load trending on first open or if input is empty
+            if (!searchInput || searchInput.value.trim().length < 2) {
+                searchContent.innerHTML = '<div class="search-loader"><i data-lucide="loader-2" style="width:20px; color:var(--brand-primary); animation: spin 1s linear infinite;"></i> <span>Loading trending topics...</span></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                const tags = await loadTrending();
+                renderTrending(tags);
+            }
+        }
+
+        window.closeSearch = function () {
+            if (!searchOverlay) return;
+            searchOverlay.classList.remove('active');
+            searchInput.value = '';
+            updateClearBtn();
+            searchInput.blur();
+            document.body.style.overflow = '';
+        }
+
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) closeSearch();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearch();
+            }
+            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                closeSearch();
+            }
+        });
+
+        // Enter key submission
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const q = searchInput.value.trim();
+                if (q.length >= 2) {
+                    closeSearch();
+                    window.location.href = '/search?q=' + encodeURIComponent(q);
+                }
+            }
+        });
+
+        // Live Search Input Logic
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            updateClearBtn();
+            const q = searchInput.value.trim();
+
+            if (q.length < 2) {
+                // Show trending again if input is cleared
+                if (trendingCache) renderTrending(trendingCache);
+                return;
+            }
+
+            searchContent.innerHTML = '<div class="search-loader"><i data-lucide="loader-2" style="width:20px; color:var(--brand-primary); animation: spin 1s linear infinite;"></i> <span>Searching incidents and war stories...</span></div>';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            searchTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=8`);
+                    const data = await res.json();
+
+                    if (!data.results || data.results.length === 0) {
+                        searchContent.innerHTML = `
+                            <div class="search-loader" style="padding:40px 20px;">
+                                <div style="width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-faint); display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+                                    <i data-lucide="search-x" style="width:22px;"></i>
+                                </div>
+                                <div style="font-size:15px; font-weight:700; color:var(--text-primary);">No matching incidents found for "${q}"</div>
+                                <div style="font-size:13px; color:var(--text-muted);">Try different abbreviations, error codes, or search across all war stories.</div>
+                            </div>
+                            <div style="text-align:center; padding: 0 16px 20px;">
+                                <a href="/search?q=${encodeURIComponent(q)}" class="search-see-all-btn">
+                                    <i data-lucide="search" style="width:15px;"></i>
+                                    <span>Search all community discussions for "${q}"</span>
+                                </a>
+                            </div>`;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                        return;
+                    }
+
+                    searchContent.innerHTML = `
+                        <div class="search-section">
+                            <div class="search-section-header">
+                                <span class="search-section-title"><i data-lucide="file-text" style="width:14px;"></i> Incidents & Solutions</span>
+                                <span style="font-size:11px; font-family:'JetBrains Mono', monospace; color:var(--text-muted);">${data.results.length} result${data.results.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="search-list">
+                                ${data.results.map(post => `
+                                    <a href="/incidents/${post.slug}" class="search-item" style="align-items:flex-start;">
+                                        <div class="search-item-icon" style="margin-top:2px; ${post.status === 'resolved' ? 'color:#10B981; background:rgba(16,185,129,0.08); border-color:rgba(16,185,129,0.2);' : 'color:#F59E0B; background:rgba(245,158,11,0.08); border-color:rgba(245,158,11,0.2);'}">
+                                            <i data-lucide="${post.status === 'resolved' ? 'check-circle-2' : 'alert-triangle'}" style="width:18px;"></i>
+                                        </div>
+                                        <div style="min-width:0; flex:1;">
+                                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                                                <span class="search-item-title" style="margin:0; font-size:14px;">${post.title}</span>
+                                            </div>
+                                            <div class="search-item-meta">
+                                                <span style="color: ${post.status === 'resolved' ? '#10B981' : '#F59E0B'}; font-weight:700;">${post.status === 'resolved' ? 'Resolved' : 'Investigating'}</span> · 
+                                                ${(post.tags || []).map(t => '#' + (t.name || t)).slice(0, 3).join(' ')}
+                                            </div>
+                                        </div>
+                                        <div class="search-action-pill" style="margin-top:2px;">View <i data-lucide="arrow-up-right" style="width:14px;"></i></div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div style="padding: 12px 0 6px; text-align:center;">
+                            <a href="/search?q=${encodeURIComponent(q)}" class="search-see-all-btn">
+                                <span>Explore all results for "<strong>${q}</strong>"</span>
+                                <i data-lucide="arrow-right" style="width:16px;"></i>
+                            </a>
+                        </div>`;
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                } catch (e) {
+                    searchContent.innerHTML = '<div class="search-loader">Search unavailable at this time. Please try again.</div>';
+                }
+            }, 350);
+        });
+    });
+</script>
