@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head', { useAnime: true }) %>
+    <style>
+        :root { --bg-base: #000000; --bg-surface: #0A0A0C; --ds-bg-elevated: #111114; --ds-bg-hover: rgba(255,255,255,0.04); --ds-border-faint: rgba(255,255,255,0.08); --ds-border-hover: rgba(255,255,255,0.16); --ds-border-focus: rgba(255,255,255,0.3); --ds-text-main: #FFFFFF; --ds-text-secondary: #a1a1aa; --ds-text-muted: #71717a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #000; color: #FFF; min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .ds-directory-wrapper { position: relative; min-height: 100vh; padding-bottom: 120px; }
+        
+        /* Hero Section */
+        .ds-hero-section { padding: 120px 24px 80px; display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: 1px solid var(--ds-border-faint); position: relative; overflow: hidden; width: 100%; background: radial-gradient(circle at 50% 100%, <%= tag.color ? tag.color.replace(')', ', 0.15)').replace('rgb', 'rgba') : 'rgba(59,130,246,0.15)' %> 0%, transparent 60%); }
+        .ds-particles-container { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .ds-particle { position: absolute; border-radius: 50%; background: <%= tag.color || '#FFFFFF' %>; box-shadow: 0 0 10px 2px <%= tag.color ? tag.color.replace(')', ', 0.4)').replace('rgb', 'rgba') : 'rgba(255,255,255,0.4)' %>; opacity: 0; }
+        .ds-hero-content { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; animation: ds-fade-down 0.6s cubic-bezier(0.16,1,0.3,1) forwards; max-width: 800px; }
+        
+        .ds-hero-title { font-size: 52px; font-weight: 700; letter-spacing: -1.5px; color: var(--ds-text-main); margin-bottom: 16px; line-height: 1.1; font-family: 'JetBrains Mono', monospace; }
+        .ds-hero-subtitle { font-size: 18px; color: var(--ds-text-secondary); max-width: 600px; margin-bottom: 32px; line-height: 1.6; }
+        
+        /* Tag Metrics */
+        .tag-metrics { display: flex; gap: 24px; margin-bottom: 40px; }
+        .metric-card { background: rgba(255,255,255,0.03); border: 1px solid var(--ds-border-faint); padding: 16px 24px; border-radius: 12px; backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+        .metric-value { font-size: 24px; font-weight: 700; color: var(--ds-text-main); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+        .metric-label { font-size: 13px; color: var(--ds-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+        /* Content Layout */
+        .ds-directory-container { max-width: 1240px; margin: 0 auto; padding: 48px 24px 0; animation: ds-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.1s; opacity: 0; display: grid; grid-template-columns: 1fr 340px; gap: 48px; }
+        @media (max-width: 992px) { .ds-directory-container { grid-template-columns: 1fr; } }
+
+        /* Feed List (Reusing styles) */
+        .feed-list { display: flex; flex-direction: column; gap: 24px; }
+        
+        /* Sidebar */
+        .sidebar-section { background: var(--bg-surface); border: 1px solid var(--ds-border-faint); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .sidebar-title { font-size: 16px; font-weight: 600; color: var(--ds-text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--ds-border-faint); padding-bottom: 12px; }
+        .top-solver { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; text-decoration: none; }
+        .top-solver:last-child { margin-bottom: 0; }
+        .top-solver img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--ds-border-faint); }
+        .solver-info { display: flex; flex-direction: column; }
+        .solver-name { font-size: 14px; font-weight: 500; color: var(--ds-text-main); }
+        .solver-rep { font-size: 12px; color: var(--ds-text-secondary); font-family: 'JetBrains Mono', monospace; }
+        
+        /* Related Tags */
+        .related-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .related-tag-chip { background: var(--ds-bg-hover); border: 1px solid var(--ds-border-hover); padding: 6px 12px; border-radius: 99px; font-size: 13px; color: var(--ds-text-main); text-decoration: none; transition: all 0.2s; }
+        .related-tag-chip:hover { background: var(--ds-text-main); color: var(--bg-base); }
+
+        /* Animations */
+        @keyframes ds-fade-down { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes ds-fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <%- include('../partials/header') %>
+
+    <div class="ds-directory-wrapper">
+        <section class="ds-hero-section" id="hero">
+            <div class="ds-particles-container" id="particles"></div>
+            <div class="ds-hero-content">
+                <nav aria-label="Breadcrumb" style="margin-bottom: 24px;">
+                    <ol style="list-style: none; display: flex; gap: 8px; font-size: 14px; color: var(--ds-text-secondary);">
+                        <li><a href="/" style="color: inherit; text-decoration: none;">Home</a></li>
+                        <li>›</li>
+                        <li><a href="/tags" style="color: inherit; text-decoration: none;">Tags</a></li>
+                        <li>›</li>
+                        <li style="color: var(--ds-text-main); font-weight: 500;"><%= tag.displayName || tag.name %></li>
+                    </ol>
+                </nav>
+
+                <h1 class="ds-hero-title">
+                    <span style="color: <%= tag.color || '#FFF' %>">#</span><%= tag.displayName || tag.name %>
+                </h1>
+                <p class="ds-hero-subtitle"><%= tag.description || `Explore ${totalIncidents} production incidents, architectural postmortems, and verified fixes for ${tag.displayName || tag.name}.` %></p>
+                
+                <div class="tag-metrics">
+                    <div class="metric-card">
+                        <span class="metric-value"><%= totalIncidents.toLocaleString() %></span>
+                        <span class="metric-label">Incidents</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value"><%= (tag.followers || []).length.toLocaleString() %></span>
+                        <span class="metric-label">Followers</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value"><%= tag.weeklyCount || 0 %></span>
+                        <span class="metric-label">This Week</span>
+                    </div>
+                </div>
+
+                <% if (user) { %>
+                    <button class="ds-filter-btn" style="background: <%= isFollowing ? 'var(--ds-text-main)' : 'transparent' %>; color: <%= isFollowing ? 'var(--bg-base)' : 'var(--ds-text-main)' %>; border-color: var(--ds-text-main); padding: 12px 32px; font-size: 16px;">
+                        <%= isFollowing ? 'Following Tag' : 'Follow Tag' %>
+                    </button>
+                <% } else { %>
+                    <a href="/login" class="ds-filter-btn" style="border-color: var(--ds-text-main); color: var(--ds-text-main); padding: 12px 32px; font-size: 16px; text-decoration: none;">Login to Follow</a>
+                <% } %>
+            </div>
+        </section>
+
+        <div class="ds-directory-container">
+            <!-- Main Content: Feed -->
+            <main>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--ds-border-faint); padding-bottom: 16px;">
+                    <h2 style="font-size: 20px; font-weight: 600; font-family: 'JetBrains Mono', monospace;">Latest Incidents</h2>
+                </div>
+
+                <div class="feed-list">
+                    <% if (posts && posts.length > 0) { %>
+                        <% posts.forEach(post => { %>
+                            <%- include('../partials/postCard', { post }) %>
+                        <% }) %>
+                    <% } else { %>
+                        <div style="text-align: center; padding: 64px 24px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--ds-border-faint);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; color: var(--ds-text-muted); margin-bottom: 16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <h3 style="font-size: 18px; margin-bottom: 8px;">No incidents yet</h3>
+                            <p style="color: var(--ds-text-muted); font-size: 14px;">Be the first to share an incident involving <%= tag.displayName || tag.name %>.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </main>
+
+            <!-- Sidebar -->
+            <aside>
+                <% if (topSolvers && topSolvers.length > 0) { %>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                        Top Solvers
+                    </h3>
+                    <% topSolvers.forEach(solver => { %>
+                        <a href="/u/<%= solver.username %>" class="top-solver">
+                            <img src="<%= solver.avatarUrl || `https://ui-avatars.com/api/?name=${solver.username}` %>" alt="<%= solver.username %>">
+                            <div class="solver-info">
+                                <span class="solver-name"><%= solver.displayName || solver.username %></span>
+                                <span class="solver-rep"><%= solver.reputation || 0 %> rep</span>
+                            </div>
+                        </a>
+                    <% }) %>
+                </div>
+                <% } %>
+
+                <% if (relatedTags && relatedTags.length > 0) { %>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m15.2 21.6-9.6-9.6a2 2 0 0 1 0-2.8L10.8 4a2 2 0 0 1 2.8 0l9.6 9.6a2 2 0 0 1 0 2.8l-5.2 5.2a2 2 0 0 1-2.8 0Z"/><path d="m11.5 15.5 3-3"/></svg>
+                        Related Technologies
+                    </h3>
+                    <div class="related-tags">
+                        <% relatedTags.forEach(rtag => { %>
+                            <a href="/t/<%= rtag.name %>" class="related-tag-chip"><%= rtag.displayName || rtag.name %></a>
+                        <% }) %>
+                    </div>
+                </div>
+                <% } %>
+            </aside>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('particles');
+            if (container && typeof anime !== 'undefined') {
+                const particleCount = 20;
+                for (let i = 0; i < particleCount; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'ds-particle';
+                    const size = Math.random() * 4 + 2;
+                    p.style.width = size + 'px';
+                    p.style.height = size + 'px';
+                    p.style.left = Math.random() * 100 + '%';
+                    p.style.top = Math.random() * 100 + '%';
+                    container.appendChild(p);
+                    
+                    anime({
+                        targets: p,
+                        opacity: [0, Math.random() * 0.5 + 0.2, 0],
+                        translateY: [0, -Math.random() * 100 - 50],
+                        translateX: [0, (Math.random() - 0.5) * 50],
+                        scale: [0, 1, 0],
+                        duration: Math.random() * 3000 + 3000,
+                        easing: 'linear',
+                        loop: true,
+                        delay: Math.random() * 2000
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

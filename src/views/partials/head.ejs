@@ -9,6 +9,7 @@
 <link rel="manifest" href="/images/site.webmanifest">
 <meta name="description"
     content="<%= typeof description !== 'undefined' ? description : 'DevSolved – Developer war stories, documented.' %>">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 
 <% if (typeof canonicalUrl !=='undefined' ) { %>
     <link rel="canonical" href="<%= canonicalUrl %>">
@@ -32,7 +33,7 @@
                                 <% } %>
                                     <% } %>
                                         <meta property="og:image"
-                                            content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' %>">
+                                            content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://devsolved.com/images/og-default.png' %>">
 
                                         <!-- Twitter Cards -->
                                         <meta name="twitter:card" content="summary_large_image">
@@ -41,7 +42,7 @@
                                         <meta name="twitter:description"
                                             content="<%= typeof description !== 'undefined' ? description : 'Developer war stories, documented.' %>">
                                         <meta name="twitter:image"
-                                            content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80' %>">
+                                            content="<%= typeof ogImage !== 'undefined' ? ogImage : 'https://devsolved.com/images/og-default.png' %>">
 
                                         <!-- Schema.org JSON-LD -->
                                         <% if (typeof structuredData !=='undefined' ) { %>
@@ -79,8 +80,12 @@
 }
 </script>
 
+                                                <!-- Preload Google Fonts -->
+                                                <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style">
+                                                
                                                 <!-- Google Fonts -->
                                                 <link rel="preconnect" href="https://fonts.googleapis.com">
+                                                <link rel="dns-prefetch" href="//fonts.gstatic.com">
                                                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
                                                 <link
                                                     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
@@ -103,4 +108,5 @@
                                                             <% } %>
 
                                                                 <!-- Global Styles -->
+                                                                <link rel="preload" href="/css/global.css" as="style">
                                                                 <link rel="stylesheet" href="/css/global.css">

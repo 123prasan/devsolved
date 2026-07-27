@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
@@ -22,6 +23,8 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ── Security & Parsing ───────────────────────────────────────────────────────
+app.use(compression());
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -37,7 +40,7 @@ app.use(
         scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-        imgSrc: ["'self'", 'data:', 'https:', 'https://images.unsplash.com', 'https://ui-avatars.com'],
+        imgSrc: ["'self'", 'data:', 'https:', 'https://ui-avatars.com'],
         connectSrc: ["'self'", 'https://lottie.host', 'https://unpkg.com'],
         frameSrc: ["'self'", "data:", "about:blank"],
         mediaSrc: ["'self'", 'https://lottie.host'],
@@ -57,7 +60,10 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ── Static Files & Passport ──────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public'), {
+  maxAge: '1d',
+  etag: true
+}));
 app.use(passport.initialize());
 
 // ── View Engine (EJS) ─────────────────────────────────────────────────────────

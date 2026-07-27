@@ -1618,9 +1618,9 @@
                 </div>
                 <% } %>
 
-                    <div class="page-wrap">
+                    <main class="page-wrap">
                         <!-- Incident Header -->
-                        <div class="incident-header">
+                        <header class="incident-header">
                             <nav class="breadcrumb" aria-label="Breadcrumb">
                                 <span>Incidents</span>
                                 <span class="sep">›</span>
@@ -1771,6 +1771,12 @@
                                         <%= post.investigationHours ? post.investigationHours + ' hours' : 'N/A' %>
                                     </strong>
                                 </span>
+                                <span class="meta-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M2 12h4l3-9 5 18 3-9h5" />
+                                    </svg>
+                                    <strong><%= post.readingTime || 5 %> min read</strong>
+                                </span>
                                 <% if (post.slaImpact || post.affectedScale) { %>
                                     <span class="meta-item"
                                         style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); padding: 3px 10px; border-radius: 6px; color: #FCA5A5; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
@@ -1842,7 +1848,7 @@
                                     </p>
                                 </div>
                                 <% } %>
-                        </div>
+                        </header>
 
                         <div class="layout-grid">
                             <aside class="nav-col sticky-col">
@@ -1898,7 +1904,7 @@
                                     <% post.content.forEach((block, idx)=> { %>
                                         <% if (block.type==='paragraph' ) { %>
                                             <div class="section-block">
-                                                <p class="para"><%- block.content %></p>
+                                                <p class="para"><%- linkify(block.content) %></p>
                                             </div>
                                             <% } else if (block.type==='custom-heading' ) { %>
                                                 <h2 class="heading-2" id="section-heading-<%= idx %>"><%- block.heading
@@ -1910,7 +1916,7 @@
                                                             style="border-left: 4px solid var(--outline); padding: 14px 20px; margin: 24px 0; font-style: italic; background: var(--surface-container-low); border-radius: 0 8px 8px 0; color: var(--muted); position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
                                                             <div
                                                                 style="font-size: 16px; line-height: 1.6; color: var(--fg);">
-                                                                <%- block.content %>
+                                                                <%- linkify(block.content) %>
                                                             </div>
                                                         </div>
                                                         <% } else if (block.type==='alert' ) { %>
@@ -1926,7 +1932,7 @@
                                                                 </svg>
                                                                 <div
                                                                     style="flex: 1; color: var(--fg); font-size: 15px; line-height: 1.6;">
-                                                                    <%- block.content %>
+                                                                    <%- linkify(block.content) %>
                                                                 </div>
                                                             </div>
                                                             <% } else if (block.type==='info' ) { %>
@@ -1941,7 +1947,7 @@
                                                                     </svg>
                                                                     <div
                                                                         style="flex: 1; color: var(--fg); font-size: 15px; line-height: 1.6;">
-                                                                        <%- block.content %>
+                                                                        <%- linkify(block.content) %>
                                                                     </div>
                                                                 </div>
                                                                 <% } else if (block.type==='image' ) { %>
@@ -2316,7 +2322,7 @@
                                                                                                                     <div style="flex: 1; background: #09090B; border: 1px solid #27272A; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                                                                                                                         <% const whyTitle = w.question || ("Why #" + (wIdx + 1)); %>
                                                                                                                         <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #A855F7; margin-bottom: 4px;"><%= whyTitle %></div>
-                                                                                                                        <div style="color: #E2E8F0; font-size: 15px; line-height: 1.6;"><%- w.answer || w.content || '' %></div>
+                                                                                                                        <div style="color: #E2E8F0; font-size: 15px; line-height: 1.6;"><%- linkify(w.answer || w.content || '') %></div>
                                                                                                                     </div>
                                                                                                                 </div>
                                                                                                             <% }) %>
@@ -2340,7 +2346,7 @@
                                                                                                                     </div>
                                                                                                                     <% const priStyle = (item.priority === 'P0' || item.priority === 'Blocker') ? 'background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239,68,68,0.3);' : ((item.priority === 'P1' || item.priority === 'High') ? 'background: rgba(245, 158, 11, 0.2); color: #FDBA74; border: 1px solid rgba(245,158,11,0.3);' : 'background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59,130,246,0.3);'); %>
                                                                                                                     <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.03em; <%= priStyle %>"><%= item.priority || 'P1' %></span>
-                                                                                                                    <span style="flex: 1; color: #FAFAFA; font-size: 15px;"><%- item.task || item.content || '' %></span>
+                                                                                                                    <span style="flex: 1; color: #FAFAFA; font-size: 15px;"><%- linkify(item.task || item.content || '') %></span>
                                                                                                                     <% if (item.owner) { %>
                                                                                                                     <span style="font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #A1A1AA; background: #18181B; border: 1px solid #27272A; padding: 4px 10px; border-radius: 999px;">@<%= item.owner.replace(/^@/, '') %></span>
                                                                                                                     <% } %>
@@ -2465,7 +2471,7 @@
                                 </ul>
                             </aside>
                         </div>
-                    </div>
+                    </main>
 
                     <% if (typeof isPreview==='undefined' || !isPreview) { %>
                         <%- include('../partials/footer') %>

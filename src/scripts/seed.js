@@ -73,7 +73,7 @@ const posts = [
     status: 'resolved',
     severity: 'high',
     tags: ['aws', 'nodejs'],
-    coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=800',
+    coverImage: '/images/og-default.png',
     content: {
       symptom: 'Every new visitor to my site experienced a 20-second initial hang. The browser showed "Waiting for server response" then loaded instantly. DevTools showed a single stalled request at the top of the waterfall. The 20-second delay was suspiciously consistent — never 18s, never 22s — always exactly 20.',
       investigation: 'My first instinct was server cold starts. But CloudWatch showed the Lambda was warm. Then I suspected TTFB — but the request wasn\'t even reaching my server during the 20s window. This pointed to network-level: DNS or TCP.',
@@ -96,7 +96,7 @@ const posts = [
     status: 'resolved',
     severity: 'critical',
     tags: ['aws', 'nodejs'],
-    coverImage: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800',
+    coverImage: '/images/og-default.png',
     content: {
       symptom: 'Users uploading course materials to Vidyari reported their files "uploaded" (progress bar completed) but the content was missing. S3 console showed 0-byte objects. The bug was 100% silent — no error logs, no exception thrown, no failed promise.',
       investigation: 'Checked IAM permissions — s3:PutObject was granted. Added AWS SDK debug logging and found the multipart upload was being initiated but the CompleteMultipartUpload call was never made. The parts were uploaded but the S3 object was never assembled.',
@@ -119,7 +119,7 @@ const posts = [
     status: 'resolved',
     severity: 'critical',
     tags: ['postgresql', 'nodejs'],
-    coverImage: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&q=80&w=800',
+    coverImage: '/images/og-default.png',
     content: {
       symptom: 'Under load (>50 concurrent users), our leaderboard update service would throw `ERROR: deadlock detected` with a roughly 2% failure rate. The error was non-deterministic — it only happened under concurrent load.',
       investigation: 'Queried pg_stat_activity and pg_locks during load testing. Found two transactions waiting on each other\'s row locks. Both were running the same INSERT ... ON CONFLICT DO UPDATE pattern.',
@@ -142,7 +142,7 @@ const posts = [
     status: 'resolved',
     severity: 'high',
     tags: ['react', 'nextjs'],
-    coverImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&q=80&w=800',
+    coverImage: '/images/og-default.png',
     content: {
       symptom: 'Next.js console showed "Warning: Text content did not match. Server: \\"Jul 18\\" Client: \\"Jul 19\\"". This caused React to re-render the entire component tree on mount, destroying our Core Web Vitals scores.',
       rootCause: '# Root Cause\n\nnew Date() inside a component returns different values on server vs client.\nServer renders at request time (e.g. Jul 18, 23:59:59 UTC)\nClient hydrates at load time (e.g. Jul 19, 00:00:01 UTC)\n→ Mismatch → React throws away SSR output → re-renders everything\n\n# This was happening across timezone boundaries for ~15% of users.',
@@ -159,7 +159,7 @@ const posts = [
     status: 'resolved',
     severity: 'critical',
     tags: ['kubernetes', 'nodejs'],
-    coverImage: 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?auto=format&fit=crop&q=80&w=800',
+    coverImage: '/images/og-default.png',
     content: {
       symptom: 'Pods would run fine for ~6 hours then get OOMKilled by Kubernetes. Memory limit was 512MB. Restarting the pod would reset the cycle. The leak was slow — ~1.4MB per minute.',
       rootCause: '# Root Cause\n\nAn event listener was being added to a global EventEmitter inside a request handler.\nEvery request added a new listener. The listeners were never removed.\nAfter 6 hours of traffic (req/s * 21600 seconds), the listener array grew to ~2GB.\n\n# node --max-old-space-size defaults to 512MB in our Kubernetes config\n# which is why OOMKill happened at exactly the heap limit.',

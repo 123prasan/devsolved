@@ -10,6 +10,7 @@ import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
 import { embed } from '../config/embeddings.js';
 import { Resvg } from '@resvg/resvg-js';
+import { pingIndexNow } from '../utils/seo.js';
 
 const router = express.Router();
 
@@ -27,6 +28,47 @@ router.get('/feed', optionalAuth, async (req, res) => {
     res.json({ success: true, posts, count: posts.length });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ── GET /api/incidents/:slug/raw — Raw Markdown for LLMs ──────────────────────
+router.get('/incidents/:slug/raw', async (req, res) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug, isDraft: false }).lean();
+    if (!post) {
+      return res.status(404).send('Incident not found.');
+    }
+
+    let markdown = `# ${post.title}\n\n`;
+    markdown += `**MTTR:** ${post.investigationHours || 'N/A'} hours | **Status:** ${post.status}\n\n`;
+    markdown += `> ${post.excerpt || ''}\n\n`;
+
+    if (post.content && Array.isArray(post.content)) {
+      post.content.forEach(b => {
+        if (b.type === 'paragraph' || b.type === 'custom-heading') markdown += `${b.content || b.heading}\n\n`;
+        if (b.type === 'mermaid') markdown += `\`\`\`mermaid\n${b.code || b.content}\n\`\`\`\n\n`;
+        if (b.type === 'quote') markdown += `> ${b.content}\n\n`;
+        if (b.type === 'alert' || b.type === 'info') markdown += `**Note:** ${b.content}\n\n`;
+        if (b.type === 'five-whys' && b.whys) {
+          markdown += `## 5 Whys Root Cause Analysis\n`;
+          b.whys.forEach((w, i) => markdown += `**Why ${i+1}:** ${w.question || ''}\n**Answer:** ${w.answer || ''}\n\n`);
+        }
+        if (b.type === 'action-items' && b.items) {
+          markdown += `## Action Items\n`;
+          b.items.forEach(i => markdown += `- [${i.completed ? 'x' : ' '}] ${i.task || i.content || ''}\n`);
+          markdown += `\n`;
+        }
+      });
+    }
+
+    res.header('Content-Type', 'text/markdown; charset=utf-8');
+    res.header('Cache-Control', 'public, max-age=300');
+    if (post.updatedAt) {
+      res.header('Last-Modified', new Date(post.updatedAt).toUTCString());
+    }
+    res.send(markdown);
+  } catch (err) {
+    res.status(500).send('Error generating raw markdown.');
   }
 });
 
@@ -196,6 +238,12 @@ router.post('/posts', requireApiAuth, async (req, res) => {
       }
     }
 
+    // Ping IndexNow if published
+    if (!isDraft) {
+      const appUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+      pingIndexNow(`${appUrl}/incidents/${post.slug || post._id}`);
+    }
+
     res.status(201).json({ success: true, post: { _id: post._id, slug: post.slug, title: post.title } });
   } catch (err) {
     console.error(err);
@@ -254,6 +302,12 @@ router.put('/posts/:id', requireApiAuth, async (req, res, next) => {
     }
 
     await post.save();
+
+    // Ping IndexNow if published
+    if (!post.isDraft) {
+      const appUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+      pingIndexNow(`${appUrl}/incidents/${post.slug || post._id}`);
+    }
 
     res.json({ success: true, post });
   } catch (err) {

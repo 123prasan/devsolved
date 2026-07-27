@@ -883,7 +883,7 @@
 
         <!-- Hero Banner with default fallback aesthetic -->
         <% const
-            fallbackBanner='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=85'
+            fallbackBanner='/images/og-default.png'
             ; const activeBanner=profileUser.bannerUrl && profileUser.bannerUrl.trim() !=='' ? profileUser.bannerUrl :
             fallbackBanner; %>
             <div class="profile-hero-banner" style="background-image: url('<%= activeBanner %>');"></div>

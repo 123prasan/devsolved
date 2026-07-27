@@ -1,11 +1,58 @@
 User-agent: *
 Allow: /
 
-# Directories to ignore
+# Public content
+Allow: /feed.xml
+Allow: /api/incidents/*/raw
+
+# Authentication
+Disallow: /login
+Disallow: /signup
+Disallow: /auth/
+
+# User-only pages
+Disallow: /settings/
+Disallow: /saved/
+Disallow: /notifications/
 Disallow: /drafts/
 
-Disallow: /settings/
+# Internal API
 Disallow: /api/
 
-# Sitemap location
-Sitemap: https://www.devsolved.com/sitemap.xml
+# Admin
+Disallow: /admin/
+Disallow: /moderation/
+Disallow: /preview/
+
+# Search parameters
+Disallow: /search?q=
+Disallow: /*?q=
+
+# Tracking parameters
+Disallow: /*?utm_source=*
+Disallow: /*?utm_medium=*
+Disallow: /*?utm_campaign=*
+Disallow: /*?ref=*
+Disallow: /*?source=*
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://devsolved.com/sitemap.xml
+Sitemap: https://devsolved.com/sitemap-static.xml
+Sitemap: https://devsolved.com/sitemap-topics.xml
+Sitemap: https://devsolved.com/sitemap-incidents.xml
+Sitemap: https://devsolved.com/sitemap-users.xml
+Sitemap: https://devsolved.com/image-sitemap.xml

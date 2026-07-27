@@ -526,15 +526,33 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
 
     const relatedPosts = post.tags?.length > 0
       ? await Post.find({
-        tags: post.tags[0]._id,
+        tags: { $in: post.tags.map(t => t._id) },
         _id: { $ne: post._id },
         isDraft: false,
       })
-        .sort({ globalScore: -1 })
-        .limit(2)
+        .sort({ globalScore: -1, createdAt: -1 })
+        .limit(4)
         .populate('author', 'username displayName avatarUrl')
         .lean()
       : [];
+
+    let textForReadingTime = '';
+    let aiSummaryBlocks = [];
+    if (post.content && Array.isArray(post.content)) {
+      post.content.forEach(b => {
+        const text = (b.content || b.answer || b.heading || '').replace(/<[^>]*>?/gm, '').trim();
+        if (text) textForReadingTime += ' ' + text;
+        if (['symptom', 'rootCause', 'resolution'].includes(b.type)) {
+          aiSummaryBlocks.push(text);
+        }
+      });
+    }
+    const wordCount = textForReadingTime.trim().split(/\s+/).length;
+    post.readingTime = Math.max(1, Math.ceil(wordCount / 200));
+
+    if (!post.excerpt && aiSummaryBlocks.length > 0) {
+      post.excerpt = aiSummaryBlocks.join(' ').substring(0, 157) + '...';
+    }
 
     const allComments = await Comment.find({ post: post._id })
       .populate('author', 'username displayName avatarUrl reputation')
@@ -558,40 +576,46 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
     sortComments(rootComments);
 
     const canonicalUrl = `${req.protocol}://${req.get('host')}/incidents/${post.slug}`;
+    const articleSchema = {
+      "@type": "TechArticle",
+      "headline": post.title,
+      "datePublished": post.createdAt,
+      "dateModified": post.updatedAt || post.createdAt,
+      "author": {
+        "@type": "Person",
+        "name": post.author ? (post.author.displayName || post.author.username) : "Anonymous",
+        "url": post.author ? `${req.protocol}://${req.get('host')}/u/${post.author.username}` : undefined
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "DevSolved",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${req.protocol}://${req.get('host')}/images/android-chrome-512x512.png`
+        }
+      },
+      "image": post.coverImage || `https://${req.get('host')}/images/og-default.png`,
+      "keywords": post.tags ? post.tags.map(t => t.name).join(', ') : undefined,
+      "interactionStatistic": [
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/LikeAction",
+          "userInteractionCount": post.upvotes || 0
+        },
+        {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/CommentAction",
+          "userInteractionCount": allComments.length || 0
+        }
+      ]
+    };
+
     const structuredData = [
       {
         "@context": "https://schema.org",
-        "@type": "TechArticle",
-        "headline": post.title,
-        "datePublished": post.createdAt,
-        "dateModified": post.updatedAt || post.createdAt,
-        "author": {
-          "@type": "Person",
-          "name": post.author ? (post.author.displayName || post.author.username) : "Anonymous",
-          "url": post.author ? `${req.protocol}://${req.get('host')}/u/${post.author.username}` : undefined
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "DevSolved",
-          "logo": {
-            "@type": "ImageObject",
-            "url": `${req.protocol}://${req.get('host')}/images/android-chrome-512x512.png`
-          }
-        },
-        "image": post.coverImage || undefined,
-        "keywords": post.tags ? post.tags.map(t => t.name).join(', ') : undefined,
-        "interactionStatistic": [
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/LikeAction",
-            "userInteractionCount": post.upvotes || 0
-          },
-          {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/CommentAction",
-            "userInteractionCount": allComments.length || 0
-          }
-        ]
+        "@type": "WebPage",
+        "url": canonicalUrl,
+        "mainEntity": articleSchema
       },
       {
         "@context": "https://schema.org",
@@ -609,15 +633,84 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
       }
     ];
 
+    // Dynamic FAQPage Schema Generation
+    const faqEntities = [];
+    if (post.content && Array.isArray(post.content)) {
+      post.content.forEach((block, idx) => {
+        // Build FAQ from 5-Whys
+        if (block.type === 'five-whys' && block.whys && Array.isArray(block.whys)) {
+          block.whys.forEach((w, wIdx) => {
+            const q = w.question || `Why #${wIdx + 1}?`;
+            const a = w.answer || w.content;
+            if (a) {
+              faqEntities.push({
+                "@type": "Question",
+                "name": q.replace(/<[^>]*>?/gm, ''),
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": a.replace(/<[^>]*>?/gm, '')
+                }
+              });
+            }
+          });
+        }
+        // Build FAQ from Question Headings
+        if (block.type === 'custom-heading') {
+          const headingText = (block.heading || block.content || '').replace(/<[^>]*>?/gm, '').trim();
+          if (headingText.endsWith('?')) {
+            const nextBlock = post.content[idx + 1];
+            if (nextBlock && nextBlock.type === 'paragraph') {
+              faqEntities.push({
+                "@type": "Question",
+                "name": headingText,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": nextBlock.content.replace(/<[^>]*>?/gm, '')
+                }
+              });
+            }
+          }
+        }
+      });
+    }
+
+    if (faqEntities.length > 0) {
+      structuredData.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqEntities
+      });
+    }
+
+    // Linkify Helper: Auto-convert technology names into internal links
+    const linkify = (text) => {
+      if (!text || typeof text !== 'string' || !post.tags) return text;
+      let linked = text;
+      post.tags.forEach(t => {
+        const tagName = t.name || t;
+        if (tagName && tagName.length > 2) { // Avoid linking 1-2 letter words accidentally
+          const regex = new RegExp(`\\b(${tagName})\\b(?![^<]*>|[^<>]*</)`, 'gi');
+          linked = linked.replace(regex, `<a href="/t/${encodeURIComponent(tagName.toLowerCase())}" class="auto-link" style="color:var(--primary); text-decoration:none; border-bottom:1px dashed var(--primary);">$&</a>`);
+        }
+      });
+      return linked;
+    };
+
+    res.header('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    if (post.updatedAt) {
+      res.header('Last-Modified', new Date(post.updatedAt).toUTCString());
+    }
+
     res.render('pages/incident', {
       title: `${post.title} | DevSolved`,
+      linkify,
       description: post.excerpt,
       user: req.user || null,
       post,
       relatedPosts,
       comments: rootComments,
       currentPath: `/incidents/${post.slug}`,
-      ogImage: `https://${req.get('host')}/api/og/incidents/${post.slug}`,
+      ogImage: post.coverImage || `https://${req.get('host')}/api/og/incidents/${post.slug}`,
       isOwner: req.user && post.author && req.user._id && String(req.user._id) === String(post.author._id),
       hasUpvoted: req.user && post.upvotedBy
         ? post.upvotedBy?.some((id) => String(id) === String(req.user._id))
@@ -627,7 +720,6 @@ router.get('/incidents/:slug', optionalAuth, async (req, res, next) => {
         : false,
       canonicalUrl,
       structuredData,
-      ogImage: post.coverImage || undefined,
       ogType: 'article',
       publishedTime: post.createdAt ? post.createdAt.toISOString() : undefined,
       authorUrl: post.author ? `${req.protocol}://${req.get('host')}/u/${post.author.username}` : undefined
@@ -655,6 +747,72 @@ router.get('/tags', optionalAuth, async (req, res, next) => {
       tags,
       activeCategory: category || 'all',
       currentPath: '/tags',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ── GET /t/:tag — Tag/Tech/Error Landing Page ────────────────────────────────
+router.get('/t/:tag', optionalAuth, async (req, res, next) => {
+  try {
+    const tagName = req.params.tag;
+    const tag = await Tag.findOne({ name: new RegExp('^' + tagName + '$', 'i') })
+      .populate('topSolvers', 'username avatarUrl displayName reputation')
+      .lean();
+
+    if (!tag) return next();
+
+    const posts = await Post.find({ tags: tag._id, isDraft: false })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .populate('author', 'username displayName avatarUrl reputation')
+      .populate('tags', 'name displayName color')
+      .lean();
+
+    const relatedTags = await Tag.find({
+      category: tag.category,
+      _id: { $ne: tag._id }
+    }).sort({ weeklyCount: -1 }).limit(10).lean();
+
+    const totalIncidents = tag.incidentCount || posts.length;
+    const isFollowing = req.user && tag.followers
+      ? tag.followers.some(id => String(id) === String(req.user._id))
+      : false;
+
+    const canonicalUrl = `${req.protocol}://${req.get('host')}/t/${encodeURIComponent(tag.name)}`;
+    const structuredData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": `${tag.displayName || tag.name} Incidents and Fixes | DevSolved`,
+        "description": tag.description || `Explore ${totalIncidents} production incidents, architectural postmortems, and verified fixes for ${tag.displayName || tag.name}.`,
+        "url": canonicalUrl
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "DevSolved", "item": `${req.protocol}://${req.get('host')}/` },
+          { "@type": "ListItem", "position": 2, "name": "Tags", "item": `${req.protocol}://${req.get('host')}/tags` },
+          { "@type": "ListItem", "position": 3, "name": tag.displayName || tag.name, "item": canonicalUrl }
+        ]
+      }
+    ];
+
+    res.render('pages/tag', {
+      title: `${tag.displayName || tag.name} Incidents, Outages & Fixes | DevSolved`,
+      description: tag.description || `Explore ${totalIncidents} production incidents, architectural postmortems, and verified fixes for ${tag.displayName || tag.name}.`,
+      user: req.user || null,
+      tag,
+      posts,
+      topSolvers: tag.topSolvers || [],
+      relatedTags,
+      totalIncidents,
+      isFollowing,
+      currentPath: `/t/${tag.name}`,
+      canonicalUrl,
+      structuredData
     });
   } catch (err) {
     next(err);
@@ -778,14 +936,23 @@ router.get('/u/:username', optionalAuth, async (req, res, next) => {
         "mainEntity": {
           "@type": "Person",
           "name": profileUser.displayName || profileUser.username,
-          "description": profileUser.bio || `Developer profile on DevSolved`,
+          "description": (profileUser.bio || `Developer profile on DevSolved`) + ` | Reputation: ${profileUser.reputation || 0}`,
           "image": profileUser.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(profileUser.username)}`,
           "url": canonicalUrl,
-          "interactionStatistic": [{
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/FollowAction",
-            "userInteractionCount": rawFollowers
-          }]
+          "knowsAbout": (profileUser.followedTags || []).map(t => t.displayName || t.name),
+          "award": mergedBadges.map(b => b.name),
+          "interactionStatistic": [
+            {
+              "@type": "InteractionCounter",
+              "interactionType": "https://schema.org/FollowAction",
+              "userInteractionCount": rawFollowers
+            },
+            {
+              "@type": "InteractionCounter",
+              "interactionType": "https://schema.org/WriteAction",
+              "userInteractionCount": totalAuthored
+            }
+          ]
         }
       },
       {
@@ -849,12 +1016,19 @@ router.get('/security', optionalAuth, renderStaticDoc('pages/legal/security', 'S
 // ── Enterprise Sitemap Index ─────────────────────────────────────────────────
 const CACHE_TTL = 3600; // 1 hour
 
+router.use((req, res, next) => {
+  if (req.path.startsWith('/sitemap') && req.path.endsWith('.xml')) {
+    res.header('Cache-Control', 'public, max-age=300');
+  }
+  next();
+});
+
 router.get('/sitemap.xml', async (req, res) => {
   const baseUrl = `https://${req.get('host')}`;
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-  const sitemaps = ['/sitemap-static.xml', '/sitemap-incidents.xml', '/sitemap-users.xml', '/sitemap-topics.xml'];
+  const sitemaps = ['/sitemap-static.xml', '/sitemap-incidents.xml', '/sitemap-users.xml', '/sitemap-topics.xml', '/image-sitemap.xml'];
   for (const sm of sitemaps) {
     xml += `  <sitemap>\n    <loc>${baseUrl}${sm}</loc>\n    <lastmod>${new Date().toISOString()}</lastmod>\n  </sitemap>\n`;
   }
@@ -1007,6 +1181,57 @@ router.get('/sitemap-users.xml', async (req, res) => {
   }
 });
 
+router.get('/image-sitemap.xml', async (req, res) => {
+  try {
+    const cacheKey = 'sitemap:images';
+    if (isRedisAvailable()) {
+      const cached = await getRedis().get(cacheKey);
+      if (cached) {
+        res.header('Content-Type', 'application/xml');
+        return res.send(cached);
+      }
+    }
+
+    const posts = await Post.find({ isDraft: false }).select('slug title coverImage content').lean();
+    const baseUrl = `https://${req.get('host')}`;
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
+
+    for (const post of posts) {
+      const images = [];
+      if (post.coverImage && post.coverImage.startsWith('http')) {
+        images.push({ url: post.coverImage, title: post.title || 'Cover Image' });
+      }
+      
+      if (post.content && Array.isArray(post.content)) {
+        post.content.forEach(b => {
+          if (b.type === 'image' && b.src && b.src.startsWith('http')) {
+            images.push({ url: b.src, title: b.caption || 'Incident screenshot' });
+          }
+        });
+      }
+
+      if (images.length > 0) {
+        xml += `  <url>\n    <loc>${baseUrl}/incidents/${post.slug}</loc>\n`;
+        images.forEach(img => {
+          xml += `    <image:image>\n      <image:loc><![CDATA[${img.url}]]></image:loc>\n`;
+          if (img.title) xml += `      <image:title><![CDATA[${img.title}]]></image:title>\n`;
+          xml += `    </image:image>\n`;
+        });
+        xml += `  </url>\n`;
+      }
+    }
+
+    xml += '</urlset>';
+
+    if (isRedisAvailable()) await getRedis().set(cacheKey, xml, 'EX', CACHE_TTL);
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).end();
+  }
+});
+
 // ── RSS / Atom Feed (SEO Syndication) ────────────────────────────────────────
 router.get('/feed.xml', async (req, res) => {
   try {
@@ -1058,6 +1283,67 @@ router.get('/feed.xml', async (req, res) => {
     res.send(rss);
   } catch (err) {
     console.error('RSS Feed error:', err);
+    res.status(500).end();
+  }
+});
+
+// ── AI Discoverability (llms.txt) ─────────────────────────────────────────────
+router.get('/llms.txt', async (req, res) => {
+  try {
+    const baseUrl = `https://${req.get('host')}`;
+    let text = `# DevSolved - Technical Postmortems and Production Incidents\n\n`;
+    text += `DevSolved is a platform for engineers to share, discover, and learn from real-world production outages and architectural deep-dives.\n\n`;
+    text += `## Endpoints\n`;
+    text += `- Feed: ${baseUrl}/feed.xml\n`;
+    text += `- Sitemaps: ${baseUrl}/sitemap.xml\n`;
+    text += `- API Raw Incidents: /api/incidents/{slug}/raw\n\n`;
+    text += `## Latest Incidents\n`;
+
+    const posts = await Post.find({ isDraft: false })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
+
+    posts.forEach(post => {
+      text += `- [${post.title}](${baseUrl}/incidents/${post.slug}): ${post.excerpt || 'Technical postmortem'}\n`;
+    });
+
+    res.header('Content-Type', 'text/plain');
+    res.header('Cache-Control', 'public, max-age=86400');
+    res.send(text);
+  } catch (err) {
+    res.status(500).end();
+  }
+});
+
+router.get('/llms-full.txt', async (req, res) => {
+  try {
+    const baseUrl = `https://${req.get('host')}`;
+    let text = `# DevSolved Full Knowledge Dump\n\n`;
+    const posts = await Post.find({ isDraft: false })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
+
+    posts.forEach(post => {
+      text += `\n\n---\n## ${post.title}\nURL: ${baseUrl}/incidents/${post.slug}\n\n`;
+      if (post.content && Array.isArray(post.content)) {
+        post.content.forEach(b => {
+          if (b.type === 'paragraph' || b.type === 'custom-heading') text += `${b.content || b.heading}\n\n`;
+          if (b.type === 'five-whys' && b.whys) {
+            b.whys.forEach((w, i) => text += `Why ${i+1}: ${w.question || ''}\nAnswer: ${w.answer || ''}\n\n`);
+          }
+          if (b.type === 'action-items' && b.items) {
+            b.items.forEach(i => text += `- [ ] ${i.task || i.content || ''}\n`);
+          }
+        });
+      }
+    });
+
+    res.header('Content-Type', 'text/plain');
+    res.header('Cache-Control', 'public, max-age=86400');
+    res.send(text);
+  } catch (err) {
     res.status(500).end();
   }
 });

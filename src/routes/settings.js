@@ -7,7 +7,7 @@ import crypto from 'crypto';
 
 const router = express.Router();
 
-const DEFAULT_BANNER = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+const DEFAULT_BANNER = '/images/og-default.png';
 
 // ── GET /settings ────────────────────────────────────────────────────────────
 router.get('/', protect, (req, res) => {
